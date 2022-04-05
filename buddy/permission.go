@@ -17,6 +17,7 @@ const (
 )
 
 type Permission struct {
+	Url                   string `json:"url"`
 	HtmlUrl               string `json:"html_url"`
 	Id                    int    `json:"id"`
 	Name                  string `json:"name"`
@@ -33,7 +34,7 @@ type Permissions struct {
 	PermissionSets []*Permission `json:"permission_sets"`
 }
 
-type PermissionOperationOptions struct {
+type PermissionOps struct {
 	Description           *string `json:"description,omitempty"`
 	Name                  *string `json:"name"`
 	PipelineAccessLevel   *string `json:"pipeline_access_level"`
@@ -45,9 +46,9 @@ type PermissionService struct {
 	client *Client
 }
 
-func (s *PermissionService) Create(domain string, opt *PermissionOperationOptions) (*Permission, *http.Response, error) {
+func (s *PermissionService) Create(domain string, ops *PermissionOps) (*Permission, *http.Response, error) {
 	var p *Permission
-	resp, err := s.client.Create(s.client.NewUrlPath("/workspaces/%s/permissions", domain), &opt, &p)
+	resp, err := s.client.Create(s.client.NewUrlPath("/workspaces/%s/permissions", domain), &ops, &p)
 	return p, resp, err
 }
 
@@ -55,9 +56,9 @@ func (s *PermissionService) Delete(domain string, permissionId int) (*http.Respo
 	return s.client.Delete(s.client.NewUrlPath("/workspaces/%s/permissions/%d", domain, permissionId))
 }
 
-func (s *PermissionService) Update(domain string, permissionId int, opt *PermissionOperationOptions) (*Permission, *http.Response, error) {
+func (s *PermissionService) Update(domain string, permissionId int, ops *PermissionOps) (*Permission, *http.Response, error) {
 	var p *Permission
-	resp, err := s.client.Update(s.client.NewUrlPath("/workspaces/%s/permissions/%d", domain, permissionId), &opt, &p)
+	resp, err := s.client.Update(s.client.NewUrlPath("/workspaces/%s/permissions/%d", domain, permissionId), &ops, &p)
 	return p, resp, err
 }
 

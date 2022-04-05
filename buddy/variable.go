@@ -38,7 +38,7 @@ type Variables struct {
 	Variables []*Variable `json:"variables"`
 }
 
-type VariableOperationOptions struct {
+type VariableOps struct {
 	Key         *string           `json:"key,omitempty"`
 	Value       *string           `json:"value,omitempty"`
 	Type        *string           `json:"type,omitempty"`
@@ -72,9 +72,9 @@ type VariableAction struct {
 	Id int `json:"id"`
 }
 
-func (s *VariableService) Create(domain string, opt *VariableOperationOptions) (*Variable, *http.Response, error) {
+func (s *VariableService) Create(domain string, ops *VariableOps) (*Variable, *http.Response, error) {
 	var v *Variable
-	resp, err := s.client.Create(s.client.NewUrlPath("/workspaces/%s/variables", domain), &opt, &v)
+	resp, err := s.client.Create(s.client.NewUrlPath("/workspaces/%s/variables", domain), &ops, &v)
 	return v, resp, err
 }
 
@@ -82,9 +82,9 @@ func (s *VariableService) Delete(domain string, variableId int) (*http.Response,
 	return s.client.Delete(s.client.NewUrlPath("/workspaces/%s/variables/%d", domain, variableId))
 }
 
-func (s *VariableService) Update(domain string, variableId int, opt *VariableOperationOptions) (*Variable, *http.Response, error) {
+func (s *VariableService) Update(domain string, variableId int, ops *VariableOps) (*Variable, *http.Response, error) {
 	var v *Variable
-	resp, err := s.client.Update(s.client.NewUrlPath("/workspaces/%s/variables/%d", domain, variableId), &opt, &v)
+	resp, err := s.client.Update(s.client.NewUrlPath("/workspaces/%s/variables/%d", domain, variableId), &ops, &v)
 	return v, resp, err
 }
 
@@ -94,8 +94,8 @@ func (s *VariableService) Get(domain string, variableId int) (*Variable, *http.R
 	return v, resp, err
 }
 
-func (s *VariableService) GetList(domain string, opt *VariableGetListQuery) (*Variables, *http.Response, error) {
+func (s *VariableService) GetList(domain string, query *VariableGetListQuery) (*Variables, *http.Response, error) {
 	var all *Variables
-	resp, err := s.client.Get(s.client.NewUrlPath("/workspaces/%s/variables", domain), &all, &opt)
+	resp, err := s.client.Get(s.client.NewUrlPath("/workspaces/%s/variables", domain), &all, &query)
 	return all, resp, err
 }

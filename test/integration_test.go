@@ -5,281 +5,179 @@ import (
 	"testing"
 )
 
-func TestIntegration_amazon(t *testing.T) {
-	client, err := GetClient()
-	if err != nil {
-		t.Fatal(ErrorFormatted("GetClient", err))
-	}
-	workspace, _, _, err := SeedInitialData(client)
+func TestIntegration(t *testing.T) {
+	seed, err := SeedInitialData(&SeedOps{
+		workspace: true,
+		project:   true,
+		group:     true,
+	})
 	if err != nil {
 		t.Fatal(ErrorFormatted("SeedInitialData", err))
 	}
-	// CREATE INTEGRATION
-	name := RandString(10)
-	scope := buddy.IntegrationScopeAdmin
-	typ := buddy.IntegrationTypeAmazon
-	accessKey := RandString(10)
-	secretKey := RandString(10)
-	roleAssumptions := []*buddy.RoleAssumption{
-		{
-			Arn: RandString(10),
-		},
-		{
-			Arn:        RandString(10),
-			Duration:   10,
-			ExternalId: RandString(10),
-		},
-	}
-	c := buddy.IntegrationOperationOptions{
-		Name:            &name,
-		Type:            &typ,
-		Scope:           &scope,
-		AccessKey:       &accessKey,
-		SecretKey:       &secretKey,
-		RoleAssumptions: &roleAssumptions,
-	}
-	integration, _, err := client.IntegrationService.Create(workspace.Domain, &c)
-	if err != nil {
-		t.Fatal(ErrorFormatted("IntegrationService.Create", err))
-	}
-	err = CheckFieldSet("Integration.HtmlUrl", integration.HtmlUrl)
-	if err != nil {
-		t.Fatal(err)
-	}
-	err = CheckFieldSet("Integration.HashId", integration.HashId)
-	if err != nil {
-		t.Fatal(err)
-	}
-	err = CheckFieldEqualAndSet("Integration.Name", integration.Name, name)
-	if err != nil {
-		t.Fatal(err)
-	}
-	err = CheckFieldEqualAndSet("Integration.Type", integration.Type, typ)
-	if err != nil {
-		t.Fatal(err)
-	}
-	err = CheckFieldEqualAndSet("Integration.Scope", integration.Scope, scope)
-	if err != nil {
-		t.Fatal(err)
-	}
-	// UPDATE INTEGRATION
-	newName := RandString(10)
-	newScope := buddy.IntegrationScopeWorkspace
-	u := buddy.IntegrationOperationOptions{
-		Scope: &newScope,
-		Name:  &newName,
-	}
-	hashId := integration.HashId
-	integration, _, err = client.IntegrationService.Update(workspace.Domain, hashId, &u)
-	if err != nil {
-		t.Fatal(ErrorFormatted("IntegrationService.Update", err))
-	}
-	err = CheckFieldSet("Integration.HtmlUrl", integration.HtmlUrl)
-	if err != nil {
-		t.Fatal(err)
-	}
-	err = CheckFieldEqualAndSet("Integration.HashId", integration.HashId, hashId)
-	if err != nil {
-		t.Fatal(err)
-	}
-	err = CheckFieldEqualAndSet("Integration.Name", integration.Name, newName)
-	if err != nil {
-		t.Fatal(err)
-	}
-	err = CheckFieldEqualAndSet("Integration.Type", integration.Type, typ)
-	if err != nil {
-		t.Fatal(err)
-	}
-	err = CheckFieldEqualAndSet("Integration.Scope", integration.Scope, newScope)
-	if err != nil {
-		t.Fatal(err)
-	}
-	// DELETE INTEGRATION
-	_, err = client.IntegrationService.Delete(workspace.Domain, hashId)
-	if err != nil {
-		t.Fatal(ErrorFormatted("IntegrationService.Delete", err))
+	t.Run("Amazon", testIntegrationAmazon(seed.client, seed.workspace))
+	t.Run("DigitalOcean", testIntegrationDigitalOcean(seed.client, seed.workspace, seed.project))
+	t.Run("Shopify", testIntegrationShopify(seed.client, seed.workspace, seed.group, seed.project))
+}
+
+func testIntegrationUpdate(client *buddy.Client, workspace *buddy.Workspace, hashId string, ops *buddy.IntegrationOps, out *buddy.Integration) func(t *testing.T) {
+	return func(t *testing.T) {
+		integrationUpdated, _, err := client.IntegrationService.Update(workspace.Domain, hashId, ops)
+		if err != nil {
+			t.Fatal(ErrorFormatted("IntegrationService.Update", err))
+		}
+		err = CheckIntegration(integrationUpdated, out, ops)
+		if err != nil {
+			t.Fatal(err)
+		}
+		*out = *integrationUpdated
 	}
 }
 
-func TestIntegration_digitalocean(t *testing.T) {
-	client, err := GetClient()
-	if err != nil {
-		t.Fatal(ErrorFormatted("GetClient", err))
-	}
-	workspace, project, _, err := SeedInitialData(client)
-	if err != nil {
-		t.Fatal(ErrorFormatted("SeedInitialData", err))
-	}
-	// CREATE INTEGRATION
-	name := RandString(10)
-	scope := buddy.IntegrationScopeProject
-	typ := buddy.IntegrationTypeDigitalOcean
-	token := RandString(10)
-	c := buddy.IntegrationOperationOptions{
-		Name:        &name,
-		Scope:       &scope,
-		Type:        &typ,
-		Token:       &token,
-		ProjectName: &project.Name,
-	}
-	integration, _, err := client.IntegrationService.Create(workspace.Domain, &c)
-	if err != nil {
-		t.Fatal(ErrorFormatted("IntegrationService.Create", err))
-	}
-	err = CheckFieldSet("Integration.HtmlUrl", integration.HtmlUrl)
-	if err != nil {
-		t.Fatal(err)
-	}
-	err = CheckFieldSet("Integration.HashId", integration.HashId)
-	if err != nil {
-		t.Fatal(err)
-	}
-	err = CheckFieldEqualAndSet("Integration.Name", integration.Name, name)
-	if err != nil {
-		t.Fatal(err)
-	}
-	err = CheckFieldEqualAndSet("Integration.Type", integration.Type, typ)
-	if err != nil {
-		t.Fatal(err)
-	}
-	err = CheckFieldEqualAndSet("Integration.Scope", integration.Scope, scope)
-	if err != nil {
-		t.Fatal(err)
-	}
-	err = CheckFieldEqualAndSet("Integration.ProjectName", integration.ProjectName, project.Name)
-	if err != nil {
-		t.Fatal(err)
-	}
-	// UPDATE INTEGRATION
-	newName := RandString(10)
-	newScope := buddy.IntegrationScopePrivate
-	u := buddy.IntegrationOperationOptions{
-		Scope: &newScope,
-		Name:  &newName,
-	}
-	hashId := integration.HashId
-	integration, _, err = client.IntegrationService.Update(workspace.Domain, hashId, &u)
-	if err != nil {
-		t.Fatal(ErrorFormatted("IntegrationService.Update", err))
-	}
-	err = CheckFieldSet("Integration.HtmlUrl", integration.HtmlUrl)
-	if err != nil {
-		t.Fatal(err)
-	}
-	err = CheckFieldEqualAndSet("Integration.HashId", integration.HashId, hashId)
-	if err != nil {
-		t.Fatal(err)
-	}
-	err = CheckFieldEqualAndSet("Integration.Name", integration.Name, newName)
-	if err != nil {
-		t.Fatal(err)
-	}
-	err = CheckFieldEqualAndSet("Integration.Type", integration.Type, typ)
-	if err != nil {
-		t.Fatal(err)
-	}
-	err = CheckFieldEqualAndSet("Integration.Scope", integration.Scope, newScope)
-	if err != nil {
-		t.Fatal(err)
-	}
-	// DELETE INTEGRATION
-	_, err = client.IntegrationService.Delete(workspace.Domain, hashId)
-	if err != nil {
-		t.Fatal(ErrorFormatted("IntegrationService.Delete", err))
+func testIntegrationCreate(client *buddy.Client, workspace *buddy.Workspace, ops *buddy.IntegrationOps, out *buddy.Integration) func(t *testing.T) {
+	return func(t *testing.T) {
+		integrationAdded, _, err := client.IntegrationService.Create(workspace.Domain, ops)
+		if err != nil {
+			t.Fatal(ErrorFormatted("IntegrationService.Create", err))
+		}
+		err = CheckIntegration(integrationAdded, out, ops)
+		if err != nil {
+			t.Fatal(err)
+		}
+		*out = *integrationAdded
 	}
 }
 
-func TestIntegration_shopify(t *testing.T) {
-	client, err := GetClient()
-	if err != nil {
-		t.Fatal(ErrorFormatted("GetClient", err))
+func testIntegrationGet(client *buddy.Client, workspace *buddy.Workspace, hashId string, out *buddy.Integration) func(t *testing.T) {
+	return func(t *testing.T) {
+		integrationGet, _, err := client.IntegrationService.Get(workspace.Domain, hashId)
+		if err != nil {
+			t.Fatal(ErrorFormatted("IntegrationService.Get", err))
+		}
+		err = CheckIntegration(integrationGet, out, nil)
+		if err != nil {
+			t.Fatal(err)
+		}
+		*out = *integrationGet
 	}
-	workspace, project, group, err := SeedInitialData(client)
-	if err != nil {
-		t.Fatal(ErrorFormatted("SeedInitialData", err))
+}
+
+func testIntegrationGetList(client *buddy.Client, workspace *buddy.Workspace, count int) func(t *testing.T) {
+	return func(t *testing.T) {
+		integrations, _, err := client.IntegrationService.GetList(workspace.Domain)
+		if err != nil {
+			t.Fatal(ErrorFormatted("IntegrationService.GetList", err))
+		}
+		err = CheckIntegrations(integrations, count)
+		if err != nil {
+			t.Fatal(err)
+		}
 	}
-	// CREATE INTEGRATION
-	name := RandString(10)
-	scope := buddy.IntegrationScopeGroup
-	typ := buddy.IntegrationTypeShopify
-	token := RandString(10)
-	shop := RandString(10)
-	c := buddy.IntegrationOperationOptions{
-		Name:    &name,
-		Scope:   &scope,
-		Type:    &typ,
-		Token:   &token,
-		Shop:    &shop,
-		GroupId: &group.Id,
+}
+
+func testIntegrationDelete(client *buddy.Client, workspace *buddy.Workspace, hashId string) func(t *testing.T) {
+	return func(t *testing.T) {
+		_, err := client.IntegrationService.Delete(workspace.Domain, hashId)
+		if err != nil {
+			t.Fatal(ErrorFormatted("IntegrationService.Delete", err))
+		}
 	}
-	integration, _, err := client.IntegrationService.Create(workspace.Domain, &c)
-	if err != nil {
-		t.Fatal(ErrorFormatted("IntegrationService.Create", err))
+}
+
+func testIntegrationAmazon(client *buddy.Client, workspace *buddy.Workspace) func(t *testing.T) {
+	return func(t *testing.T) {
+		name := RandString(10)
+		scope := buddy.IntegrationScopeAdmin
+		typ := buddy.IntegrationTypeAmazon
+		accessKey := RandString(10)
+		secretKey := RandString(10)
+		roleAssumptions := []*buddy.RoleAssumption{
+			{
+				Arn: RandString(10),
+			},
+			{
+				Arn:        RandString(10),
+				Duration:   10,
+				ExternalId: RandString(10),
+			},
+		}
+		var integration buddy.Integration
+		createOps := buddy.IntegrationOps{
+			Name:            &name,
+			Type:            &typ,
+			Scope:           &scope,
+			AccessKey:       &accessKey,
+			SecretKey:       &secretKey,
+			RoleAssumptions: &roleAssumptions,
+		}
+		newName := RandString(10)
+		newScope := buddy.IntegrationScopeWorkspace
+		updateOps := buddy.IntegrationOps{
+			Scope: &newScope,
+			Name:  &newName,
+		}
+		t.Run("Create", testIntegrationCreate(client, workspace, &createOps, &integration))
+		t.Run("Update", testIntegrationUpdate(client, workspace, integration.HashId, &updateOps, &integration))
+		t.Run("Get", testIntegrationGet(client, workspace, integration.HashId, &integration))
+		t.Run("GetList", testIntegrationGetList(client, workspace, 1))
+		t.Run("Delete", testIntegrationDelete(client, workspace, integration.HashId))
 	}
-	err = CheckFieldSet("Integration.HtmlUrl", integration.HtmlUrl)
-	if err != nil {
-		t.Fatal(err)
+}
+
+func testIntegrationDigitalOcean(client *buddy.Client, workspace *buddy.Workspace, project *buddy.Project) func(t *testing.T) {
+	return func(t *testing.T) {
+		var integration buddy.Integration
+		name := RandString(10)
+		scope := buddy.IntegrationScopeProject
+		typ := buddy.IntegrationTypeDigitalOcean
+		token := RandString(10)
+		createOps := buddy.IntegrationOps{
+			Name:        &name,
+			Scope:       &scope,
+			Type:        &typ,
+			Token:       &token,
+			ProjectName: &project.Name,
+		}
+		newName := RandString(10)
+		newScope := buddy.IntegrationScopePrivate
+		updateOps := buddy.IntegrationOps{
+			Scope: &newScope,
+			Name:  &newName,
+		}
+		t.Run("Create", testIntegrationCreate(client, workspace, &createOps, &integration))
+		t.Run("Update", testIntegrationUpdate(client, workspace, integration.HashId, &updateOps, &integration))
+		t.Run("Get", testIntegrationGet(client, workspace, integration.HashId, &integration))
+		t.Run("GetList", testIntegrationGetList(client, workspace, 1))
+		t.Run("Delete", testIntegrationDelete(client, workspace, integration.HashId))
 	}
-	err = CheckFieldSet("Integration.HashId", integration.HashId)
-	if err != nil {
-		t.Fatal(err)
-	}
-	err = CheckFieldEqualAndSet("Integration.Name", integration.Name, name)
-	if err != nil {
-		t.Fatal(err)
-	}
-	err = CheckFieldEqualAndSet("Integration.Type", integration.Type, typ)
-	if err != nil {
-		t.Fatal(err)
-	}
-	err = CheckFieldEqualAndSet("Integration.Scope", integration.Scope, scope)
-	if err != nil {
-		t.Fatal(err)
-	}
-	err = CheckIntFieldEqualAndSet("Integration.GroupId", integration.GroupId, group.Id)
-	if err != nil {
-		t.Fatal(err)
-	}
-	// UPDATE INTEGRATION
-	newName := RandString(10)
-	newScope := buddy.IntegrationScopeAdminInProject
-	u := buddy.IntegrationOperationOptions{
-		Scope:       &newScope,
-		ProjectName: &project.Name,
-		Name:        &newName,
-	}
-	hashId := integration.HashId
-	integration, _, err = client.IntegrationService.Update(workspace.Domain, hashId, &u)
-	if err != nil {
-		t.Fatal(ErrorFormatted("IntegrationService.Update", err))
-	}
-	err = CheckFieldSet("Integration.HtmlUrl", integration.HtmlUrl)
-	if err != nil {
-		t.Fatal(err)
-	}
-	err = CheckFieldEqualAndSet("Integration.HashId", integration.HashId, hashId)
-	if err != nil {
-		t.Fatal(err)
-	}
-	err = CheckFieldEqualAndSet("Integration.Name", integration.Name, newName)
-	if err != nil {
-		t.Fatal(err)
-	}
-	err = CheckFieldEqualAndSet("Integration.Type", integration.Type, typ)
-	if err != nil {
-		t.Fatal(err)
-	}
-	err = CheckFieldEqualAndSet("Integration.Scope", integration.Scope, newScope)
-	if err != nil {
-		t.Fatal(err)
-	}
-	err = CheckFieldEqualAndSet("Integration.ProjectName", integration.ProjectName, project.Name)
-	if err != nil {
-		t.Fatal(err)
-	}
-	// DELETE INTEGRATION
-	_, err = client.IntegrationService.Delete(workspace.Domain, hashId)
-	if err != nil {
-		t.Fatal(ErrorFormatted("IntegrationService.Delete", err))
+}
+
+func testIntegrationShopify(client *buddy.Client, workspace *buddy.Workspace, group *buddy.Group, project *buddy.Project) func(t *testing.T) {
+	return func(t *testing.T) {
+		var integration buddy.Integration
+		name := RandString(10)
+		scope := buddy.IntegrationScopeGroup
+		typ := buddy.IntegrationTypeShopify
+		token := RandString(10)
+		shop := RandString(10)
+		createOps := buddy.IntegrationOps{
+			Name:    &name,
+			Scope:   &scope,
+			Type:    &typ,
+			Token:   &token,
+			Shop:    &shop,
+			GroupId: &group.Id,
+		}
+		newName := RandString(10)
+		newScope := buddy.IntegrationScopeAdminInProject
+		updateOps := buddy.IntegrationOps{
+			Scope:       &newScope,
+			ProjectName: &project.Name,
+			Name:        &newName,
+		}
+		t.Run("Create", testIntegrationCreate(client, workspace, &createOps, &integration))
+		t.Run("Update", testIntegrationUpdate(client, workspace, integration.HashId, &updateOps, &integration))
+		t.Run("Get", testIntegrationGet(client, workspace, integration.HashId, &integration))
+		t.Run("GetList", testIntegrationGetList(client, workspace, 1))
+		t.Run("Delete", testIntegrationDelete(client, workspace, integration.HashId))
 	}
 }

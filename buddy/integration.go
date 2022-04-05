@@ -37,6 +37,7 @@ const (
 )
 
 type Integration struct {
+	Url         string `json:"url"`
 	HtmlUrl     string `json:"html_url"`
 	HashId      string `json:"hash_id"`
 	Name        string `json:"name"`
@@ -48,11 +49,10 @@ type Integration struct {
 
 type Integrations struct {
 	Url          string         `json:"url"`
-	HtmlUrl      string         `json:"html_url"`
 	Integrations []*Integration `json:"integrations"`
 }
 
-type IntegrationOperationOptions struct {
+type IntegrationOps struct {
 	Name            *string            `json:"name"`
 	Type            *string            `json:"type"`
 	Scope           *string            `json:"scope"`
@@ -81,9 +81,9 @@ type IntegrationService struct {
 	client *Client
 }
 
-func (s *IntegrationService) Create(domain string, opt *IntegrationOperationOptions) (*Integration, *http.Response, error) {
+func (s *IntegrationService) Create(domain string, ops *IntegrationOps) (*Integration, *http.Response, error) {
 	var i *Integration
-	resp, err := s.client.Create(s.client.NewUrlPath("/workspaces/%s/integrations", domain), &opt, &i)
+	resp, err := s.client.Create(s.client.NewUrlPath("/workspaces/%s/integrations", domain), &ops, &i)
 	return i, resp, err
 }
 
@@ -91,9 +91,9 @@ func (s *IntegrationService) Delete(domain string, hashId string) (*http.Respons
 	return s.client.Delete(s.client.NewUrlPath("/workspaces/%s/integrations/%s", domain, hashId))
 }
 
-func (s *IntegrationService) Update(domain string, hashId string, opt *IntegrationOperationOptions) (*Integration, *http.Response, error) {
+func (s *IntegrationService) Update(domain string, hashId string, ops *IntegrationOps) (*Integration, *http.Response, error) {
 	var i *Integration
-	resp, err := s.client.Update(s.client.NewUrlPath("/workspaces/%s/integrations/%s", domain, hashId), &opt, &i)
+	resp, err := s.client.Update(s.client.NewUrlPath("/workspaces/%s/integrations/%s", domain, hashId), &ops, &i)
 	return i, resp, err
 }
 

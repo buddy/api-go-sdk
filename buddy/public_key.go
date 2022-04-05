@@ -9,20 +9,21 @@ type PublicKeyService struct {
 }
 
 type PublicKey struct {
+	Url     string `json:"url"`
 	HtmlUrl string `json:"html_url"`
 	Id      int    `json:"id"`
 	Title   string `json:"title"`
 	Content string `json:"content"`
 }
 
-type PublicKeyOperationOptions struct {
+type PublicKeyOps struct {
 	Content *string `json:"content"`
 	Title   *string `json:"title,omitempty"`
 }
 
-func (s *PublicKeyService) Create(opt *PublicKeyOperationOptions) (*PublicKey, *http.Response, error) {
+func (s *PublicKeyService) Create(ops *PublicKeyOps) (*PublicKey, *http.Response, error) {
 	var k *PublicKey
-	resp, err := s.client.Create(s.client.NewUrlPath("/user/keys"), &opt, &k)
+	resp, err := s.client.Create(s.client.NewUrlPath("/user/keys"), &ops, &k)
 	return k, resp, err
 }
 

@@ -63,7 +63,7 @@ type Client struct {
 	SourceService        *SourceService
 }
 
-type QueryPage struct {
+type PageQuery struct {
 	Page    int `url:"page"`
 	PerPage int `url:"per_page"`
 }
@@ -262,7 +262,7 @@ func (c *Client) NewUrlPath(path string, a ...interface{}) *UrlPath {
 	return &u
 }
 
-func (c *Client) NewRequest(method, path string, opt interface{}) (*retryablehttp.Request, error) {
+func (c *Client) NewRequest(method, path string, ops interface{}) (*retryablehttp.Request, error) {
 	u := *c.baseUrl
 	unescaped, err := url.PathUnescape(path)
 	if err != nil {
@@ -278,14 +278,14 @@ func (c *Client) NewRequest(method, path string, opt interface{}) (*retryablehtt
 	switch {
 	case method == http.MethodPost || method == http.MethodPut || method == http.MethodPatch:
 		reqHeaders.Set("Content-Type", "application/json")
-		if opt != nil {
-			body, err = json.Marshal(opt)
+		if ops != nil {
+			body, err = json.Marshal(ops)
 			if err != nil {
 				return nil, err
 			}
 		}
-	case opt != nil:
-		q, err := query.Values(opt)
+	case ops != nil:
+		q, err := query.Values(ops)
 		if err != nil {
 			return nil, err
 		}

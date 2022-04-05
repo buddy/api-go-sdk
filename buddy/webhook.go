@@ -17,6 +17,7 @@ type WebhookService struct {
 }
 
 type Webhook struct {
+	Url       string            `json:"url"`
 	HtmlUrl   string            `json:"html_url"`
 	Id        int               `json:"id"`
 	TargetUrl string            `json:"target_url"`
@@ -38,16 +39,16 @@ type WebhookRequest struct {
 	Body           string `json:"body"`
 }
 
-type WebhookOperationOptions struct {
+type WebhookOps struct {
 	Events    *[]string `json:"events,omitempty"`
 	Projects  *[]string `json:"projects,omitempty"`
 	TargetUrl *string   `json:"target_url,omitempty"`
 	SecretKey *string   `json:"secret_key,omitempty"`
 }
 
-func (s *WebhookService) Create(domain string, opt *WebhookOperationOptions) (*Webhook, *http.Response, error) {
+func (s *WebhookService) Create(domain string, ops *WebhookOps) (*Webhook, *http.Response, error) {
 	var w *Webhook
-	resp, err := s.client.Create(s.client.NewUrlPath("/workspaces/%s/webhooks", domain), &opt, &w)
+	resp, err := s.client.Create(s.client.NewUrlPath("/workspaces/%s/webhooks", domain), &ops, &w)
 	return w, resp, err
 }
 
@@ -55,9 +56,9 @@ func (s *WebhookService) Delete(domain string, webhookId int) (*http.Response, e
 	return s.client.Delete(s.client.NewUrlPath("/workspaces/%s/webhooks/%d", domain, webhookId))
 }
 
-func (s *WebhookService) Update(domain string, webhookId int, opt *WebhookOperationOptions) (*Webhook, *http.Response, error) {
+func (s *WebhookService) Update(domain string, webhookId int, ops *WebhookOps) (*Webhook, *http.Response, error) {
 	var w *Webhook
-	resp, err := s.client.Update(s.client.NewUrlPath("/workspaces/%s/webhooks/%d", domain, webhookId), &opt, &w)
+	resp, err := s.client.Update(s.client.NewUrlPath("/workspaces/%s/webhooks/%d", domain, webhookId), &ops, &w)
 	return w, resp, err
 }
 

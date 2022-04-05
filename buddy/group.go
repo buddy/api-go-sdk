@@ -22,12 +22,12 @@ type Groups struct {
 	Groups  []*Group `json:"groups"`
 }
 
-type GroupOperationOptions struct {
+type GroupOps struct {
 	Name        *string `json:"name,omitempty"`
 	Description *string `json:"description,omitempty"`
 }
 
-type GroupMemberOperationOptions struct {
+type GroupMemberOps struct {
 	Id *int `json:"id"`
 }
 
@@ -37,21 +37,21 @@ func (s *GroupService) Get(domain string, groupId int) (*Group, *http.Response, 
 	return g, resp, err
 }
 
-func (s *GroupService) GetList(domain string) (Groups, *http.Response, error) {
-	var l Groups
+func (s *GroupService) GetList(domain string) (*Groups, *http.Response, error) {
+	var l *Groups
 	resp, err := s.client.Get(s.client.NewUrlPath("/workspaces/%s/groups", domain), &l, nil)
 	return l, resp, err
 }
 
-func (s *GroupService) Create(domain string, opt *GroupOperationOptions) (*Group, *http.Response, error) {
+func (s *GroupService) Create(domain string, ops *GroupOps) (*Group, *http.Response, error) {
 	var g *Group
-	resp, err := s.client.Create(s.client.NewUrlPath("/workspaces/%s/groups", domain), &opt, &g)
+	resp, err := s.client.Create(s.client.NewUrlPath("/workspaces/%s/groups", domain), &ops, &g)
 	return g, resp, err
 }
 
-func (s *GroupService) Update(domain string, groupId int, opt *GroupOperationOptions) (*Group, *http.Response, error) {
+func (s *GroupService) Update(domain string, groupId int, ops *GroupOps) (*Group, *http.Response, error) {
 	var g *Group
-	resp, err := s.client.Update(s.client.NewUrlPath("/workspaces/%s/groups/%d", domain, groupId), &opt, &g)
+	resp, err := s.client.Update(s.client.NewUrlPath("/workspaces/%s/groups/%d", domain, groupId), &ops, &g)
 	return g, resp, err
 }
 
@@ -59,9 +59,9 @@ func (s *GroupService) Delete(domain string, groupId int) (*http.Response, error
 	return s.client.Delete(s.client.NewUrlPath("/workspaces/%s/groups/%d", domain, groupId))
 }
 
-func (s *GroupService) AddGroupMember(domain string, groupId int, opt *GroupMemberOperationOptions) (*Member, *http.Response, error) {
+func (s *GroupService) AddGroupMember(domain string, groupId int, ops *GroupMemberOps) (*Member, *http.Response, error) {
 	var m *Member
-	resp, err := s.client.Create(s.client.NewUrlPath("/workspaces/%s/groups/%d/members", domain, groupId), &opt, &m)
+	resp, err := s.client.Create(s.client.NewUrlPath("/workspaces/%s/groups/%d/members", domain, groupId), &ops, &m)
 	return m, resp, err
 }
 

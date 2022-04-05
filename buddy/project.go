@@ -9,6 +9,7 @@ type ProjectService struct {
 }
 
 type Project struct {
+	Url            string  `json:"url"`
 	HtmlUrl        string  `json:"html_url"`
 	Name           string  `json:"name"`
 	DisplayName    string  `json:"display_name"`
@@ -32,7 +33,7 @@ type ProjectIntegration struct {
 	HashId string `json:"hash_id"`
 }
 
-type ProjectCreateOptions struct {
+type ProjectCreateOps struct {
 	Name              *string             `json:"name,omitempty"`
 	DisplayName       *string             `json:"display_name,omitempty"`
 	ExternalProjectId *string             `json:"external_project_id,omitempty"`
@@ -43,19 +44,19 @@ type ProjectCreateOptions struct {
 	Integration       *ProjectIntegration `json:"integration,omitempty"`
 }
 
-type ProjectUpdateOptions struct {
+type ProjectUpdateOps struct {
 	DisplayName *string `json:"display_name,omitempty"`
 }
 
-type QueryProjectList struct {
-	QueryPage
+type ProjectListQuery struct {
+	PageQuery
 	Membership bool   `url:"membership,omitempty"`
 	Status     string `url:"status,omitempty"`
 }
 
-func (s *ProjectService) Create(domain string, opt *ProjectCreateOptions) (*Project, *http.Response, error) {
+func (s *ProjectService) Create(domain string, ops *ProjectCreateOps) (*Project, *http.Response, error) {
 	var p *Project
-	resp, err := s.client.Create(s.client.NewUrlPath("/workspaces/%s/projects", domain), &opt, &p)
+	resp, err := s.client.Create(s.client.NewUrlPath("/workspaces/%s/projects", domain), &ops, &p)
 	return p, resp, err
 }
 
@@ -63,9 +64,9 @@ func (s *ProjectService) Delete(domain string, projectName string) (*http.Respon
 	return s.client.Delete(s.client.NewUrlPath("/workspaces/%s/projects/%s", domain, projectName))
 }
 
-func (s *ProjectService) Update(domain string, projectName string, opt *ProjectUpdateOptions) (*Project, *http.Response, error) {
+func (s *ProjectService) Update(domain string, projectName string, ops *ProjectUpdateOps) (*Project, *http.Response, error) {
 	var p *Project
-	resp, err := s.client.Update(s.client.NewUrlPath("/workspaces/%s/projects/%s", domain, projectName), &opt, &p)
+	resp, err := s.client.Update(s.client.NewUrlPath("/workspaces/%s/projects/%s", domain, projectName), &ops, &p)
 	return p, resp, err
 }
 
@@ -75,15 +76,18 @@ func (s *ProjectService) Get(domain string, projectName string) (*Project, *http
 	return p, resp, err
 }
 
-func (s *ProjectService) GetList(domain string, opt *QueryProjectList) (*Projects, *http.Response, error) {
+func (s *ProjectService) GetList(domain string, query *ProjectListQuery) (*Projects, *http.Response, error) {
+	var l *Projects
+	resp, err := s.client.Get(s.client.NewUrlPath("/workspaces/%s/projects", domain), &l, query)
+	return l, resp, err
+}
+
+func (s *ProjectService) GetListAll(domain string, query *ProjectListQuery) (*Projects, *http.Response, error) {
+	query.Page = 1
+	query.PerPage = 30
 	var all Projects
-	page := 1
-	perPage := 30
 	for {
-		var l *Projects
-		opt.Page = page
-		opt.PerPage = perPage
-		resp, err := s.client.Get(s.client.NewUrlPath("/workspaces/%s/projects", domain), &l, opt)
+		l, resp, err := s.GetList(domain, query)
 		if err != nil {
 			return nil, resp, err
 		}
@@ -93,7 +97,7 @@ func (s *ProjectService) GetList(domain string, opt *QueryProjectList) (*Project
 		all.Url = l.Url
 		all.HtmlUrl = l.HtmlUrl
 		all.Projects = append(all.Projects, l.Projects...)
-		page += 1
+		query.Page += 1
 	}
 	return &all, nil, nil
 }

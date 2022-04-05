@@ -13,14 +13,14 @@ type ProjectMember struct {
 	PermissionSet *Permission `json:"permission_set"`
 }
 
-type ProjectMemberOperationOptions struct {
-	Id            *int                           `json:"id,omitempty"`
-	PermissionSet *ProjectMemberOperationOptions `json:"permission_set,omitempty"`
+type ProjectMemberOps struct {
+	Id            *int              `json:"id,omitempty"`
+	PermissionSet *ProjectMemberOps `json:"permission_set,omitempty"`
 }
 
-func (s *ProjectMemberService) CreateProjectMember(domain string, projectName string, opt *ProjectMemberOperationOptions) (*ProjectMember, *http.Response, error) {
+func (s *ProjectMemberService) CreateProjectMember(domain string, projectName string, ops *ProjectMemberOps) (*ProjectMember, *http.Response, error) {
 	var pm *ProjectMember
-	resp, err := s.client.Create(s.client.NewUrlPath("/workspaces/%s/projects/%s/members", domain, projectName), &opt, &pm)
+	resp, err := s.client.Create(s.client.NewUrlPath("/workspaces/%s/projects/%s/members", domain, projectName), &ops, &pm)
 	return pm, resp, err
 }
 
@@ -34,13 +34,18 @@ func (s *ProjectMemberService) GetProjectMember(domain string, projectName strin
 	return pm, resp, err
 }
 
-func (s *ProjectMemberService) GetProjectMembers(domain string, projectName string) (*Members, *http.Response, error) {
+func (s *ProjectMemberService) GetProjectMembers(domain string, projectName string, query *PageQuery) (*Members, *http.Response, error) {
+	var l *Members
+	resp, err := s.client.Get(s.client.NewUrlPath("/workspaces/%s/projects/%s/members", domain, projectName), &l, query)
+	return l, resp, err
+}
+
+func (s *ProjectMemberService) GetProjectMembersAll(domain string, projectName string) (*Members, *http.Response, error) {
 	var all Members
 	page := 1
 	perPage := 30
 	for {
-		var l *Members
-		resp, err := s.client.Get(s.client.NewUrlPath("/workspaces/%s/projects/%s/members", domain, projectName), &l, &QueryPage{
+		l, resp, err := s.GetProjectMembers(domain, projectName, &PageQuery{
 			Page:    page,
 			PerPage: perPage,
 		})
@@ -58,8 +63,8 @@ func (s *ProjectMemberService) GetProjectMembers(domain string, projectName stri
 	return &all, nil, nil
 }
 
-func (s *ProjectMemberService) UpdateProjectMember(domain string, projectName string, memberId int, opt *ProjectMemberOperationOptions) (*ProjectMember, *http.Response, error) {
+func (s *ProjectMemberService) UpdateProjectMember(domain string, projectName string, memberId int, ops *ProjectMemberOps) (*ProjectMember, *http.Response, error) {
 	var pm *ProjectMember
-	resp, err := s.client.Update(s.client.NewUrlPath("/workspaces/%s/projects/%s/members/%d", domain, projectName, memberId), &opt, &pm)
+	resp, err := s.client.Update(s.client.NewUrlPath("/workspaces/%s/projects/%s/members/%d", domain, projectName, memberId), &ops, &pm)
 	return pm, resp, err
 }

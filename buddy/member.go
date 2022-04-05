@@ -9,6 +9,7 @@ type MemberService struct {
 }
 
 type Member struct {
+	Url            string `json:"url"`
 	HtmlUrl        string `json:"html_url"`
 	Id             int    `json:"id"`
 	Name           string `json:"name"`
@@ -24,11 +25,11 @@ type Members struct {
 	Members []*Member `json:"members"`
 }
 
-type MemberOperationOptions struct {
+type MemberOps struct {
 	Email *string `json:"email"`
 }
 
-type MemberAdminOperationOptions struct {
+type MemberAdminOps struct {
 	Admin *bool `json:"admin"`
 }
 
@@ -38,13 +39,19 @@ func (s *MemberService) Get(domain string, memberId int) (*Member, *http.Respons
 	return m, resp, err
 }
 
-func (s *MemberService) GetList(domain string) (*Members, *http.Response, error) {
+func (s *MemberService) GetList(domain string, query *PageQuery) (*Members, *http.Response, error) {
+	var l *Members
+	resp, err := s.client.Get(s.client.NewUrlPath("/workspaces/%s/members", domain), &l, query)
+	return l, resp, err
+}
+
+func (s *MemberService) GetListAll(domain string) (*Members, *http.Response, error) {
 	var all Members
 	page := 1
 	perPage := 30
 	for {
 		var l *Members
-		resp, err := s.client.Get(s.client.NewUrlPath("/workspaces/%s/members", domain), &l, &QueryPage{
+		l, resp, err := s.GetList(domain, &PageQuery{
 			Page:    page,
 			PerPage: perPage,
 		})
@@ -62,9 +69,9 @@ func (s *MemberService) GetList(domain string) (*Members, *http.Response, error)
 	return &all, nil, nil
 }
 
-func (s *MemberService) Create(domain string, opt *MemberOperationOptions) (*Member, *http.Response, error) {
+func (s *MemberService) Create(domain string, ops *MemberOps) (*Member, *http.Response, error) {
 	var m *Member
-	resp, err := s.client.Create(s.client.NewUrlPath("/workspaces/%s/members", domain), &opt, &m)
+	resp, err := s.client.Create(s.client.NewUrlPath("/workspaces/%s/members", domain), &ops, &m)
 	return m, resp, err
 }
 
@@ -72,8 +79,8 @@ func (s *MemberService) Delete(domain string, memberId int) (*http.Response, err
 	return s.client.Delete(s.client.NewUrlPath("/workspaces/%s/members/%d", domain, memberId))
 }
 
-func (s *MemberService) UpdateAdmin(domain string, memberId int, opt *MemberAdminOperationOptions) (*Member, *http.Response, error) {
+func (s *MemberService) UpdateAdmin(domain string, memberId int, ops *MemberAdminOps) (*Member, *http.Response, error) {
 	var m *Member
-	resp, err := s.client.Update(s.client.NewUrlPath("/workspaces/%s/members/%d", domain, memberId), &opt, &m)
+	resp, err := s.client.Update(s.client.NewUrlPath("/workspaces/%s/members/%d", domain, memberId), &ops, &m)
 	return m, resp, err
 }

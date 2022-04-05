@@ -11,14 +11,14 @@ type ProjectGroup struct {
 	PermissionSet *Permission `json:"permission_set"`
 }
 
-type ProjectGroupOperationOptions struct {
-	Id            *int                          `json:"id,omitempty"`
-	PermissionSet *ProjectGroupOperationOptions `json:"permission_set,omitempty"`
+type ProjectGroupOps struct {
+	Id            *int             `json:"id,omitempty"`
+	PermissionSet *ProjectGroupOps `json:"permission_set,omitempty"`
 }
 
-func (s *ProjectGroupService) CreateProjectGroup(domain string, projectName string, opt *ProjectGroupOperationOptions) (*ProjectGroup, *http.Response, error) {
+func (s *ProjectGroupService) CreateProjectGroup(domain string, projectName string, ops *ProjectGroupOps) (*ProjectGroup, *http.Response, error) {
 	var pg *ProjectGroup
-	resp, err := s.client.Create(s.client.NewUrlPath("/workspaces/%s/projects/%s/groups", domain, projectName), &opt, &pg)
+	resp, err := s.client.Create(s.client.NewUrlPath("/workspaces/%s/projects/%s/groups", domain, projectName), &ops, &pg)
 	return pg, resp, err
 }
 
@@ -38,8 +38,8 @@ func (s *ProjectGroupService) GetProjectGroups(domain string, projectName string
 	return all, resp, err
 }
 
-func (s *ProjectGroupService) UpdateProjectGroup(domain string, projectName string, groupId int, opt *ProjectGroupOperationOptions) (*ProjectGroup, *http.Response, error) {
+func (s *ProjectGroupService) UpdateProjectGroup(domain string, projectName string, groupId int, ops *ProjectGroupOps) (*ProjectGroup, *http.Response, error) {
 	var pg *ProjectGroup
-	resp, err := s.client.Update(s.client.NewUrlPath("/workspaces/%s/projects/%s/groups/%d", domain, projectName, groupId), &opt, &pg)
+	resp, err := s.client.Update(s.client.NewUrlPath("/workspaces/%s/projects/%s/groups/%d", domain, projectName, groupId), &ops, &pg)
 	return pg, resp, err
 }

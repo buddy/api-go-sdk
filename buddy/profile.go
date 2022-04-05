@@ -11,7 +11,7 @@ type Profile struct {
 	WorkspacesUrl string `json:"workspaces_url"`
 }
 
-type ProfileOperationOptions struct {
+type ProfileOps struct {
 	Name *string `json:"name"`
 }
 
@@ -25,8 +25,8 @@ func (s *ProfileService) Get() (*Profile, *http.Response, error) {
 	return p, resp, err
 }
 
-func (s *ProfileService) Update(opt *ProfileOperationOptions) (*Profile, *http.Response, error) {
+func (s *ProfileService) Update(ops *ProfileOps) (*Profile, *http.Response, error) {
 	var p *Profile
-	resp, err := s.client.Update(s.client.NewUrlPath("/user"), &opt, &p)
+	resp, err := s.client.Update(s.client.NewUrlPath("/user"), &ops, &p)
 	return p, resp, err
 }
