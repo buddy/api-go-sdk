@@ -1,0 +1,9 @@
+*.dll
+*.exe
+*.test
+*.log
+.DS_Store
+.run
+.idea
+vendor/
+bin/
