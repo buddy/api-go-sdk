@@ -30,7 +30,7 @@ func testSourceCreateFile(client *buddy.Client, workspace *buddy.Workspace, proj
 
 func testSourceUpdateFile(client *buddy.Client, workspace *buddy.Workspace, project *buddy.Project, out *buddy.SourceFile) func(t *testing.T) {
 	return func(t *testing.T) {
-		message := RandString(10)
+		message := RandString(11)
 		content := RandString(10)
 		ops := buddy.SourceFileOps{
 			Message:    &message,
