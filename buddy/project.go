@@ -4,6 +4,11 @@ import (
 	"net/http"
 )
 
+const (
+	ProjectStatusActive = "ACTIVE"
+	ProjectStatusClosed = "CLOSED"
+)
+
 type ProjectService struct {
 	client *Client
 }
@@ -46,6 +51,7 @@ type ProjectCreateOps struct {
 
 type ProjectUpdateOps struct {
 	DisplayName *string `json:"display_name,omitempty"`
+	Name        *string `json:"name,omitempty"`
 }
 
 type ProjectListQuery struct {
@@ -56,17 +62,17 @@ type ProjectListQuery struct {
 
 func (s *ProjectService) Create(domain string, ops *ProjectCreateOps) (*Project, *http.Response, error) {
 	var p *Project
-	resp, err := s.client.Create(s.client.NewUrlPath("/workspaces/%s/projects", domain), &ops, &p)
+	resp, err := s.client.Create(s.client.NewUrlPath("/workspaces/%s/projects", domain), &ops, nil, &p)
 	return p, resp, err
 }
 
 func (s *ProjectService) Delete(domain string, projectName string) (*http.Response, error) {
-	return s.client.Delete(s.client.NewUrlPath("/workspaces/%s/projects/%s", domain, projectName))
+	return s.client.Delete(s.client.NewUrlPath("/workspaces/%s/projects/%s", domain, projectName), nil, nil)
 }
 
 func (s *ProjectService) Update(domain string, projectName string, ops *ProjectUpdateOps) (*Project, *http.Response, error) {
 	var p *Project
-	resp, err := s.client.Update(s.client.NewUrlPath("/workspaces/%s/projects/%s", domain, projectName), &ops, &p)
+	resp, err := s.client.Patch(s.client.NewUrlPath("/workspaces/%s/projects/%s", domain, projectName), &ops, nil, &p)
 	return p, resp, err
 }
 
@@ -83,6 +89,9 @@ func (s *ProjectService) GetList(domain string, query *ProjectListQuery) (*Proje
 }
 
 func (s *ProjectService) GetListAll(domain string, query *ProjectListQuery) (*Projects, *http.Response, error) {
+	if query == nil {
+		query = &ProjectListQuery{}
+	}
 	query.Page = 1
 	query.PerPage = 30
 	var all Projects

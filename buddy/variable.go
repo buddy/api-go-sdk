@@ -34,6 +34,7 @@ type Variable struct {
 }
 
 type Variables struct {
+	Url       string      `json:"url"`
 	HtmlUrl   string      `json:"html_url"`
 	Variables []*Variable `json:"variables"`
 }
@@ -74,17 +75,17 @@ type VariableAction struct {
 
 func (s *VariableService) Create(domain string, ops *VariableOps) (*Variable, *http.Response, error) {
 	var v *Variable
-	resp, err := s.client.Create(s.client.NewUrlPath("/workspaces/%s/variables", domain), &ops, &v)
+	resp, err := s.client.Create(s.client.NewUrlPath("/workspaces/%s/variables", domain), &ops, nil, &v)
 	return v, resp, err
 }
 
 func (s *VariableService) Delete(domain string, variableId int) (*http.Response, error) {
-	return s.client.Delete(s.client.NewUrlPath("/workspaces/%s/variables/%d", domain, variableId))
+	return s.client.Delete(s.client.NewUrlPath("/workspaces/%s/variables/%d", domain, variableId), nil, nil)
 }
 
 func (s *VariableService) Update(domain string, variableId int, ops *VariableOps) (*Variable, *http.Response, error) {
 	var v *Variable
-	resp, err := s.client.Update(s.client.NewUrlPath("/workspaces/%s/variables/%d", domain, variableId), &ops, &v)
+	resp, err := s.client.Patch(s.client.NewUrlPath("/workspaces/%s/variables/%d", domain, variableId), &ops, nil, &v)
 	return v, resp, err
 }
 

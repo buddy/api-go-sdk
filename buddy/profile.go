@@ -27,6 +27,6 @@ func (s *ProfileService) Get() (*Profile, *http.Response, error) {
 
 func (s *ProfileService) Update(ops *ProfileOps) (*Profile, *http.Response, error) {
 	var p *Profile
-	resp, err := s.client.Update(s.client.NewUrlPath("/user"), &ops, &p)
+	resp, err := s.client.Patch(s.client.NewUrlPath("/user"), &ops, nil, &p)
 	return p, resp, err
 }

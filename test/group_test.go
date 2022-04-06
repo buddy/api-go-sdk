@@ -1,7 +1,7 @@
 package test
 
 import (
-	"api-go-sdk/buddy"
+	"github.com/buddy/api-go-sdk/buddy"
 	"testing"
 )
 
@@ -142,13 +142,13 @@ func TestGroup(t *testing.T) {
 		t.Fatal(ErrorFormatted("SeedInitialData", err))
 	}
 	var group buddy.Group
-	t.Run("Create", testGroupCreate(seed.client, seed.workspace, &group))
-	t.Run("Update", testGroupUpdate(seed.client, seed.workspace, &group))
-	t.Run("Get", testGroupGet(seed.client, seed.workspace, &group))
-	t.Run("GetList", testGroupsGet(seed.client, seed.workspace, 1))
-	t.Run("MemberAdd", testGroupMemberAdd(seed.client, seed.workspace, &group, seed.member))
-	t.Run("MemberGet", testGroupMemberGet(seed.client, seed.workspace, &group, seed.member))
-	t.Run("MemberGetList", testGroupMembersGet(seed.client, seed.workspace, &group, 1))
-	t.Run("MemberDelete", testGroupMemberDelete(seed.client, seed.workspace, &group, seed.member))
-	t.Run("Delete", testGroupDelete(seed.client, seed.workspace, &group))
+	t.Run("Create", testGroupCreate(seed.Client, seed.Workspace, &group))
+	t.Run("Update", testGroupUpdate(seed.Client, seed.Workspace, &group))
+	t.Run("Get", testGroupGet(seed.Client, seed.Workspace, &group))
+	t.Run("GetList", testGroupsGet(seed.Client, seed.Workspace, 1))
+	t.Run("MemberAdd", testGroupMemberAdd(seed.Client, seed.Workspace, &group, seed.Member))
+	t.Run("MemberGet", testGroupMemberGet(seed.Client, seed.Workspace, &group, seed.Member))
+	t.Run("MemberGetList", testGroupMembersGet(seed.Client, seed.Workspace, &group, 1))
+	t.Run("MemberDelete", testGroupMemberDelete(seed.Client, seed.Workspace, &group, seed.Member))
+	t.Run("Delete", testGroupDelete(seed.Client, seed.Workspace, &group))
 }

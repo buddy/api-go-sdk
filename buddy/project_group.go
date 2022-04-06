@@ -18,12 +18,12 @@ type ProjectGroupOps struct {
 
 func (s *ProjectGroupService) CreateProjectGroup(domain string, projectName string, ops *ProjectGroupOps) (*ProjectGroup, *http.Response, error) {
 	var pg *ProjectGroup
-	resp, err := s.client.Create(s.client.NewUrlPath("/workspaces/%s/projects/%s/groups", domain, projectName), &ops, &pg)
+	resp, err := s.client.Create(s.client.NewUrlPath("/workspaces/%s/projects/%s/groups", domain, projectName), &ops, nil, &pg)
 	return pg, resp, err
 }
 
 func (s *ProjectGroupService) DeleteProjectGroup(domain string, projectName string, groupId int) (*http.Response, error) {
-	return s.client.Delete(s.client.NewUrlPath("/workspaces/%s/projects/%s/groups/%d", domain, projectName, groupId))
+	return s.client.Delete(s.client.NewUrlPath("/workspaces/%s/projects/%s/groups/%d", domain, projectName, groupId), nil, nil)
 }
 
 func (s *ProjectGroupService) GetProjectGroup(domain string, projectName string, groupId int) (*ProjectGroup, *http.Response, error) {
@@ -40,6 +40,6 @@ func (s *ProjectGroupService) GetProjectGroups(domain string, projectName string
 
 func (s *ProjectGroupService) UpdateProjectGroup(domain string, projectName string, groupId int, ops *ProjectGroupOps) (*ProjectGroup, *http.Response, error) {
 	var pg *ProjectGroup
-	resp, err := s.client.Update(s.client.NewUrlPath("/workspaces/%s/projects/%s/groups/%d", domain, projectName, groupId), &ops, &pg)
+	resp, err := s.client.Patch(s.client.NewUrlPath("/workspaces/%s/projects/%s/groups/%d", domain, projectName, groupId), &ops, nil, &pg)
 	return pg, resp, err
 }

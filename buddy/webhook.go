@@ -48,17 +48,17 @@ type WebhookOps struct {
 
 func (s *WebhookService) Create(domain string, ops *WebhookOps) (*Webhook, *http.Response, error) {
 	var w *Webhook
-	resp, err := s.client.Create(s.client.NewUrlPath("/workspaces/%s/webhooks", domain), &ops, &w)
+	resp, err := s.client.Create(s.client.NewUrlPath("/workspaces/%s/webhooks", domain), &ops, nil, &w)
 	return w, resp, err
 }
 
 func (s *WebhookService) Delete(domain string, webhookId int) (*http.Response, error) {
-	return s.client.Delete(s.client.NewUrlPath("/workspaces/%s/webhooks/%d", domain, webhookId))
+	return s.client.Delete(s.client.NewUrlPath("/workspaces/%s/webhooks/%d", domain, webhookId), nil, nil)
 }
 
 func (s *WebhookService) Update(domain string, webhookId int, ops *WebhookOps) (*Webhook, *http.Response, error) {
 	var w *Webhook
-	resp, err := s.client.Update(s.client.NewUrlPath("/workspaces/%s/webhooks/%d", domain, webhookId), &ops, &w)
+	resp, err := s.client.Patch(s.client.NewUrlPath("/workspaces/%s/webhooks/%d", domain, webhookId), &ops, nil, &w)
 	return w, resp, err
 }
 

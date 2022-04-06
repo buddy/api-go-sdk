@@ -1,7 +1,7 @@
 package test
 
 import (
-	"api-go-sdk/buddy"
+	"github.com/buddy/api-go-sdk/buddy"
 	"testing"
 )
 
@@ -37,7 +37,7 @@ func testWorkspaceUpdate(client *buddy.Client, out *buddy.Workspace) func(t *tes
 		}
 		workspace, _, err := client.WorkspaceService.Update(out.Domain, &ops)
 		if err != nil {
-			t.Fatal(ErrorFormatted("WorkspaceService.Update", err))
+			t.Fatal(ErrorFormatted("WorkspaceService.Patch", err))
 		}
 		err = CheckWorkspace(workspace, name, out.Domain, out.Id)
 		if err != nil {
@@ -89,9 +89,9 @@ func TestWorkspace(t *testing.T) {
 		t.Fatal(ErrorFormatted("SeedInitialData", err))
 	}
 	var workspace buddy.Workspace
-	t.Run("Create", testWorkspaceCreate(seed.client, &workspace))
-	t.Run("Update", testWorkspaceUpdate(seed.client, &workspace))
-	t.Run("Get", testWorkspaceGet(seed.client, &workspace))
-	t.Run("GetList", testWorkspaceGetList(seed.client, 2))
-	t.Run("Delete", testWorkspaceDelete(seed.client, &workspace))
+	t.Run("Create", testWorkspaceCreate(seed.Client, &workspace))
+	t.Run("Update", testWorkspaceUpdate(seed.Client, &workspace))
+	t.Run("Get", testWorkspaceGet(seed.Client, &workspace))
+	t.Run("GetList", testWorkspaceGetList(seed.Client, 2))
+	t.Run("Delete", testWorkspaceDelete(seed.Client, &workspace))
 }

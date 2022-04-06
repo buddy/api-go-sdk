@@ -134,17 +134,17 @@ type PipelineOps struct {
 
 func (s *PipelineService) Create(domain string, projectName string, ops *PipelineOps) (*Pipeline, *http.Response, error) {
 	var p *Pipeline
-	resp, err := s.client.Create(s.client.NewUrlPath("/workspaces/%s/projects/%s/pipelines", domain, projectName), &ops, &p)
+	resp, err := s.client.Create(s.client.NewUrlPath("/workspaces/%s/projects/%s/pipelines", domain, projectName), &ops, nil, &p)
 	return p, resp, err
 }
 
 func (s *PipelineService) Delete(domain string, projectName string, pipelineId int) (*http.Response, error) {
-	return s.client.Delete(s.client.NewUrlPath("/workspaces/%s/projects/%s/pipelines/%d", domain, projectName, pipelineId))
+	return s.client.Delete(s.client.NewUrlPath("/workspaces/%s/projects/%s/pipelines/%d", domain, projectName, pipelineId), nil, nil)
 }
 
 func (s *PipelineService) Update(domain string, projectName string, pipelineId int, ops *PipelineOps) (*Pipeline, *http.Response, error) {
 	var p *Pipeline
-	resp, err := s.client.Update(s.client.NewUrlPath("/workspaces/%s/projects/%s/pipelines/%d", domain, projectName, pipelineId), &ops, &p)
+	resp, err := s.client.Patch(s.client.NewUrlPath("/workspaces/%s/projects/%s/pipelines/%d", domain, projectName, pipelineId), &ops, nil, &p)
 	return p, resp, err
 }
 

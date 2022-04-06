@@ -1,7 +1,7 @@
 package test
 
 import (
-	"api-go-sdk/buddy"
+	"github.com/buddy/api-go-sdk/buddy"
 	"testing"
 )
 
@@ -47,7 +47,7 @@ func testPermissionUpdate(client *buddy.Client, workspace *buddy.Workspace, out 
 		}
 		permission, _, err := client.PermissionService.Update(workspace.Domain, out.Id, &ops)
 		if err != nil {
-			t.Fatal(ErrorFormatted("PermissionService.Update", err))
+			t.Fatal(ErrorFormatted("PermissionService.Patch", err))
 		}
 		err = CheckPermission(permission, name, desc, out.Id, pipelineAccessLevel, repositoryAccessLevel, sandboxAccessLevel)
 		if err != nil {
@@ -101,9 +101,9 @@ func TestPermission(t *testing.T) {
 		t.Fatal(ErrorFormatted("SeedInitialData", err))
 	}
 	var permission buddy.Permission
-	t.Run("Create", testPermissionCreate(seed.client, seed.workspace, &permission))
-	t.Run("Update", testPermissionUpdate(seed.client, seed.workspace, &permission))
-	t.Run("Get", testPermissionGet(seed.client, seed.workspace, &permission))
-	t.Run("GetList", testPermissionGetList(seed.client, seed.workspace, 3))
-	t.Run("Delete", testPermissionDelete(seed.client, seed.workspace, &permission))
+	t.Run("Create", testPermissionCreate(seed.Client, seed.Workspace, &permission))
+	t.Run("Update", testPermissionUpdate(seed.Client, seed.Workspace, &permission))
+	t.Run("Get", testPermissionGet(seed.Client, seed.Workspace, &permission))
+	t.Run("GetList", testPermissionGetList(seed.Client, seed.Workspace, 3))
+	t.Run("Delete", testPermissionDelete(seed.Client, seed.Workspace, &permission))
 }

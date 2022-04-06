@@ -15,6 +15,7 @@ import (
 	"math/rand"
 	"net/http"
 	"net/url"
+	"reflect"
 	"strconv"
 	"strings"
 	"sync"
@@ -215,8 +216,8 @@ func NewClient(token string, baseUrl string, insecure bool) (*Client, error) {
 	return c, nil
 }
 
-func (c *Client) Create(url *UrlPath, postBody interface{}, respBody interface{}) (*http.Response, error) {
-	req, err := c.NewRequest(http.MethodPost, url.Compute(), &postBody)
+func (c *Client) Create(url *UrlPath, postBody interface{}, query interface{}, respBody interface{}) (*http.Response, error) {
+	req, err := c.NewRequest(http.MethodPost, url.Compute(), postBody, query)
 	if err != nil {
 		return nil, err
 	}
@@ -224,23 +225,31 @@ func (c *Client) Create(url *UrlPath, postBody interface{}, respBody interface{}
 }
 
 func (c *Client) Get(url *UrlPath, respBody interface{}, query interface{}) (*http.Response, error) {
-	req, err := c.NewRequest(http.MethodGet, url.Compute(), query)
+	req, err := c.NewRequest(http.MethodGet, url.Compute(), nil, query)
 	if err != nil {
 		return nil, err
 	}
 	return c.Do(req, &respBody)
 }
 
-func (c *Client) Update(url *UrlPath, postBody interface{}, respBody interface{}) (*http.Response, error) {
-	req, err := c.NewRequest(http.MethodPatch, url.Compute(), &postBody)
+func (c *Client) Patch(url *UrlPath, patchBody interface{}, query interface{}, respBody interface{}) (*http.Response, error) {
+	req, err := c.NewRequest(http.MethodPatch, url.Compute(), patchBody, query)
 	if err != nil {
 		return nil, err
 	}
 	return c.Do(req, &respBody)
 }
 
-func (c *Client) Delete(url *UrlPath) (*http.Response, error) {
-	req, err := c.NewRequest(http.MethodDelete, url.Compute(), nil)
+func (c *Client) Put(url *UrlPath, putBody interface{}, query interface{}, respBody interface{}) (*http.Response, error) {
+	req, err := c.NewRequest(http.MethodPut, url.Compute(), putBody, query)
+	if err != nil {
+		return nil, err
+	}
+	return c.Do(req, &respBody)
+}
+
+func (c *Client) Delete(url *UrlPath, body interface{}, query interface{}) (*http.Response, error) {
+	req, err := c.NewRequest(http.MethodDelete, url.Compute(), body, query)
 	if err != nil {
 		return nil, err
 	}
@@ -262,7 +271,18 @@ func (c *Client) NewUrlPath(path string, a ...interface{}) *UrlPath {
 	return &u
 }
 
-func (c *Client) NewRequest(method, path string, ops interface{}) (*retryablehttp.Request, error) {
+func (c *Client) isNil(i interface{}) bool {
+	if i == nil {
+		return true
+	}
+	switch reflect.TypeOf(i).Kind() {
+	case reflect.Ptr, reflect.Map, reflect.Array, reflect.Chan, reflect.Slice:
+		return reflect.ValueOf(i).IsNil()
+	}
+	return false
+}
+
+func (c *Client) NewRequest(method, path string, body interface{}, params interface{}) (*retryablehttp.Request, error) {
 	u := *c.baseUrl
 	unescaped, err := url.PathUnescape(path)
 	if err != nil {
@@ -274,34 +294,29 @@ func (c *Client) NewRequest(method, path string, ops interface{}) (*retryablehtt
 	reqHeaders := make(http.Header)
 	reqHeaders.Set("Accept", "application/json")
 	reqHeaders.Set("Authorization", "Bearer "+c.token)
-	var body interface{}
-	switch {
-	case method == http.MethodPost || method == http.MethodPut || method == http.MethodPatch:
+	var b interface{}
+	if !c.isNil(body) {
 		reqHeaders.Set("Content-Type", "application/json")
-		if ops != nil {
-			body, err = json.Marshal(ops)
-			if err != nil {
-				return nil, err
-			}
+		b, err = json.Marshal(body)
+		if err != nil {
+			return nil, err
 		}
-	case ops != nil:
-		q, err := query.Values(ops)
+	}
+	if !c.isNil(params) {
+		q, err := query.Values(params)
 		if err != nil {
 			return nil, err
 		}
 		u.RawQuery = q.Encode()
 	}
-
-	req, err := retryablehttp.NewRequest(method, u.String(), body)
+	req, err := retryablehttp.NewRequest(method, u.String(), b)
 	if err != nil {
 		return nil, err
 	}
-
 	// Set the request specific headers.
 	for k, v := range reqHeaders {
 		req.Header[k] = v
 	}
-
 	return req, nil
 }
 
@@ -322,7 +337,7 @@ func (c *Client) Do(req *retryablehttp.Request, v interface{}) (*http.Response, 
 	if err != nil {
 		return res, err
 	}
-	if v != nil {
+	if !c.isNil(v) {
 		if w, ok := v.(io.Writer); ok {
 			_, err = io.Copy(w, res.Body)
 		} else {

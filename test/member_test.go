@@ -1,7 +1,7 @@
 package test
 
 import (
-	"api-go-sdk/buddy"
+	"github.com/buddy/api-go-sdk/buddy"
 	"testing"
 )
 
@@ -101,10 +101,10 @@ func TestMember(t *testing.T) {
 		t.Fatal(ErrorFormatted("SeedInitialData", err))
 	}
 	var member buddy.Member
-	t.Run("Create", testMemberCreate(seed.client, seed.workspace, &member))
-	t.Run("UpdateAdmin", testMemberUpdateAdmin(seed.client, seed.workspace, &member))
-	t.Run("Get", testMemberGet(seed.client, seed.workspace, &member))
-	t.Run("GetList", testMemberGetList(seed.client, seed.workspace, 2))
-	t.Run("GetListAll", testMemberGetListAll(seed.client, seed.workspace, 2))
-	t.Run("Delete", testMemberDelete(seed.client, seed.workspace, &member))
+	t.Run("Create", testMemberCreate(seed.Client, seed.Workspace, &member))
+	t.Run("UpdateAdmin", testMemberUpdateAdmin(seed.Client, seed.Workspace, &member))
+	t.Run("Get", testMemberGet(seed.Client, seed.Workspace, &member))
+	t.Run("GetList", testMemberGetList(seed.Client, seed.Workspace, 2))
+	t.Run("GetListAll", testMemberGetListAll(seed.Client, seed.Workspace, 2))
+	t.Run("Delete", testMemberDelete(seed.Client, seed.Workspace, &member))
 }

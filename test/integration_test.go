@@ -1,7 +1,7 @@
 package test
 
 import (
-	"api-go-sdk/buddy"
+	"github.com/buddy/api-go-sdk/buddy"
 	"testing"
 )
 
@@ -14,16 +14,16 @@ func TestIntegration(t *testing.T) {
 	if err != nil {
 		t.Fatal(ErrorFormatted("SeedInitialData", err))
 	}
-	t.Run("Amazon", testIntegrationAmazon(seed.client, seed.workspace))
-	t.Run("DigitalOcean", testIntegrationDigitalOcean(seed.client, seed.workspace, seed.project))
-	t.Run("Shopify", testIntegrationShopify(seed.client, seed.workspace, seed.group, seed.project))
+	t.Run("Amazon", testIntegrationAmazon(seed.Client, seed.Workspace))
+	t.Run("DigitalOcean", testIntegrationDigitalOcean(seed.Client, seed.Workspace, seed.Project))
+	t.Run("Shopify", testIntegrationShopify(seed.Client, seed.Workspace, seed.Group, seed.Project))
 }
 
 func testIntegrationUpdate(client *buddy.Client, workspace *buddy.Workspace, hashId string, ops *buddy.IntegrationOps, out *buddy.Integration) func(t *testing.T) {
 	return func(t *testing.T) {
 		integrationUpdated, _, err := client.IntegrationService.Update(workspace.Domain, hashId, ops)
 		if err != nil {
-			t.Fatal(ErrorFormatted("IntegrationService.Update", err))
+			t.Fatal(ErrorFormatted("IntegrationService.Patch", err))
 		}
 		err = CheckIntegration(integrationUpdated, out, ops)
 		if err != nil {

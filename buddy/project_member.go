@@ -20,12 +20,12 @@ type ProjectMemberOps struct {
 
 func (s *ProjectMemberService) CreateProjectMember(domain string, projectName string, ops *ProjectMemberOps) (*ProjectMember, *http.Response, error) {
 	var pm *ProjectMember
-	resp, err := s.client.Create(s.client.NewUrlPath("/workspaces/%s/projects/%s/members", domain, projectName), &ops, &pm)
+	resp, err := s.client.Create(s.client.NewUrlPath("/workspaces/%s/projects/%s/members", domain, projectName), &ops, nil, &pm)
 	return pm, resp, err
 }
 
 func (s *ProjectMemberService) DeleteProjectMember(domain string, projectName string, memberId int) (*http.Response, error) {
-	return s.client.Delete(s.client.NewUrlPath("/workspaces/%s/projects/%s/members/%d", domain, projectName, memberId))
+	return s.client.Delete(s.client.NewUrlPath("/workspaces/%s/projects/%s/members/%d", domain, projectName, memberId), nil, nil)
 }
 
 func (s *ProjectMemberService) GetProjectMember(domain string, projectName string, memberId int) (*ProjectMember, *http.Response, error) {
@@ -65,6 +65,6 @@ func (s *ProjectMemberService) GetProjectMembersAll(domain string, projectName s
 
 func (s *ProjectMemberService) UpdateProjectMember(domain string, projectName string, memberId int, ops *ProjectMemberOps) (*ProjectMember, *http.Response, error) {
 	var pm *ProjectMember
-	resp, err := s.client.Update(s.client.NewUrlPath("/workspaces/%s/projects/%s/members/%d", domain, projectName, memberId), &ops, &pm)
+	resp, err := s.client.Patch(s.client.NewUrlPath("/workspaces/%s/projects/%s/members/%d", domain, projectName, memberId), &ops, nil, &pm)
 	return pm, resp, err
 }

@@ -38,17 +38,17 @@ type Workspaces struct {
 
 func (s *WorkspaceService) Create(ops *WorkspaceCreateOps) (*Workspace, *http.Response, error) {
 	var w *Workspace
-	resp, err := s.client.Create(s.client.NewUrlPath("/workspaces"), &ops, &w)
+	resp, err := s.client.Create(s.client.NewUrlPath("/workspaces"), &ops, nil, &w)
 	return w, resp, err
 }
 
 func (s *WorkspaceService) Delete(domain string) (*http.Response, error) {
-	return s.client.Delete(s.client.NewUrlPath("workspaces/%s", domain))
+	return s.client.Delete(s.client.NewUrlPath("workspaces/%s", domain), nil, nil)
 }
 
 func (s *WorkspaceService) Update(domain string, ops *WorkspaceUpdateOps) (*Workspace, *http.Response, error) {
 	var w *Workspace
-	resp, err := s.client.Update(s.client.NewUrlPath("/workspaces/%s", domain), &ops, &w)
+	resp, err := s.client.Patch(s.client.NewUrlPath("/workspaces/%s", domain), &ops, nil, &w)
 	return w, resp, err
 }
 

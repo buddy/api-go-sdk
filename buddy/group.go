@@ -45,28 +45,28 @@ func (s *GroupService) GetList(domain string) (*Groups, *http.Response, error) {
 
 func (s *GroupService) Create(domain string, ops *GroupOps) (*Group, *http.Response, error) {
 	var g *Group
-	resp, err := s.client.Create(s.client.NewUrlPath("/workspaces/%s/groups", domain), &ops, &g)
+	resp, err := s.client.Create(s.client.NewUrlPath("/workspaces/%s/groups", domain), &ops, nil, &g)
 	return g, resp, err
 }
 
 func (s *GroupService) Update(domain string, groupId int, ops *GroupOps) (*Group, *http.Response, error) {
 	var g *Group
-	resp, err := s.client.Update(s.client.NewUrlPath("/workspaces/%s/groups/%d", domain, groupId), &ops, &g)
+	resp, err := s.client.Patch(s.client.NewUrlPath("/workspaces/%s/groups/%d", domain, groupId), &ops, nil, &g)
 	return g, resp, err
 }
 
 func (s *GroupService) Delete(domain string, groupId int) (*http.Response, error) {
-	return s.client.Delete(s.client.NewUrlPath("/workspaces/%s/groups/%d", domain, groupId))
+	return s.client.Delete(s.client.NewUrlPath("/workspaces/%s/groups/%d", domain, groupId), nil, nil)
 }
 
 func (s *GroupService) AddGroupMember(domain string, groupId int, ops *GroupMemberOps) (*Member, *http.Response, error) {
 	var m *Member
-	resp, err := s.client.Create(s.client.NewUrlPath("/workspaces/%s/groups/%d/members", domain, groupId), &ops, &m)
+	resp, err := s.client.Create(s.client.NewUrlPath("/workspaces/%s/groups/%d/members", domain, groupId), &ops, nil, &m)
 	return m, resp, err
 }
 
 func (s *GroupService) DeleteGroupMember(domain string, groupId int, memberId int) (*http.Response, error) {
-	return s.client.Delete(s.client.NewUrlPath("/workspaces/%s/groups/%d/members/%d", domain, groupId, memberId))
+	return s.client.Delete(s.client.NewUrlPath("/workspaces/%s/groups/%d/members/%d", domain, groupId, memberId), nil, nil)
 }
 
 func (s *GroupService) GetGroupMember(domain string, groupId int, memberId int) (*Member, *http.Response, error) {

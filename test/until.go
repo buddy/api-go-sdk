@@ -1,9 +1,9 @@
 package test
 
 import (
-	"api-go-sdk/buddy"
 	"errors"
 	"fmt"
+	"github.com/buddy/api-go-sdk/buddy"
 	"math/rand"
 	"os"
 	"strconv"
@@ -43,7 +43,7 @@ func UniqueString() string {
 }
 
 func ErrorFormatted(msg string, err error) error {
-	return fmt.Errorf("%s: %s", msg, err.Error())
+	return fmt.Errorf("%s\n%s", msg, err.Error())
 }
 
 func CheckFieldEqual(field string, got string, want string) error {
@@ -112,12 +112,13 @@ type SeedOps struct {
 }
 
 type Seed struct {
-	client     *buddy.Client
-	workspace  *buddy.Workspace
-	project    *buddy.Project
-	group      *buddy.Group
-	member     *buddy.Member
-	permission *buddy.Permission
+	Client      *buddy.Client
+	Workspace   *buddy.Workspace
+	Project     *buddy.Project
+	Group       *buddy.Group
+	Member      *buddy.Member
+	Permission  *buddy.Permission
+	Permission2 *buddy.Permission
 }
 
 func SeedInitialData(ops *SeedOps) (*Seed, error) {
@@ -126,7 +127,7 @@ func SeedInitialData(ops *SeedOps) (*Seed, error) {
 	if err != nil {
 		return nil, err
 	}
-	seed.client = client
+	seed.Client = client
 	if ops != nil && ops.workspace {
 		domain := UniqueString()
 		w := buddy.WorkspaceCreateOps{
@@ -136,7 +137,7 @@ func SeedInitialData(ops *SeedOps) (*Seed, error) {
 		if err != nil {
 			return nil, err
 		}
-		seed.workspace = workspace
+		seed.Workspace = workspace
 		if ops.project {
 			projectDisplayName := UniqueString()
 			p := buddy.ProjectCreateOps{
@@ -146,7 +147,7 @@ func SeedInitialData(ops *SeedOps) (*Seed, error) {
 			if err != nil {
 				return nil, err
 			}
-			seed.project = project
+			seed.Project = project
 		}
 		if ops.group {
 			groupName := UniqueString()
@@ -157,7 +158,7 @@ func SeedInitialData(ops *SeedOps) (*Seed, error) {
 			if err != nil {
 				return nil, err
 			}
-			seed.group = group
+			seed.Group = group
 		}
 		if ops.member {
 			email := RandEmail()
@@ -168,9 +169,10 @@ func SeedInitialData(ops *SeedOps) (*Seed, error) {
 			if err != nil {
 				return nil, err
 			}
-			seed.member = member
+			seed.Member = member
 		}
 		if ops.permission {
+			// 1
 			name := UniqueString()
 			sandboxAccessLevel := buddy.PermissionAccessLevelReadWrite
 			repositoryAccessLevel := buddy.PermissionAccessLevelReadWrite
@@ -185,10 +187,86 @@ func SeedInitialData(ops *SeedOps) (*Seed, error) {
 			if err != nil {
 				return nil, err
 			}
-			seed.permission = permission
+			seed.Permission = permission
+			// 2
+			name = UniqueString()
+			sandboxAccessLevel = buddy.PermissionAccessLevelReadOnly
+			repositoryAccessLevel = buddy.PermissionAccessLevelManage
+			pipelineAccessLevel = buddy.PermissionAccessLevelRunOnly
+			p = buddy.PermissionOps{
+				Name:                  &name,
+				SandboxAccessLevel:    &sandboxAccessLevel,
+				RepositoryAccessLevel: &repositoryAccessLevel,
+				PipelineAccessLevel:   &pipelineAccessLevel,
+			}
+			permission, _, err = client.PermissionService.Create(domain, &p)
+			if err != nil {
+				return nil, err
+			}
+			seed.Permission2 = permission
 		}
 	}
 	return &seed, nil
+}
+
+func CheckProject(project *buddy.Project, name string, displayName string) error {
+	if err := CheckFieldSet("Project.Url", project.Url); err != nil {
+		return err
+	}
+	if err := CheckFieldSet("Project.HtmlUrl", project.HtmlUrl); err != nil {
+		return err
+	}
+	if err := CheckFieldEqualAndSet("Project.Name", project.Name, name); err != nil {
+		return err
+	}
+	if err := CheckFieldEqualAndSet("Project.DisplayName", project.DisplayName, displayName); err != nil {
+		return err
+	}
+	if err := CheckFieldSet("Project.Status", project.Status); err != nil {
+		return err
+	}
+	if err := CheckFieldSet("Project.CreateDate", project.CreateDate); err != nil {
+		return err
+	}
+	if err := CheckFieldSet("Project.HttpRepository", project.HttpRepository); err != nil {
+		return err
+	}
+	if err := CheckFieldSet("Project.SshRepository", project.SshRepository); err != nil {
+		return err
+	}
+	if err := CheckFieldSet("Project.SshPublicKey", project.SshPublicKey); err != nil {
+		return err
+	}
+	if err := CheckFieldSet("Project.KeyFingerprint", project.KeyFingerprint); err != nil {
+		return err
+	}
+	if err := CheckFieldSet("Project.DefaultBranch", project.DefaultBranch); err != nil {
+		return err
+	}
+	if err := CheckMember(project.CreatedBy, "", "", true, true, 0); err != nil {
+		return err
+	}
+	return nil
+}
+
+func CheckProjectGroup(projectGroup *buddy.ProjectGroup, group *buddy.Group, permission *buddy.Permission) error {
+	if err := CheckGroup(&projectGroup.Group, group.Name, group.Description, group.Id); err != nil {
+		return err
+	}
+	if err := CheckPermission(projectGroup.PermissionSet, permission.Name, permission.Description, permission.Id, permission.PipelineAccessLevel, permission.RepositoryAccessLevel, permission.SandboxAccessLevel); err != nil {
+		return err
+	}
+	return nil
+}
+
+func CheckProjectMember(projectMember *buddy.ProjectMember, member *buddy.Member, permission *buddy.Permission) error {
+	if err := CheckMember(&projectMember.Member, member.Email, member.Name, member.Admin, member.WorkspaceOwner, member.Id); err != nil {
+		return err
+	}
+	if err := CheckPermission(projectMember.PermissionSet, permission.Name, permission.Description, permission.Id, permission.PipelineAccessLevel, permission.RepositoryAccessLevel, permission.SandboxAccessLevel); err != nil {
+		return err
+	}
+	return nil
 }
 
 func CheckMember(member *buddy.Member, email string, name string, admin bool, owner bool, id int) error {
@@ -212,8 +290,14 @@ func CheckMember(member *buddy.Member, email string, name string, admin bool, ow
 			return err
 		}
 	}
-	if err := CheckFieldEqualAndSet("Member.Email", member.Email, email); err != nil {
-		return err
+	if email != "" {
+		if err := CheckFieldEqualAndSet("Member.Email", member.Email, email); err != nil {
+			return err
+		}
+	} else {
+		if err := CheckFieldSet("Member.Email", member.Email); err != nil {
+			return err
+		}
 	}
 	if err := CheckFieldSet("Member.AvatarUrl", member.AvatarUrl); err != nil {
 		return err
@@ -235,6 +319,41 @@ func CheckMembers(members *buddy.Members, count int) error {
 		return err
 	}
 	if err := CheckIntFieldEqual("len(Members)", len(members.Members), count); err != nil {
+		return err
+	}
+	return nil
+}
+
+func CheckProfile(profile *buddy.Profile, name string) error {
+	if err := CheckFieldSet("Profile.HtmlUrl", profile.HtmlUrl); err != nil {
+		return err
+	}
+	if err := CheckFieldSet("Profile.Url", profile.Url); err != nil {
+		return err
+	}
+	if err := CheckIntFieldSet("Profile.Id", profile.Id); err != nil {
+		return err
+	}
+	if err := CheckFieldEqualAndSet("Profile.Name", profile.Name, name); err != nil {
+		return err
+	}
+	if err := CheckFieldSet("Profile.AvatarUrl", profile.AvatarUrl); err != nil {
+		return err
+	}
+	if err := CheckFieldSet("Profile.WorkspacesUrl", profile.WorkspacesUrl); err != nil {
+		return err
+	}
+	return nil
+}
+
+func CheckProjects(projects *buddy.Projects, count int) error {
+	if err := CheckFieldSet("Projects.HtmlUrl", projects.HtmlUrl); err != nil {
+		return err
+	}
+	if err := CheckFieldSet("Projects.Url", projects.Url); err != nil {
+		return err
+	}
+	if err := CheckIntFieldEqual("len(Projects)", len(projects.Projects), count); err != nil {
 		return err
 	}
 	return nil
@@ -365,10 +484,133 @@ func CheckWorkspace(workspace *buddy.Workspace, name string, domain string, id i
 	if err := CheckBoolFieldEqual("Workspace.Frozen", workspace.Frozen, false); err != nil {
 		return err
 	}
-	// todo jak bedzie task z backendu zrobiony
-	//if err := CheckFieldSet("Workspace.CreateDate", workspace.CreateDate); err != nil {
-	//	return err
-	//}
+	if err := CheckFieldSet("Workspace.CreateDate", workspace.CreateDate); err != nil {
+		return err
+	}
+	return nil
+}
+
+func CheckVariable(variable *buddy.Variable, key string, val string, typ string, desc string, set bool, enc bool, fileName string, filePath string, fileChmod string, filePlace string, id int) error {
+	if id != 0 {
+		if err := CheckIntFieldEqualAndSet("Variable.Id", variable.Id, id); err != nil {
+			return err
+		}
+	} else {
+		if err := CheckIntFieldSet("Variable.Id", variable.Id); err != nil {
+			return err
+		}
+	}
+	if err := CheckFieldEqualAndSet("Variable.Key", variable.Key, key); err != nil {
+		return err
+	}
+	if err := CheckFieldEqualAndSet("Variable.Type", variable.Type, typ); err != nil {
+		return err
+	}
+	if err := CheckBoolFieldEqual("Variable.Encrypted", variable.Encrypted, enc); err != nil {
+		return err
+	}
+	if err := CheckBoolFieldEqual("Variable.Settable", variable.Settable, set); err != nil {
+		return err
+	}
+	if err := CheckFieldEqual("Variable.Description", variable.Description, desc); err != nil {
+		return err
+	}
+	if typ == buddy.VariableTypeSshKey {
+		if err := CheckFieldEqualAndSet("Variable.FileName", variable.FileName, fileName); err != nil {
+			return err
+		}
+		if err := CheckFieldEqualAndSet("Variable.FilePath", variable.FilePath, filePath); err != nil {
+			return err
+		}
+		if err := CheckFieldEqualAndSet("Variable.FileChmod", variable.FileChmod, fileChmod); err != nil {
+			return err
+		}
+		if err := CheckFieldEqualAndSet("Variable.FilePlace", variable.FilePlace, filePlace); err != nil {
+			return err
+		}
+		if err := CheckFieldSet("Variable.PublicValue", variable.PublicValue); err != nil {
+			return err
+		}
+		if err := CheckFieldSet("Variable.KeyFingerprint", variable.KeyFingerprint); err != nil {
+			return err
+		}
+		if err := CheckFieldSet("Variable.Checksum", variable.Checksum); err != nil {
+			return err
+		}
+	}
+	if enc {
+		if err := CheckFieldSet("Variable.Value", variable.Value); err != nil {
+			return err
+		}
+	} else {
+		if err := CheckFieldEqual("Variable.Value", variable.Value, val); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func CheckSourceFile(sf *buddy.SourceFile, name string, path string, message string) error {
+	if sf.Content == nil {
+		return errors.New("SourceFile.Content can not be nil")
+	}
+	if err := CheckFieldSet("SourceFile.Content.Url", sf.Content.Url); err != nil {
+		return err
+	}
+	if err := CheckFieldSet("SourceFile.Content.HtmlUrl", sf.Content.HtmlUrl); err != nil {
+		return err
+	}
+	if err := CheckFieldEqualAndSet("SourceFile.Content.ContentType", sf.Content.ContentType, buddy.SourceContentTypeFile); err != nil {
+		return err
+	}
+	if err := CheckFieldEqualAndSet("SourceFile.Content.Encoding", sf.Content.Encoding, "base64"); err != nil {
+		return err
+	}
+	if err := CheckIntFieldSet("SourceFile.Content.Size", sf.Content.Size); err != nil {
+		return err
+	}
+	if err := CheckFieldEqualAndSet("SourceFile.Content.Name", sf.Content.Name, name); err != nil {
+		return err
+	}
+	if err := CheckFieldEqualAndSet("SourceFile.Content.Path", sf.Content.Path, path); err != nil {
+		return err
+	}
+	if err := CheckFieldSet("SourceFile.Content.Content", sf.Content.Content); err != nil {
+		return err
+	}
+	if sf.Commit == nil {
+		return errors.New("SourceFile.Commit can not be nil")
+	}
+	if sf.Commit.Committer == nil {
+		return errors.New("SourceFile.Commit.Committer can not be nil")
+	}
+	if sf.Commit.Author == nil {
+		return errors.New("SourceFile.Commit.Author can not be nil")
+	}
+	if err := CheckFieldSet("SourceFile.Commit.Url", sf.Commit.Url); err != nil {
+		return err
+	}
+	if err := CheckFieldSet("SourceFile.Commit.HtmlUrl", sf.Commit.HtmlUrl); err != nil {
+		return err
+	}
+	if err := CheckFieldSet("SourceFile.Commit.Revision", sf.Commit.Revision); err != nil {
+		return err
+	}
+	if err := CheckFieldSet("SourceFile.Commit.AuthorDate", sf.Commit.AuthorDate); err != nil {
+		return err
+	}
+	if err := CheckFieldSet("SourceFile.Commit.CommitDate", sf.Commit.CommitDate); err != nil {
+		return err
+	}
+	if err := CheckFieldEqualAndSet("SourceFile.Commit.Message", sf.Commit.Message, message); err != nil {
+		return err
+	}
+	if err := CheckMember(sf.Commit.Committer, "", "", true, true, 0); err != nil {
+		return err
+	}
+	if err := CheckMember(sf.Commit.Author, "", "", true, true, 0); err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -392,6 +634,101 @@ func CheckGroup(group *buddy.Group, name string, desc string, id int) error {
 		return err
 	}
 	if err := CheckFieldEqual("Group.Description", group.Description, desc); err != nil {
+		return err
+	}
+	return nil
+}
+
+func CheckPublicKey(key *buddy.PublicKey, title string, content string, id int) error {
+	if err := CheckFieldSet("PublicKey.HtmlUrl", key.HtmlUrl); err != nil {
+		return err
+	}
+	if err := CheckFieldSet("PublicKey.Url", key.Url); err != nil {
+		return err
+	}
+	if err := CheckFieldEqualAndSet("PublicKey.Title", key.Title, title); err != nil {
+		return err
+	}
+	if err := CheckFieldEqualAndSet("PublicKey.Content", key.Content, content); err != nil {
+		return err
+	}
+	if id != 0 {
+		if err := CheckIntFieldEqualAndSet("PublicKey.Id", key.Id, id); err != nil {
+			return err
+		}
+	} else {
+		if err := CheckIntFieldSet("PublicKey.Id", key.Id); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func CheckSourceContentsDir(sc *buddy.SourceContents, count int) error {
+	if err := CheckFieldSet("SourceContents.HtmlUrl", sc.HtmlUrl); err != nil {
+		return err
+	}
+	if err := CheckFieldSet("SourceContents.Url", sc.Url); err != nil {
+		return err
+	}
+	if err := CheckFieldEqualAndSet("SourceContents.ContentType", sc.ContentType, buddy.SourceContentTypeDir); err != nil {
+		return err
+	}
+	if err := CheckIntFieldEqual("len(SourceContents)", len(sc.Contents), count); err != nil {
+		return err
+	}
+	return nil
+}
+
+func CheckSourceContentsFile(sc *buddy.SourceContents, name string, path string) error {
+	if err := CheckFieldSet("SourceContent.Url", sc.Url); err != nil {
+		return err
+	}
+	if err := CheckFieldSet("SourceContent.HtmlUrl", sc.HtmlUrl); err != nil {
+		return err
+	}
+	if err := CheckFieldEqualAndSet("SourceContent.ContentType", sc.ContentType, buddy.SourceContentTypeFile); err != nil {
+		return err
+	}
+	if err := CheckFieldEqualAndSet("SourceContent.Encoding", sc.Encoding, "base64"); err != nil {
+		return err
+	}
+	if err := CheckIntFieldSet("SourceContent.Size", sc.Size); err != nil {
+		return err
+	}
+	if err := CheckFieldEqualAndSet("SourceContent.Name", sc.Name, name); err != nil {
+		return err
+	}
+	if err := CheckFieldEqualAndSet("SourceContent.Path", sc.Path, path); err != nil {
+		return err
+	}
+	if err := CheckFieldSet("SourceContent.Content", sc.Content); err != nil {
+		return err
+	}
+	return nil
+}
+
+func CheckWebhooks(webhooks *buddy.Webhooks, count int) error {
+	if err := CheckFieldSet("Webhooks.HtmlUrl", webhooks.HtmlUrl); err != nil {
+		return err
+	}
+	if err := CheckFieldSet("Webhooks.Url", webhooks.Url); err != nil {
+		return err
+	}
+	if err := CheckIntFieldEqual("len(Webhooks)", len(webhooks.Webhooks), count); err != nil {
+		return err
+	}
+	return nil
+}
+
+func CheckVariables(variables *buddy.Variables, count int) error {
+	if err := CheckFieldSet("Variables.HtmlUrl", variables.HtmlUrl); err != nil {
+		return err
+	}
+	if err := CheckFieldSet("Variables.Url", variables.Url); err != nil {
+		return err
+	}
+	if err := CheckIntFieldEqual("len(Variables)", len(variables.Variables), count); err != nil {
 		return err
 	}
 	return nil

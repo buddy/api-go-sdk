@@ -83,17 +83,17 @@ type IntegrationService struct {
 
 func (s *IntegrationService) Create(domain string, ops *IntegrationOps) (*Integration, *http.Response, error) {
 	var i *Integration
-	resp, err := s.client.Create(s.client.NewUrlPath("/workspaces/%s/integrations", domain), &ops, &i)
+	resp, err := s.client.Create(s.client.NewUrlPath("/workspaces/%s/integrations", domain), &ops, nil, &i)
 	return i, resp, err
 }
 
 func (s *IntegrationService) Delete(domain string, hashId string) (*http.Response, error) {
-	return s.client.Delete(s.client.NewUrlPath("/workspaces/%s/integrations/%s", domain, hashId))
+	return s.client.Delete(s.client.NewUrlPath("/workspaces/%s/integrations/%s", domain, hashId), nil, nil)
 }
 
 func (s *IntegrationService) Update(domain string, hashId string, ops *IntegrationOps) (*Integration, *http.Response, error) {
 	var i *Integration
-	resp, err := s.client.Update(s.client.NewUrlPath("/workspaces/%s/integrations/%s", domain, hashId), &ops, &i)
+	resp, err := s.client.Patch(s.client.NewUrlPath("/workspaces/%s/integrations/%s", domain, hashId), &ops, nil, &i)
 	return i, resp, err
 }
 

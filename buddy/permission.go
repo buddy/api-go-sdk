@@ -48,17 +48,17 @@ type PermissionService struct {
 
 func (s *PermissionService) Create(domain string, ops *PermissionOps) (*Permission, *http.Response, error) {
 	var p *Permission
-	resp, err := s.client.Create(s.client.NewUrlPath("/workspaces/%s/permissions", domain), &ops, &p)
+	resp, err := s.client.Create(s.client.NewUrlPath("/workspaces/%s/permissions", domain), &ops, nil, &p)
 	return p, resp, err
 }
 
 func (s *PermissionService) Delete(domain string, permissionId int) (*http.Response, error) {
-	return s.client.Delete(s.client.NewUrlPath("/workspaces/%s/permissions/%d", domain, permissionId))
+	return s.client.Delete(s.client.NewUrlPath("/workspaces/%s/permissions/%d", domain, permissionId), nil, nil)
 }
 
 func (s *PermissionService) Update(domain string, permissionId int, ops *PermissionOps) (*Permission, *http.Response, error) {
 	var p *Permission
-	resp, err := s.client.Update(s.client.NewUrlPath("/workspaces/%s/permissions/%d", domain, permissionId), &ops, &p)
+	resp, err := s.client.Patch(s.client.NewUrlPath("/workspaces/%s/permissions/%d", domain, permissionId), &ops, nil, &p)
 	return p, resp, err
 }
 

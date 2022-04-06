@@ -71,16 +71,16 @@ func (s *MemberService) GetListAll(domain string) (*Members, *http.Response, err
 
 func (s *MemberService) Create(domain string, ops *MemberOps) (*Member, *http.Response, error) {
 	var m *Member
-	resp, err := s.client.Create(s.client.NewUrlPath("/workspaces/%s/members", domain), &ops, &m)
+	resp, err := s.client.Create(s.client.NewUrlPath("/workspaces/%s/members", domain), &ops, nil, &m)
 	return m, resp, err
 }
 
 func (s *MemberService) Delete(domain string, memberId int) (*http.Response, error) {
-	return s.client.Delete(s.client.NewUrlPath("/workspaces/%s/members/%d", domain, memberId))
+	return s.client.Delete(s.client.NewUrlPath("/workspaces/%s/members/%d", domain, memberId), nil, nil)
 }
 
 func (s *MemberService) UpdateAdmin(domain string, memberId int, ops *MemberAdminOps) (*Member, *http.Response, error) {
 	var m *Member
-	resp, err := s.client.Update(s.client.NewUrlPath("/workspaces/%s/members/%d", domain, memberId), &ops, &m)
+	resp, err := s.client.Patch(s.client.NewUrlPath("/workspaces/%s/members/%d", domain, memberId), &ops, nil, &m)
 	return m, resp, err
 }
