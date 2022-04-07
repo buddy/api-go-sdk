@@ -162,6 +162,10 @@ func (c *Client) retryHTTPBackoff(min, max time.Duration, attemptNum int, resp *
 	return retryablehttp.LinearJitterBackoff(min, max, attemptNum, resp)
 }
 
+func NewDefaultClient(token string) (*Client, error) {
+	return NewClient(token, "", false)
+}
+
 func NewClient(token string, baseUrl string, insecure bool) (*Client, error) {
 	tlsConfig := &tls.Config{}
 	// turn off ssl verification
