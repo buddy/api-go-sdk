@@ -18,7 +18,7 @@ func testProjectCustomCreate(client *buddy.Client, workspace *buddy.Workspace, o
 		if err != nil {
 			t.Fatal(ErrorFormatted("ProjectService.Create", err))
 		}
-		err = CheckProject(project, displayName, displayName)
+		err = CheckProject(project, displayName, displayName, false)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -36,7 +36,7 @@ func testProjectCreate(client *buddy.Client, workspace *buddy.Workspace, out *bu
 		if err != nil {
 			t.Fatal(ErrorFormatted("ProjectService.Create", err))
 		}
-		err = CheckProject(project, displayName, displayName)
+		err = CheckProject(project, displayName, displayName, false)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -56,7 +56,7 @@ func testProjectUpdate(client *buddy.Client, workspace *buddy.Workspace, out *bu
 		if err != nil {
 			t.Fatal(ErrorFormatted("ProjectService.Update", err))
 		}
-		err = CheckProject(project, name, displayName)
+		err = CheckProject(project, name, displayName, false)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -70,7 +70,7 @@ func testProjectGet(client *buddy.Client, workspace *buddy.Workspace, out *buddy
 		if err != nil {
 			t.Fatal(ErrorFormatted("ProjectService.Get", err))
 		}
-		err = CheckProject(project, out.Name, out.DisplayName)
+		err = CheckProject(project, out.Name, out.DisplayName, false)
 		if err != nil {
 			t.Fatal(err)
 		}
