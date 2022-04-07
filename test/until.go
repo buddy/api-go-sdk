@@ -26,10 +26,6 @@ func RandStringFromCharSet(strlen int, charSet string) string {
 	return string(result)
 }
 
-func RandInt() int {
-	return rand.New(rand.NewSource(time.Now().UnixNano())).Int()
-}
-
 func RandString(strlen int) string {
 	return RandStringFromCharSet(strlen, CharSetAlpha)
 }
@@ -209,7 +205,7 @@ func SeedInitialData(ops *SeedOps) (*Seed, error) {
 	return &seed, nil
 }
 
-func CheckProject(project *buddy.Project, name string, displayName string) error {
+func CheckProject(project *buddy.Project, name string, displayName string, short bool) error {
 	if err := CheckFieldSet("Project.Url", project.Url); err != nil {
 		return err
 	}
@@ -225,26 +221,28 @@ func CheckProject(project *buddy.Project, name string, displayName string) error
 	if err := CheckFieldSet("Project.Status", project.Status); err != nil {
 		return err
 	}
-	if err := CheckFieldSet("Project.CreateDate", project.CreateDate); err != nil {
-		return err
-	}
-	if err := CheckFieldSet("Project.HttpRepository", project.HttpRepository); err != nil {
-		return err
-	}
-	if err := CheckFieldSet("Project.SshRepository", project.SshRepository); err != nil {
-		return err
-	}
-	if err := CheckFieldSet("Project.SshPublicKey", project.SshPublicKey); err != nil {
-		return err
-	}
-	if err := CheckFieldSet("Project.KeyFingerprint", project.KeyFingerprint); err != nil {
-		return err
-	}
-	if err := CheckFieldSet("Project.DefaultBranch", project.DefaultBranch); err != nil {
-		return err
-	}
-	if err := CheckMember(project.CreatedBy, "", "", true, true, 0); err != nil {
-		return err
+	if !short {
+		if err := CheckFieldSet("Project.CreateDate", project.CreateDate); err != nil {
+			return err
+		}
+		if err := CheckFieldSet("Project.HttpRepository", project.HttpRepository); err != nil {
+			return err
+		}
+		if err := CheckFieldSet("Project.SshRepository", project.SshRepository); err != nil {
+			return err
+		}
+		if err := CheckFieldSet("Project.SshPublicKey", project.SshPublicKey); err != nil {
+			return err
+		}
+		if err := CheckFieldSet("Project.KeyFingerprint", project.KeyFingerprint); err != nil {
+			return err
+		}
+		if err := CheckFieldSet("Project.DefaultBranch", project.DefaultBranch); err != nil {
+			return err
+		}
+		if err := CheckMember(project.CreatedBy, "", "", true, true, 0); err != nil {
+			return err
+		}
 	}
 	return nil
 }
@@ -747,11 +745,356 @@ func CheckPermissions(permissions *buddy.Permissions, count int) error {
 	return nil
 }
 
+func CheckPipelines(pipelines *buddy.Pipelines, count int) error {
+	if err := CheckFieldSet("Pipelines.HtmlUrl", pipelines.HtmlUrl); err != nil {
+		return err
+	}
+	if err := CheckFieldSet("Pipelines.Url", pipelines.Url); err != nil {
+		return err
+	}
+	if err := CheckIntFieldEqual("len(Pipelines)", len(pipelines.Pipelines), count); err != nil {
+		return err
+	}
+	return nil
+}
+
 func CheckIntegrations(integrations *buddy.Integrations, count int) error {
 	if err := CheckFieldSet("Integrations.Url", integrations.Url); err != nil {
 		return err
 	}
 	if err := CheckIntFieldEqual("len(Integrations)", len(integrations.Integrations), count); err != nil {
+		return err
+	}
+	return nil
+}
+
+func CheckPipeline(project *buddy.Project, pipeline *buddy.Pipeline, expected *buddy.Pipeline, ops *buddy.PipelineOps) error {
+	name := expected.Name
+	on := expected.On
+	refs := expected.Refs
+	tags := expected.Tags
+	events := expected.Events
+	triggerConditions := expected.TriggerConditions
+	alwaysFromScratch := expected.AlwaysFromScratch
+	priority := expected.Priority
+	failOnPrepareEnvWarning := expected.FailOnPrepareEnvWarning
+	fetchAllRefs := expected.FetchAllRefs
+	autoClearCache := expected.AutoClearCache
+	noSkipToMostRecent := expected.NoSkipToMostRecent
+	doNotCreateCommitStatus := expected.DoNotCreateCommitStatus
+	startDate := expected.StartDate
+	delay := expected.Delay
+	cloneDepth := expected.CloneDepth
+	cron := expected.Cron
+	paused := expected.Paused
+	ignoreFailOnProjectStatus := expected.IgnoreFailOnProjectStatus
+	executionMessageTemplate := expected.ExecutionMessageTemplate
+	worker := expected.Worker
+	targetSiteUrl := expected.TargetSiteUrl
+	definitionSource := expected.DefinitionSource
+	remotePath := expected.RemotePath
+	remoteBranch := expected.RemoteBranch
+	remoteProjectName := expected.RemoteProjectName
+	remoteParameters := expected.RemoteParameters
+	disabled := expected.Disabled
+	disabledReason := expected.DisabledReason
+	id := expected.Id
+	if ops != nil {
+		if ops.Name != nil {
+			name = *ops.Name
+		}
+		if ops.On != nil {
+			on = *ops.On
+		}
+		if ops.Refs != nil {
+			refs = *ops.Refs
+		}
+		if ops.Tags != nil {
+			tags = *ops.Tags
+		}
+		if ops.Events != nil {
+			events = *ops.Events
+		}
+		if ops.TriggerConditions != nil {
+			triggerConditions = *ops.TriggerConditions
+		}
+		if ops.AlwaysFromScratch != nil {
+			alwaysFromScratch = *ops.AlwaysFromScratch
+		}
+		if ops.Priority != nil {
+			priority = *ops.Priority
+		}
+		if ops.FailOnPrepareEnvWarning != nil {
+			failOnPrepareEnvWarning = *ops.FailOnPrepareEnvWarning
+		}
+		if ops.FetchAllRefs != nil {
+			fetchAllRefs = *ops.FetchAllRefs
+		}
+		if ops.AutoClearCache != nil {
+			autoClearCache = *ops.AutoClearCache
+		}
+		if ops.NoSkipToMostRecent != nil {
+			noSkipToMostRecent = *ops.NoSkipToMostRecent
+		}
+		if ops.DoNotCreateCommitStatus != nil {
+			doNotCreateCommitStatus = *ops.DoNotCreateCommitStatus
+		}
+		if ops.StartDate != nil {
+			startDate = *ops.StartDate
+		}
+		if ops.Delay != nil {
+			delay = *ops.Delay
+		}
+		if ops.CloneDepth != nil {
+			cloneDepth = *ops.CloneDepth
+		}
+		if ops.Cron != nil {
+			cron = *ops.Cron
+		}
+		if ops.Paused != nil {
+			paused = *ops.Paused
+		}
+		if ops.IgnoreFailOnProjectStatus != nil {
+			ignoreFailOnProjectStatus = *ops.IgnoreFailOnProjectStatus
+		}
+		if ops.ExecutionMessageTemplate != nil {
+			executionMessageTemplate = *ops.ExecutionMessageTemplate
+		}
+		if ops.Worker != nil {
+			worker = *ops.Worker
+		}
+		if ops.TargetSiteUrl != nil {
+			targetSiteUrl = *ops.TargetSiteUrl
+		}
+		if ops.DefinitionSource != nil {
+			definitionSource = *ops.DefinitionSource
+		}
+		if ops.RemotePath != nil {
+			remotePath = *ops.RemotePath
+		}
+		if ops.RemoteBranch != nil {
+			remoteBranch = *ops.RemoteBranch
+		}
+		if ops.RemoteProjectName != nil {
+			remoteProjectName = *ops.RemoteProjectName
+		}
+		if ops.RemoteParameters != nil {
+			remoteParameters = *ops.RemoteParameters
+		}
+		if ops.Disabled != nil {
+			disabled = *ops.Disabled
+		}
+		if ops.DisabledReason != nil {
+			disabledReason = *ops.DisabledReason
+		}
+	}
+	lenRefs := len(refs)
+	lenEvents := len(events)
+	lenTriggerConditions := len(triggerConditions)
+	lenTags := len(tags)
+	lenRemoteParameters := len(remoteParameters)
+	if err := CheckFieldSet("Pipeline.Url", pipeline.Url); err != nil {
+		return err
+	}
+	if err := CheckFieldSet("Pipeline.HtmlUrl", pipeline.HtmlUrl); err != nil {
+		return err
+	}
+	if id != 0 {
+		if err := CheckIntFieldEqualAndSet("Pipeline.Id", pipeline.Id, id); err != nil {
+			return err
+		}
+	} else {
+		if err := CheckIntFieldSet("Pipeline.Id", pipeline.Id); err != nil {
+			return err
+		}
+	}
+	if err := CheckFieldEqualAndSet("Pipeline.Name", pipeline.Name, name); err != nil {
+		return err
+	}
+	if on != "" {
+		if err := CheckFieldEqualAndSet("Pipeline.On", pipeline.On, on); err != nil {
+			return err
+		}
+	}
+	if err := CheckIntFieldEqual("len(Pipeline.Refs)", len(pipeline.Refs), lenRefs); err != nil {
+		return err
+	}
+	if lenRefs > 0 {
+		if err := CheckFieldEqualAndSet("Pipeline.Refs[0]", pipeline.Refs[0], refs[0]); err != nil {
+			return err
+		}
+	}
+	if err := CheckIntFieldEqual("len(Pipeline.Events)", len(pipeline.Events), lenEvents); err != nil {
+		return err
+	}
+	if lenEvents > 0 {
+		if err := CheckFieldEqualAndSet("Pipeline.Events[0].Type", pipeline.Events[0].Type, events[0].Type); err != nil {
+			return err
+		}
+		if err := CheckIntFieldEqualAndSet("len(Pipeline.Events[0].Refs)", len(pipeline.Events[0].Refs), len(events[0].Refs)); err != nil {
+			return err
+		}
+		if err := CheckFieldEqualAndSet("Pipeline.Events[0].Refs[0]", pipeline.Events[0].Refs[0], events[0].Refs[0]); err != nil {
+			return err
+		}
+	}
+	if err := CheckIntFieldEqual("len(Pipeline.TriggerConditions)", len(pipeline.TriggerConditions), lenTriggerConditions); err != nil {
+		return err
+	}
+	if lenTriggerConditions > 0 {
+		expectedTriggerCondition := triggerConditions[0]
+		pipelineTriggerCondition := pipeline.TriggerConditions[0]
+		if err := CheckFieldEqualAndSet("PipelineTriggerCondition.TriggerCondition", pipelineTriggerCondition.TriggerCondition, expectedTriggerCondition.TriggerCondition); err != nil {
+			return err
+		}
+		lenPaths := len(expectedTriggerCondition.TriggerConditionPaths)
+		if err := CheckIntFieldEqual("len(PipelineTriggerCondition.TriggerConditionPaths)", len(pipelineTriggerCondition.TriggerConditionPaths), lenPaths); err != nil {
+			return err
+		}
+		if lenPaths > 0 {
+			if err := CheckFieldEqualAndSet("PipelineTriggerCondition.TriggerConditionPaths[0]", pipelineTriggerCondition.TriggerConditionPaths[0], expectedTriggerCondition.TriggerConditionPaths[0]); err != nil {
+				return err
+			}
+		}
+		if err := CheckFieldEqual("PipelineTriggerCondition.TriggerVariableKey", pipelineTriggerCondition.TriggerVariableKey, expectedTriggerCondition.TriggerVariableKey); err != nil {
+			return err
+		}
+		if err := CheckFieldEqual("PipelineTriggerCondition.TriggerVariableValue", pipelineTriggerCondition.TriggerVariableValue, expectedTriggerCondition.TriggerVariableValue); err != nil {
+			return err
+		}
+		if err := CheckFieldEqual("PipelineTriggerCondition.ZoneId", pipelineTriggerCondition.ZoneId, expectedTriggerCondition.ZoneId); err != nil {
+			return err
+		}
+		if err := CheckFieldEqual("PipelineTriggerCondition.TriggerProjectName", pipelineTriggerCondition.TriggerProjectName, expectedTriggerCondition.TriggerProjectName); err != nil {
+			return err
+		}
+		if err := CheckFieldEqual("PipelineTriggerCondition.TriggerPipelineName", pipelineTriggerCondition.TriggerPipelineName, expectedTriggerCondition.TriggerPipelineName); err != nil {
+			return err
+		}
+		lenHours := len(expectedTriggerCondition.TriggerHours)
+		lenDays := len(expectedTriggerCondition.TriggerDays)
+		if err := CheckIntFieldEqual("len(PipelineTriggerCondition.TriggerHours)", len(pipelineTriggerCondition.TriggerHours), lenHours); err != nil {
+			return err
+		}
+		if lenHours > 0 {
+			if err := CheckIntFieldEqualAndSet("PipelineTriggerCondition.TriggerHours[0]", pipelineTriggerCondition.TriggerHours[0], expectedTriggerCondition.TriggerHours[0]); err != nil {
+				return err
+			}
+		}
+		if err := CheckIntFieldEqual("len(PipelineTriggerCondition.TriggerDays)", len(pipelineTriggerCondition.TriggerDays), lenDays); err != nil {
+			return err
+		}
+		if lenDays > 0 {
+			if err := CheckIntFieldEqualAndSet("PipelineTriggerCondition.TriggerDays[0]", pipelineTriggerCondition.TriggerDays[0], expectedTriggerCondition.TriggerDays[0]); err != nil {
+				return err
+			}
+		}
+	}
+	if executionMessageTemplate != "" {
+		if err := CheckFieldEqualAndSet("Pipeline.ExecutionMessageTemplate", pipeline.ExecutionMessageTemplate, executionMessageTemplate); err != nil {
+			return err
+		}
+	}
+	if err := CheckFieldSet("Pipeline.LastExecutionStatus", pipeline.LastExecutionStatus); err != nil {
+		return err
+	}
+	if err := CheckFieldSet("Pipeline.CreateDate", pipeline.CreateDate); err != nil {
+		return err
+	}
+	if priority != "" {
+		if err := CheckFieldEqualAndSet("Pipeline.Priority", pipeline.Priority, priority); err != nil {
+			return err
+		}
+	}
+	if err := CheckBoolFieldEqual("Pipeline.AlwaysFromScratch", pipeline.AlwaysFromScratch, alwaysFromScratch); err != nil {
+		return err
+	}
+	if err := CheckBoolFieldEqual("Pipeline.FailOnPrepareEnvWarning", pipeline.FailOnPrepareEnvWarning, failOnPrepareEnvWarning); err != nil {
+		return err
+	}
+	if err := CheckBoolFieldEqual("Pipeline.FetchAllRefs", pipeline.FetchAllRefs, fetchAllRefs); err != nil {
+		return err
+	}
+	if err := CheckBoolFieldEqual("Pipeline.AutoClearCache", pipeline.AutoClearCache, autoClearCache); err != nil {
+		return err
+	}
+	if err := CheckBoolFieldEqual("Pipeline.NoSkipToMostRecent", pipeline.NoSkipToMostRecent, noSkipToMostRecent); err != nil {
+		return err
+	}
+	if err := CheckBoolFieldEqual("Pipeline.DoNotCreateCommitStatus", pipeline.DoNotCreateCommitStatus, doNotCreateCommitStatus); err != nil {
+		return err
+	}
+	if err := CheckBoolFieldEqual("Pipeline.IgnoreFailOnProjectStatus", pipeline.IgnoreFailOnProjectStatus, ignoreFailOnProjectStatus); err != nil {
+		return err
+	}
+	if err := CheckFieldEqual("Pipeline.StartDate", pipeline.StartDate, startDate); err != nil {
+		return err
+	}
+	if err := CheckIntFieldEqual("Pipeline.Delay", pipeline.Delay, delay); err != nil {
+		return err
+	}
+	if err := CheckIntFieldEqual("Pipeline.CloneDepth", pipeline.CloneDepth, cloneDepth); err != nil {
+		return err
+	}
+	if err := CheckFieldEqual("Pipeline.Cron", pipeline.Cron, cron); err != nil {
+		return err
+	}
+	if err := CheckBoolFieldEqual("Pipeline.Paused", pipeline.Paused, paused); err != nil {
+		return err
+	}
+	if err := CheckFieldEqual("Pipeline.Worker", pipeline.Worker, worker); err != nil {
+		return err
+	}
+	if err := CheckFieldEqual("Pipeline.TargetSiteUrl", pipeline.TargetSiteUrl, targetSiteUrl); err != nil {
+		return err
+	}
+	if err := CheckIntFieldEqual("len(Pipeline.Tags)", len(pipeline.Tags), lenTags); err != nil {
+		return err
+	}
+	if lenTags > 0 {
+		if err := CheckFieldEqualAndSet("Pipeline.Tags[0]", pipeline.Tags[0], tags[0]); err != nil {
+			return err
+		}
+	}
+	if pipeline.Project == nil {
+		return errors.New("Pipeline.Project must be set")
+	}
+	if err := CheckProject(pipeline.Project, project.Name, project.DisplayName, true); err != nil {
+		return err
+	}
+	if pipeline.Creator == nil {
+		return errors.New("Pipeline.Creator must be set")
+	}
+	if err := CheckMember(pipeline.Creator, "", "", true, true, 0); err != nil {
+		return err
+	}
+	if err := CheckFieldEqual("Pipeline.DefinitionSource", pipeline.DefinitionSource, definitionSource); err != nil {
+		return err
+	}
+	if err := CheckFieldEqual("Pipeline.RemotePath", pipeline.RemotePath, remotePath); err != nil {
+		return err
+	}
+	if err := CheckFieldEqual("Pipeline.RemoteBranch", pipeline.RemoteBranch, remoteBranch); err != nil {
+		return err
+	}
+	if err := CheckFieldEqual("Pipeline.RemoteProjectName", pipeline.RemoteProjectName, remoteProjectName); err != nil {
+		return err
+	}
+	if err := CheckIntFieldEqual("len(Pipeline.RemoteParameters)", len(pipeline.RemoteParameters), lenRemoteParameters); err != nil {
+		return err
+	}
+	if lenRemoteParameters > 0 {
+		if err := CheckFieldEqualAndSet("Pipeline.RemoteParameters[0].Key", pipeline.RemoteParameters[0].Key, remoteParameters[0].Key); err != nil {
+			return err
+		}
+		if err := CheckFieldEqualAndSet("Pipeline.RemoteParameters[0].Value", pipeline.RemoteParameters[0].Value, remoteParameters[0].Value); err != nil {
+			return err
+		}
+	}
+	if err := CheckBoolFieldEqual("Pipeline.Disabled", pipeline.Disabled, disabled); err != nil {
+		return err
+	}
+	if err := CheckFieldEqual("Pipeline.DisabledReason", pipeline.DisabledReason, disabledReason); err != nil {
 		return err
 	}
 	return nil
