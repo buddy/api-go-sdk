@@ -17,7 +17,7 @@ func testGroupCreate(client *buddy.Client, workspace *buddy.Workspace, out *budd
 		if err != nil {
 			t.Fatal(ErrorFormatted("GroupService.Create", err))
 		}
-		err = CheckGroup(group, name, desc, 0)
+		err = CheckGroup(group, name, desc, false, 0, 0)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -37,9 +37,30 @@ func testGroupUpdate(client *buddy.Client, workspace *buddy.Workspace, group *bu
 		var err error
 		groupUpdated, _, err := client.GroupService.Update(workspace.Domain, groupId, &ops)
 		if err != nil {
-			t.Fatal(ErrorFormatted("GroupService.Create", err))
+			t.Fatal(ErrorFormatted("GroupService.Update", err))
 		}
-		err = CheckGroup(groupUpdated, name, desc, groupId)
+		err = CheckGroup(groupUpdated, name, desc, group.AutoAssignToNewProjects, group.AutoAssignPermissionSetId, groupId)
+		if err != nil {
+			t.Fatal(err)
+		}
+		*group = *groupUpdated
+	}
+}
+
+func testGroupUpdateAssignToProjects(client *buddy.Client, workspace *buddy.Workspace, permission *buddy.Permission, group *buddy.Group) func(t *testing.T) {
+	return func(t *testing.T) {
+		assign := true
+		ops := buddy.GroupOps{
+			AutoAssignToNewProjects:   &assign,
+			AutoAssignPermissionSetId: &permission.Id,
+		}
+		groupId := group.Id
+		var err error
+		groupUpdated, _, err := client.GroupService.Update(workspace.Domain, groupId, &ops)
+		if err != nil {
+			t.Fatal(ErrorFormatted("GroupService.Update", err))
+		}
+		err = CheckGroup(groupUpdated, group.Name, group.Description, assign, permission.Id, groupId)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -53,7 +74,7 @@ func testGroupGet(client *buddy.Client, workspace *buddy.Workspace, group *buddy
 		if err != nil {
 			t.Fatal(ErrorFormatted("GroupService.Get", err))
 		}
-		err = CheckGroup(groupGet, group.Name, group.Description, group.Id)
+		err = CheckGroup(groupGet, group.Name, group.Description, group.AutoAssignToNewProjects, group.AutoAssignPermissionSetId, group.Id)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -91,7 +112,7 @@ func testGroupMemberAdd(client *buddy.Client, workspace *buddy.Workspace, group 
 		if err != nil {
 			t.Fatal(ErrorFormatted("GroupService.AddGroupMember", err))
 		}
-		err = CheckMember(memberAdded, member.Email, member.Name, member.Admin, member.WorkspaceOwner, member.Id)
+		err = CheckMember(memberAdded, member.Email, member.Name, false, 0, member.Admin, member.WorkspaceOwner, member.Id)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -104,7 +125,7 @@ func testGroupMemberGet(client *buddy.Client, workspace *buddy.Workspace, group 
 		if err != nil {
 			t.Fatal(ErrorFormatted("GroupService.GetGroupMember", err))
 		}
-		err = CheckMember(memberGet, member.Email, member.Name, member.Admin, member.WorkspaceOwner, member.Id)
+		err = CheckMember(memberGet, member.Email, member.Name, false, 0, member.Admin, member.WorkspaceOwner, member.Id)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -135,8 +156,9 @@ func testGroupMembersGet(client *buddy.Client, workspace *buddy.Workspace, group
 
 func TestGroup(t *testing.T) {
 	seed, err := SeedInitialData(&SeedOps{
-		workspace: true,
-		member:    true,
+		workspace:  true,
+		member:     true,
+		permission: true,
 	})
 	if err != nil {
 		t.Fatal(ErrorFormatted("SeedInitialData", err))
@@ -144,6 +166,7 @@ func TestGroup(t *testing.T) {
 	var group buddy.Group
 	t.Run("Create", testGroupCreate(seed.Client, seed.Workspace, &group))
 	t.Run("Update", testGroupUpdate(seed.Client, seed.Workspace, &group))
+	t.Run("UpdateProjectAssign", testGroupUpdateAssignToProjects(seed.Client, seed.Workspace, seed.Permission, &group))
 	t.Run("Get", testGroupGet(seed.Client, seed.Workspace, &group))
 	t.Run("GetList", testGroupsGet(seed.Client, seed.Workspace, 1))
 	t.Run("MemberAdd", testGroupMemberAdd(seed.Client, seed.Workspace, &group, seed.Member))

@@ -9,11 +9,13 @@ type GroupService struct {
 }
 
 type Group struct {
-	Url         string `json:"url"`
-	HtmlUrl     string `json:"html_url"`
-	Id          int    `json:"id"`
-	Name        string `json:"name"`
-	Description string `json:"description"`
+	Url                       string `json:"url"`
+	HtmlUrl                   string `json:"html_url"`
+	Id                        int    `json:"id"`
+	Name                      string `json:"name"`
+	Description               string `json:"description"`
+	AutoAssignToNewProjects   bool   `json:"auto_assign_to_new_projects"`
+	AutoAssignPermissionSetId int    `json:"auto_assign_permission_set_id"`
 }
 
 type Groups struct {
@@ -23,8 +25,10 @@ type Groups struct {
 }
 
 type GroupOps struct {
-	Name        *string `json:"name,omitempty"`
-	Description *string `json:"description,omitempty"`
+	Name                      *string `json:"name,omitempty"`
+	Description               *string `json:"description,omitempty"`
+	AutoAssignToNewProjects   *bool   `json:"auto_assign_to_new_projects,omitempty"`
+	AutoAssignPermissionSetId *int    `json:"auto_assign_permission_set_id,omitempty"`
 }
 
 type GroupMemberOps struct {
