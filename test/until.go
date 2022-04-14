@@ -158,7 +158,7 @@ func SeedInitialData(ops *SeedOps) (*Seed, error) {
 		}
 		if ops.member {
 			email := RandEmail()
-			m := buddy.MemberOps{
+			m := buddy.MemberCreateOps{
 				Email: &email,
 			}
 			member, _, err := client.MemberService.Create(domain, &m)
@@ -240,7 +240,7 @@ func CheckProject(project *buddy.Project, name string, displayName string, short
 		if err := CheckFieldSet("Project.DefaultBranch", project.DefaultBranch); err != nil {
 			return err
 		}
-		if err := CheckMember(project.CreatedBy, "", "", true, true, 0); err != nil {
+		if err := CheckMember(project.CreatedBy, "", "", false, 0, true, true, 0); err != nil {
 			return err
 		}
 	}
@@ -248,7 +248,7 @@ func CheckProject(project *buddy.Project, name string, displayName string, short
 }
 
 func CheckProjectGroup(projectGroup *buddy.ProjectGroup, group *buddy.Group, permission *buddy.Permission) error {
-	if err := CheckGroup(&projectGroup.Group, group.Name, group.Description, group.Id); err != nil {
+	if err := CheckGroup(&projectGroup.Group, group.Name, group.Description, group.AutoAssignToNewProjects, group.AutoAssignPermissionSetId, group.Id); err != nil {
 		return err
 	}
 	if err := CheckPermission(projectGroup.PermissionSet, permission.Name, permission.Description, permission.Id, permission.PipelineAccessLevel, permission.RepositoryAccessLevel, permission.SandboxAccessLevel); err != nil {
@@ -258,7 +258,7 @@ func CheckProjectGroup(projectGroup *buddy.ProjectGroup, group *buddy.Group, per
 }
 
 func CheckProjectMember(projectMember *buddy.ProjectMember, member *buddy.Member, permission *buddy.Permission) error {
-	if err := CheckMember(&projectMember.Member, member.Email, member.Name, member.Admin, member.WorkspaceOwner, member.Id); err != nil {
+	if err := CheckMember(&projectMember.Member, member.Email, member.Name, member.AutoAssignToNewProjects, member.AutoAssignPermissionSetId, member.Admin, member.WorkspaceOwner, member.Id); err != nil {
 		return err
 	}
 	if err := CheckPermission(projectMember.PermissionSet, permission.Name, permission.Description, permission.Id, permission.PipelineAccessLevel, permission.RepositoryAccessLevel, permission.SandboxAccessLevel); err != nil {
@@ -267,7 +267,7 @@ func CheckProjectMember(projectMember *buddy.ProjectMember, member *buddy.Member
 	return nil
 }
 
-func CheckMember(member *buddy.Member, email string, name string, admin bool, owner bool, id int) error {
+func CheckMember(member *buddy.Member, email string, name string, assignToProject bool, assignToProjectPermId int, admin bool, owner bool, id int) error {
 	if err := CheckFieldSet("Member.Url", member.Url); err != nil {
 		return err
 	}
@@ -294,6 +294,14 @@ func CheckMember(member *buddy.Member, email string, name string, admin bool, ow
 		}
 	} else {
 		if err := CheckFieldSet("Member.Email", member.Email); err != nil {
+			return err
+		}
+	}
+	if err := CheckBoolFieldEqual("Member.AutoAssignToNewProjects", member.AutoAssignToNewProjects, assignToProject); err != nil {
+		return err
+	}
+	if assignToProject {
+		if err := CheckIntFieldEqual("Member.AutoAssignPermissionSetId", member.AutoAssignPermissionSetId, assignToProjectPermId); err != nil {
 			return err
 		}
 	}
@@ -603,16 +611,16 @@ func CheckSourceFile(sf *buddy.SourceFile, name string, path string, message str
 	if err := CheckFieldEqualAndSet("SourceFile.Commit.Message", sf.Commit.Message, message); err != nil {
 		return err
 	}
-	if err := CheckMember(sf.Commit.Committer, "", "", true, true, 0); err != nil {
+	if err := CheckMember(sf.Commit.Committer, "", "", false, 0, true, true, 0); err != nil {
 		return err
 	}
-	if err := CheckMember(sf.Commit.Author, "", "", true, true, 0); err != nil {
+	if err := CheckMember(sf.Commit.Author, "", "", false, 0, true, true, 0); err != nil {
 		return err
 	}
 	return nil
 }
 
-func CheckGroup(group *buddy.Group, name string, desc string, id int) error {
+func CheckGroup(group *buddy.Group, name string, desc string, assignToProjects bool, assignToProjectsPermId int, id int) error {
 	if err := CheckFieldSet("Group.Url", group.Url); err != nil {
 		return err
 	}
@@ -625,6 +633,14 @@ func CheckGroup(group *buddy.Group, name string, desc string, id int) error {
 		}
 	} else {
 		if err := CheckIntFieldSet("Group.Id", group.Id); err != nil {
+			return err
+		}
+	}
+	if err := CheckBoolFieldEqual("Group.AutoAssignToNewProjects", group.AutoAssignToNewProjects, assignToProjects); err != nil {
+		return err
+	}
+	if assignToProjects {
+		if err := CheckIntFieldEqual("Group.AutoAssignPermissionSetId", group.AutoAssignPermissionSetId, assignToProjectsPermId); err != nil {
 			return err
 		}
 	}
@@ -1065,7 +1081,7 @@ func CheckPipeline(project *buddy.Project, pipeline *buddy.Pipeline, expected *b
 	if pipeline.Creator == nil {
 		return errors.New("Pipeline.Creator must be set")
 	}
-	if err := CheckMember(pipeline.Creator, "", "", true, true, 0); err != nil {
+	if err := CheckMember(pipeline.Creator, "", "", false, 0, true, true, 0); err != nil {
 		return err
 	}
 	if err := CheckFieldEqual("Pipeline.DefinitionSource", pipeline.DefinitionSource, definitionSource); err != nil {
