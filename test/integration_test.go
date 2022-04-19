@@ -15,6 +15,8 @@ func TestIntegration(t *testing.T) {
 		t.Fatal(ErrorFormatted("SeedInitialData", err))
 	}
 	t.Run("Amazon", testIntegrationAmazon(seed.Client, seed.Workspace))
+	t.Run("GitHub", testIntegrationGitHub(seed.Client, seed.Workspace))
+	t.Run("GitLab", testIntegrationGitLab(seed.Client, seed.Workspace))
 	t.Run("DigitalOcean", testIntegrationDigitalOcean(seed.Client, seed.Workspace, seed.Project))
 	t.Run("Shopify", testIntegrationShopify(seed.Client, seed.Workspace, seed.Group, seed.Project))
 }
@@ -80,6 +82,60 @@ func testIntegrationDelete(client *buddy.Client, workspace *buddy.Workspace, has
 		if err != nil {
 			t.Fatal(ErrorFormatted("IntegrationService.Delete", err))
 		}
+	}
+}
+
+func testIntegrationGitLab(client *buddy.Client, workspace *buddy.Workspace) func(t *testing.T) {
+	return func(t *testing.T) {
+		name := RandString(10)
+		typ := buddy.IntegrationTypeGitLab
+		scope := buddy.IntegrationScopeWorkspace
+		token := RandString(10)
+		var integration buddy.Integration
+		createOps := buddy.IntegrationOps{
+			Name:  &name,
+			Type:  &typ,
+			Scope: &scope,
+			Token: &token,
+		}
+		newName := RandString(10)
+		newScope := buddy.IntegrationScopeAdmin
+		updateOps := buddy.IntegrationOps{
+			Scope: &newScope,
+			Name:  &newName,
+		}
+		t.Run("Create", testIntegrationCreate(client, workspace, &createOps, &integration))
+		t.Run("Update", testIntegrationUpdate(client, workspace, integration.HashId, &updateOps, &integration))
+		t.Run("Get", testIntegrationGet(client, workspace, integration.HashId, &integration))
+		t.Run("GetList", testIntegrationGetList(client, workspace, 1))
+		t.Run("Delete", testIntegrationDelete(client, workspace, integration.HashId))
+	}
+}
+
+func testIntegrationGitHub(client *buddy.Client, workspace *buddy.Workspace) func(t *testing.T) {
+	return func(t *testing.T) {
+		name := RandString(10)
+		typ := buddy.IntegrationTypeGitHub
+		scope := buddy.IntegrationScopeWorkspace
+		token := RandString(10)
+		var integration buddy.Integration
+		createOps := buddy.IntegrationOps{
+			Name:  &name,
+			Type:  &typ,
+			Scope: &scope,
+			Token: &token,
+		}
+		newName := RandString(10)
+		newScope := buddy.IntegrationScopeAdmin
+		updateOps := buddy.IntegrationOps{
+			Scope: &newScope,
+			Name:  &newName,
+		}
+		t.Run("Create", testIntegrationCreate(client, workspace, &createOps, &integration))
+		t.Run("Update", testIntegrationUpdate(client, workspace, integration.HashId, &updateOps, &integration))
+		t.Run("Get", testIntegrationGet(client, workspace, integration.HashId, &integration))
+		t.Run("GetList", testIntegrationGetList(client, workspace, 1))
+		t.Run("Delete", testIntegrationDelete(client, workspace, integration.HashId))
 	}
 }
 
