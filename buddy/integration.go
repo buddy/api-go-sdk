@@ -26,6 +26,8 @@ const (
 	IntegrationTypeAzureCloud           = "AZURE_CLOUD"
 	IntegrationTypeDockerHub            = "DOCKER_HUB"
 	IntegrationTypeGoogleServiceAccount = "GOOGLE_SERVICE_ACCOUNT"
+	IntegrationTypeGitHub               = "GIT_HUB"
+	IntegrationTypeGitLab               = "GIT_LAB"
 
 	IntegrationScopePrivate        = "PRIVATE"
 	IntegrationScopeWorkspace      = "WORKSPACE"
