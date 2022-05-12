@@ -8,11 +8,24 @@ import (
 
 func testProjectCustomCreate(client *buddy.Client, workspace *buddy.Workspace, out *buddy.Project) func(t *testing.T) {
 	return func(t *testing.T) {
+		variables, _, err := client.VariableService.GetList(workspace.Domain, nil)
+		if err != nil {
+			t.Fatal(ErrorFormatted("VariableService.GetList", err))
+		}
+		var variableId int
+		for _, v := range variables.Variables {
+			if v.Type == buddy.VariableTypeSshKey {
+				variableId = v.Id
+				break
+			}
+		}
+
 		repoUrl := "git@github.com:octocat/Hello-World.git"
 		displayName := UniqueString()
 		ops := buddy.ProjectCreateOps{
-			DisplayName:   &displayName,
-			CustomRepoUrl: &repoUrl,
+			DisplayName:        &displayName,
+			CustomRepoUrl:      &repoUrl,
+			CustomRepoSshKeyId: &variableId,
 		}
 		project, _, err := client.ProjectService.Create(workspace.Domain, &ops)
 		if err != nil {

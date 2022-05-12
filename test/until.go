@@ -231,12 +231,6 @@ func CheckProject(project *buddy.Project, name string, displayName string, short
 		if err := CheckFieldSet("Project.SshRepository", project.SshRepository); err != nil {
 			return err
 		}
-		if err := CheckFieldSet("Project.SshPublicKey", project.SshPublicKey); err != nil {
-			return err
-		}
-		if err := CheckFieldSet("Project.KeyFingerprint", project.KeyFingerprint); err != nil {
-			return err
-		}
 		if err := CheckFieldSet("Project.DefaultBranch", project.DefaultBranch); err != nil {
 			return err
 		}
