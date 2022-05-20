@@ -12,18 +12,20 @@ func testPermissionCreate(client *buddy.Client, workspace *buddy.Workspace, out 
 		pipelineAccessLevel := buddy.PermissionAccessLevelRunOnly
 		repositoryAccessLevel := buddy.PermissionAccessLevelReadWrite
 		sandboxAccessLevel := buddy.PermissionAccessLevelDenied
+		projectTeamAccessLevel := buddy.PermissionAccessLevelReadOnly
 		ops := buddy.PermissionOps{
-			Name:                  &name,
-			Description:           &desc,
-			PipelineAccessLevel:   &pipelineAccessLevel,
-			RepositoryAccessLevel: &repositoryAccessLevel,
-			SandboxAccessLevel:    &sandboxAccessLevel,
+			Name:                   &name,
+			Description:            &desc,
+			PipelineAccessLevel:    &pipelineAccessLevel,
+			RepositoryAccessLevel:  &repositoryAccessLevel,
+			SandboxAccessLevel:     &sandboxAccessLevel,
+			ProjectTeamAccessLevel: &projectTeamAccessLevel,
 		}
 		permission, _, err := client.PermissionService.Create(workspace.Domain, &ops)
 		if err != nil {
 			t.Fatal(ErrorFormatted("PermissionService.Create", err))
 		}
-		err = CheckPermission(permission, name, desc, 0, pipelineAccessLevel, repositoryAccessLevel, sandboxAccessLevel)
+		err = CheckPermission(permission, name, desc, 0, pipelineAccessLevel, repositoryAccessLevel, sandboxAccessLevel, projectTeamAccessLevel)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -37,19 +39,21 @@ func testPermissionUpdate(client *buddy.Client, workspace *buddy.Workspace, out 
 		desc := ""
 		pipelineAccessLevel := buddy.PermissionAccessLevelReadWrite
 		repositoryAccessLevel := buddy.PermissionAccessLevelManage
-		sandboxAccessLevel := buddy.PermissionTypeReadOnly
+		sandboxAccessLevel := buddy.PermissionAccessLevelReadWrite
+		projectTeamAccessLevel := buddy.PermissionAccessLevelManage
 		ops := buddy.PermissionOps{
-			Name:                  &name,
-			Description:           &desc,
-			PipelineAccessLevel:   &pipelineAccessLevel,
-			RepositoryAccessLevel: &repositoryAccessLevel,
-			SandboxAccessLevel:    &sandboxAccessLevel,
+			Name:                   &name,
+			Description:            &desc,
+			PipelineAccessLevel:    &pipelineAccessLevel,
+			RepositoryAccessLevel:  &repositoryAccessLevel,
+			SandboxAccessLevel:     &sandboxAccessLevel,
+			ProjectTeamAccessLevel: &projectTeamAccessLevel,
 		}
 		permission, _, err := client.PermissionService.Update(workspace.Domain, out.Id, &ops)
 		if err != nil {
 			t.Fatal(ErrorFormatted("PermissionService.Patch", err))
 		}
-		err = CheckPermission(permission, name, desc, out.Id, pipelineAccessLevel, repositoryAccessLevel, sandboxAccessLevel)
+		err = CheckPermission(permission, name, desc, out.Id, pipelineAccessLevel, repositoryAccessLevel, sandboxAccessLevel, projectTeamAccessLevel)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -63,7 +67,7 @@ func testPermissionGet(client *buddy.Client, workspace *buddy.Workspace, permiss
 		if err != nil {
 			t.Fatal(ErrorFormatted("PermissionService.Get", err))
 		}
-		err = CheckPermission(permissionGet, permission.Name, permission.Description, permission.Id, permission.PipelineAccessLevel, permission.RepositoryAccessLevel, permission.SandboxAccessLevel)
+		err = CheckPermission(permissionGet, permission.Name, permission.Description, permission.Id, permission.PipelineAccessLevel, permission.RepositoryAccessLevel, permission.SandboxAccessLevel, permission.ProjectTeamAccessLevel)
 		if err != nil {
 			t.Fatal(err)
 		}

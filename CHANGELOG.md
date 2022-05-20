@@ -1,3 +1,6 @@
+# Release v1.2.0 (2022-xx-xx)
+* Adds `project_team_access_level` to `permission`
+
 # Release v1.1.2 (2022-xx-xx)
 * Adds `custom_repo_ssh_key_id` when creating custom project
 

@@ -11,21 +11,23 @@ const (
 	PermissionAccessLevelManage    = "MANAGE"
 	PermissionAccessLevelRunOnly   = "RUN_ONLY"
 
-	PermissionTypeDeveloper = "DEVELOPER"
-	PermissionTypeReadOnly  = "READ_ONLY"
-	PermissionTypeCustom    = "CUSTOM"
+	PermissionTypeDeveloper      = "DEVELOPER"
+	PermissionTypeReadOnly       = "READ_ONLY"
+	PermissionTypeProjectManager = "PROJECT_MANAGER"
+	PermissionTypeCustom         = "CUSTOM"
 )
 
 type Permission struct {
-	Url                   string `json:"url"`
-	HtmlUrl               string `json:"html_url"`
-	Id                    int    `json:"id"`
-	Name                  string `json:"name"`
-	Description           string `json:"description"`
-	Type                  string `json:"type"`
-	RepositoryAccessLevel string `json:"repository_access_level"`
-	PipelineAccessLevel   string `json:"pipeline_access_level"`
-	SandboxAccessLevel    string `json:"sandbox_access_level"`
+	Url                    string `json:"url"`
+	HtmlUrl                string `json:"html_url"`
+	Id                     int    `json:"id"`
+	Name                   string `json:"name"`
+	Description            string `json:"description"`
+	Type                   string `json:"type"`
+	RepositoryAccessLevel  string `json:"repository_access_level"`
+	PipelineAccessLevel    string `json:"pipeline_access_level"`
+	SandboxAccessLevel     string `json:"sandbox_access_level"`
+	ProjectTeamAccessLevel string `json:"project_team_access_level"`
 }
 
 type Permissions struct {
@@ -35,11 +37,12 @@ type Permissions struct {
 }
 
 type PermissionOps struct {
-	Description           *string `json:"description,omitempty"`
-	Name                  *string `json:"name"`
-	PipelineAccessLevel   *string `json:"pipeline_access_level"`
-	RepositoryAccessLevel *string `json:"repository_access_level"`
-	SandboxAccessLevel    *string `json:"sandbox_access_level"`
+	Description            *string `json:"description,omitempty"`
+	Name                   *string `json:"name"`
+	PipelineAccessLevel    *string `json:"pipeline_access_level"`
+	ProjectTeamAccessLevel *string `json:"project_team_access_level"`
+	RepositoryAccessLevel  *string `json:"repository_access_level"`
+	SandboxAccessLevel     *string `json:"sandbox_access_level"`
 }
 
 type PermissionService struct {
