@@ -104,6 +104,6 @@ func TestPermission(t *testing.T) {
 	t.Run("Create", testPermissionCreate(seed.Client, seed.Workspace, &permission))
 	t.Run("Update", testPermissionUpdate(seed.Client, seed.Workspace, &permission))
 	t.Run("Get", testPermissionGet(seed.Client, seed.Workspace, &permission))
-	t.Run("GetList", testPermissionGetList(seed.Client, seed.Workspace, 3))
+	t.Run("GetList", testPermissionGetList(seed.Client, seed.Workspace, 4))
 	t.Run("Delete", testPermissionDelete(seed.Client, seed.Workspace, &permission))
 }

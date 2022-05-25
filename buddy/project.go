@@ -23,8 +23,6 @@ type Project struct {
 	CreatedBy      *Member `json:"created_by"`
 	HttpRepository string  `json:"http_repository"`
 	SshRepository  string  `json:"ssh_repository"`
-	SshPublicKey   string  `json:"ssh_public_key"`
-	KeyFingerprint string  `json:"key_fingerprint"`
 	DefaultBranch  string  `json:"default_branch"`
 }
 
@@ -39,14 +37,15 @@ type ProjectIntegration struct {
 }
 
 type ProjectCreateOps struct {
-	Name              *string             `json:"name,omitempty"`
-	DisplayName       *string             `json:"display_name,omitempty"`
-	ExternalProjectId *string             `json:"external_project_id,omitempty"`
-	GitLabProjectId   *string             `json:"git_lab_project_id,omitempty"`
-	CustomRepoUrl     *string             `json:"custom_repo_url,omitempty"`
-	CustomRepoUser    *string             `json:"custom_repo_user,omitempty"`
-	CustomRepoPass    *string             `json:"custom_repo_pass,omitempty"`
-	Integration       *ProjectIntegration `json:"integration,omitempty"`
+	Name               *string             `json:"name,omitempty"`
+	DisplayName        *string             `json:"display_name,omitempty"`
+	ExternalProjectId  *string             `json:"external_project_id,omitempty"`
+	GitLabProjectId    *string             `json:"git_lab_project_id,omitempty"`
+	CustomRepoUrl      *string             `json:"custom_repo_url,omitempty"`
+	CustomRepoUser     *string             `json:"custom_repo_user,omitempty"`
+	CustomRepoPass     *string             `json:"custom_repo_pass,omitempty"`
+	CustomRepoSshKeyId *int                `json:"custom_repo_ssh_key_id,omitempty"`
+	Integration        *ProjectIntegration `json:"integration,omitempty"`
 }
 
 type ProjectUpdateOps struct {

@@ -214,7 +214,7 @@ func TestVariable(t *testing.T) {
 	t.Run("Create", testVariableCreate(seed.Client, seed.Workspace, nil, buddy.VariableTypeVar, &variable))
 	t.Run("Update", testVariableUpdate(seed.Client, seed.Workspace, &variable))
 	t.Run("Get", testVariableGet(seed.Client, seed.Workspace, &variable))
-	t.Run("GetList", testVariableGetList(seed.Client, seed.Workspace, nil, 1))
+	t.Run("GetList", testVariableGetList(seed.Client, seed.Workspace, nil, 2))
 	t.Run("GetListInProject", testVariableGetList(seed.Client, seed.Workspace, seed.Project, 1))
 	t.Run("Delete", testVariableDelete(seed.Client, seed.Workspace, &variable))
 }
@@ -231,7 +231,7 @@ func TestVariableSsh(t *testing.T) {
 	t.Run("Create", testVariableCreate(seed.Client, seed.Workspace, seed.Project, buddy.VariableTypeSshKey, &variable))
 	t.Run("Update", testVariableUpdate(seed.Client, seed.Workspace, &variable))
 	t.Run("Get", testVariableGet(seed.Client, seed.Workspace, &variable))
-	t.Run("GetList", testVariableGetList(seed.Client, seed.Workspace, nil, 0))
+	t.Run("GetList", testVariableGetList(seed.Client, seed.Workspace, nil, 1))
 	t.Run("GetListInProject", testVariableGetList(seed.Client, seed.Workspace, seed.Project, 2))
 	t.Run("Delete", testVariableDelete(seed.Client, seed.Workspace, &variable))
 }
