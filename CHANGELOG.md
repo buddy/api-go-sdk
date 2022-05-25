@@ -1,4 +1,4 @@
-# Release v1.1.2 (2022-xx-xx)
+# Release v1.1.2 (2022-05-25)
 * Adds `custom_repo_ssh_key_id` when creating custom project
 
 # Release v1.1.1 (2022-04-19)
