@@ -245,7 +245,7 @@ func CheckProjectGroup(projectGroup *buddy.ProjectGroup, group *buddy.Group, per
 	if err := CheckGroup(&projectGroup.Group, group.Name, group.Description, group.AutoAssignToNewProjects, group.AutoAssignPermissionSetId, group.Id); err != nil {
 		return err
 	}
-	if err := CheckPermission(projectGroup.PermissionSet, permission.Name, permission.Description, permission.Id, permission.PipelineAccessLevel, permission.RepositoryAccessLevel, permission.SandboxAccessLevel); err != nil {
+	if err := CheckPermission(projectGroup.PermissionSet, permission.Name, permission.Description, permission.Id, permission.PipelineAccessLevel, permission.RepositoryAccessLevel, permission.SandboxAccessLevel, permission.ProjectTeamAccessLevel); err != nil {
 		return err
 	}
 	return nil
@@ -255,7 +255,7 @@ func CheckProjectMember(projectMember *buddy.ProjectMember, member *buddy.Member
 	if err := CheckMember(&projectMember.Member, member.Email, member.Name, member.AutoAssignToNewProjects, member.AutoAssignPermissionSetId, member.Admin, member.WorkspaceOwner, member.Id); err != nil {
 		return err
 	}
-	if err := CheckPermission(projectMember.PermissionSet, permission.Name, permission.Description, permission.Id, permission.PipelineAccessLevel, permission.RepositoryAccessLevel, permission.SandboxAccessLevel); err != nil {
+	if err := CheckPermission(projectMember.PermissionSet, permission.Name, permission.Description, permission.Id, permission.PipelineAccessLevel, permission.RepositoryAccessLevel, permission.SandboxAccessLevel, permission.ProjectTeamAccessLevel); err != nil {
 		return err
 	}
 	return nil
@@ -372,7 +372,7 @@ func CheckGroups(groups *buddy.Groups, count int) error {
 	return nil
 }
 
-func CheckPermission(permission *buddy.Permission, name string, desc string, id int, pipelineAccessLevel string, repoAccessLevel string, sandboxAccessLevel string) error {
+func CheckPermission(permission *buddy.Permission, name string, desc string, id int, pipelineAccessLevel string, repoAccessLevel string, sandboxAccessLevel string, projectTeamAccessLevel string) error {
 	if err := CheckFieldSet("Permission.Url", permission.Url); err != nil {
 		return err
 	}
@@ -401,6 +401,9 @@ func CheckPermission(permission *buddy.Permission, name string, desc string, id 
 		return err
 	}
 	if err := CheckFieldEqualAndSet("Permission.SandboxAccessLevel", permission.SandboxAccessLevel, sandboxAccessLevel); err != nil {
+		return err
+	}
+	if err := CheckFieldEqualAndSet("Permission.ProjectTeamAccessLevel", permission.ProjectTeamAccessLevel, projectTeamAccessLevel); err != nil {
 		return err
 	}
 	return nil
