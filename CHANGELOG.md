@@ -1,4 +1,4 @@
-# Release v1.2.0 (2022-xx-xx)
+# Release v1.2.0 (2022-05-31)
 * Adds `project_team_access_level` to `permission`
 
 # Release v1.1.2 (2022-05-25)
