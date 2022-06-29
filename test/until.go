@@ -234,7 +234,7 @@ func CheckProject(project *buddy.Project, name string, displayName string, short
 		if err := CheckFieldSet("Project.DefaultBranch", project.DefaultBranch); err != nil {
 			return err
 		}
-		if err := CheckMember(project.CreatedBy, "", "", false, 0, true, true, 0); err != nil {
+		if err := CheckMember(project.CreatedBy, "", "", false, 0, true, true, 0, ""); err != nil {
 			return err
 		}
 	}
@@ -252,7 +252,7 @@ func CheckProjectGroup(projectGroup *buddy.ProjectGroup, group *buddy.Group, per
 }
 
 func CheckProjectMember(projectMember *buddy.ProjectMember, member *buddy.Member, permission *buddy.Permission) error {
-	if err := CheckMember(&projectMember.Member, member.Email, member.Name, member.AutoAssignToNewProjects, member.AutoAssignPermissionSetId, member.Admin, member.WorkspaceOwner, member.Id); err != nil {
+	if err := CheckMember(&projectMember.Member, member.Email, member.Name, member.AutoAssignToNewProjects, member.AutoAssignPermissionSetId, member.Admin, member.WorkspaceOwner, member.Id, ""); err != nil {
 		return err
 	}
 	if err := CheckPermission(projectMember.PermissionSet, permission.Name, permission.Description, permission.Id, permission.PipelineAccessLevel, permission.RepositoryAccessLevel, permission.SandboxAccessLevel, permission.ProjectTeamAccessLevel); err != nil {
@@ -261,7 +261,7 @@ func CheckProjectMember(projectMember *buddy.ProjectMember, member *buddy.Member
 	return nil
 }
 
-func CheckMember(member *buddy.Member, email string, name string, assignToProject bool, assignToProjectPermId int, admin bool, owner bool, id int) error {
+func CheckMember(member *buddy.Member, email string, name string, assignToProject bool, assignToProjectPermId int, admin bool, owner bool, id int, status string) error {
 	if err := CheckFieldSet("Member.Url", member.Url); err != nil {
 		return err
 	}
@@ -296,6 +296,11 @@ func CheckMember(member *buddy.Member, email string, name string, assignToProjec
 	}
 	if assignToProject {
 		if err := CheckIntFieldEqual("Member.AutoAssignPermissionSetId", member.AutoAssignPermissionSetId, assignToProjectPermId); err != nil {
+			return err
+		}
+	}
+	if status != "" {
+		if err := CheckFieldEqualAndSet("Member.Status", member.Status, status); err != nil {
 			return err
 		}
 	}
@@ -608,10 +613,10 @@ func CheckSourceFile(sf *buddy.SourceFile, name string, path string, message str
 	if err := CheckFieldEqualAndSet("SourceFile.Commit.Message", sf.Commit.Message, message); err != nil {
 		return err
 	}
-	if err := CheckMember(sf.Commit.Committer, "", "", false, 0, true, true, 0); err != nil {
+	if err := CheckMember(sf.Commit.Committer, "", "", false, 0, true, true, 0, ""); err != nil {
 		return err
 	}
-	if err := CheckMember(sf.Commit.Author, "", "", false, 0, true, true, 0); err != nil {
+	if err := CheckMember(sf.Commit.Author, "", "", false, 0, true, true, 0, ""); err != nil {
 		return err
 	}
 	return nil
@@ -1078,7 +1083,7 @@ func CheckPipeline(project *buddy.Project, pipeline *buddy.Pipeline, expected *b
 	if pipeline.Creator == nil {
 		return errors.New("Pipeline.Creator must be set")
 	}
-	if err := CheckMember(pipeline.Creator, "", "", false, 0, true, true, 0); err != nil {
+	if err := CheckMember(pipeline.Creator, "", "", false, 0, true, true, 0, ""); err != nil {
 		return err
 	}
 	if err := CheckFieldEqual("Pipeline.DefinitionSource", pipeline.DefinitionSource, definitionSource); err != nil {

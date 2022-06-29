@@ -15,7 +15,7 @@ func testMemberCreate(client *buddy.Client, workspace *buddy.Workspace, out *bud
 		if err != nil {
 			t.Fatal(ErrorFormatted("MemberService.Create", err))
 		}
-		err = CheckMember(member, email, "", false, 0, false, false, 0)
+		err = CheckMember(member, email, "", false, 0, false, false, 0, "")
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -34,7 +34,7 @@ func testMemberUpdateAssignToProject(client *buddy.Client, workspace *buddy.Work
 		if err != nil {
 			t.Fatal(ErrorFormatted("MemberService.Update", err))
 		}
-		err = CheckMember(memberUpdated, out.Email, out.Name, assign, permission.Id, out.Admin, out.WorkspaceOwner, out.Id)
+		err = CheckMember(memberUpdated, out.Email, out.Name, assign, permission.Id, out.Admin, out.WorkspaceOwner, out.Id, "")
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -52,7 +52,7 @@ func testMemberUpdateAdmin(client *buddy.Client, workspace *buddy.Workspace, out
 		if err != nil {
 			t.Fatal(ErrorFormatted("MemberService.Update", err))
 		}
-		err = CheckMember(memberUpdated, out.Email, out.Name, out.AutoAssignToNewProjects, out.AutoAssignPermissionSetId, admin, out.WorkspaceOwner, out.Id)
+		err = CheckMember(memberUpdated, out.Email, out.Name, out.AutoAssignToNewProjects, out.AutoAssignPermissionSetId, admin, out.WorkspaceOwner, out.Id, "")
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -66,7 +66,7 @@ func testMemberGet(client *buddy.Client, workspace *buddy.Workspace, out *buddy.
 		if err != nil {
 			t.Fatal(ErrorFormatted("MemberService.Get", err))
 		}
-		err = CheckMember(memberGet, out.Email, out.Name, out.AutoAssignToNewProjects, out.AutoAssignPermissionSetId, out.Admin, out.WorkspaceOwner, out.Id)
+		err = CheckMember(memberGet, out.Email, out.Name, out.AutoAssignToNewProjects, out.AutoAssignPermissionSetId, out.Admin, out.WorkspaceOwner, out.Id, "")
 		if err != nil {
 			t.Fatal(err)
 		}

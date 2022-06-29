@@ -17,6 +17,7 @@ type Member struct {
 	AvatarUrl                 string `json:"avatar_url"`
 	AutoAssignToNewProjects   bool   `json:"auto_assign_to_new_projects"`
 	AutoAssignPermissionSetId int    `json:"auto_assign_permission_set_id"`
+	Status                    string `json:"status"`
 	Admin                     bool   `json:"admin"`
 	WorkspaceOwner            bool   `json:"workspace_owner"`
 }

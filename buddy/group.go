@@ -4,6 +4,11 @@ import (
 	"net/http"
 )
 
+const (
+	GroupMemberStatusManager = "MANAGER"
+	GroupMemberStatusMember  = "MEMBER"
+)
+
 type GroupService struct {
 	client *Client
 }
@@ -32,7 +37,8 @@ type GroupOps struct {
 }
 
 type GroupMemberOps struct {
-	Id *int `json:"id"`
+	Id     *int    `json:"id,omitempty"`
+	Status *string `json:"status,omitempty"`
 }
 
 func (s *GroupService) Get(domain string, groupId int) (*Group, *http.Response, error) {
@@ -71,6 +77,15 @@ func (s *GroupService) AddGroupMember(domain string, groupId int, ops *GroupMemb
 
 func (s *GroupService) DeleteGroupMember(domain string, groupId int, memberId int) (*http.Response, error) {
 	return s.client.Delete(s.client.NewUrlPath("/workspaces/%s/groups/%d/members/%d", domain, groupId, memberId), nil, nil)
+}
+
+func (s *GroupService) UpdateGroupMember(domain string, groupId int, memberId int, status string) (*Member, *http.Response, error) {
+	var m *Member
+	ops := GroupMemberOps{
+		Status: &status,
+	}
+	resp, err := s.client.Patch(s.client.NewUrlPath("/workspaces/%s/groups/%d/members/%d", domain, groupId, memberId), &ops, nil, &m)
+	return m, resp, err
 }
 
 func (s *GroupService) GetGroupMember(domain string, groupId int, memberId int) (*Member, *http.Response, error) {

@@ -103,29 +103,47 @@ func testGroupDelete(client *buddy.Client, workspace *buddy.Workspace, group *bu
 	}
 }
 
-func testGroupMemberAdd(client *buddy.Client, workspace *buddy.Workspace, group *buddy.Group, member *buddy.Member) func(t *testing.T) {
+func testGroupMemberUpdate(client *buddy.Client, workspace *buddy.Workspace, group *buddy.Group, member *buddy.Member, status string) func(t *testing.T) {
 	return func(t *testing.T) {
-		ops := buddy.GroupMemberOps{
-			Id: &member.Id,
-		}
-		memberAdded, _, err := client.GroupService.AddGroupMember(workspace.Domain, group.Id, &ops)
+		memberUpdated, _, err := client.GroupService.UpdateGroupMember(workspace.Domain, group.Id, member.Id, status)
 		if err != nil {
-			t.Fatal(ErrorFormatted("GroupService.AddGroupMember", err))
+			t.Fatal(ErrorFormatted("GroupService.UpdateGroupMember", err))
 		}
-		err = CheckMember(memberAdded, member.Email, member.Name, false, 0, member.Admin, member.WorkspaceOwner, member.Id)
+		err = CheckMember(memberUpdated, member.Email, member.Name, false, 0, member.Admin, member.WorkspaceOwner, member.Id, status)
 		if err != nil {
 			t.Fatal(err)
 		}
 	}
 }
 
-func testGroupMemberGet(client *buddy.Client, workspace *buddy.Workspace, group *buddy.Group, member *buddy.Member) func(t *testing.T) {
+func testGroupMemberAdd(client *buddy.Client, workspace *buddy.Workspace, group *buddy.Group, member *buddy.Member, status string) func(t *testing.T) {
+	return func(t *testing.T) {
+		ops := buddy.GroupMemberOps{
+			Id: &member.Id,
+		}
+		if status != "" {
+			ops.Status = &status
+		} else {
+			status = buddy.GroupMemberStatusMember
+		}
+		memberAdded, _, err := client.GroupService.AddGroupMember(workspace.Domain, group.Id, &ops)
+		if err != nil {
+			t.Fatal(ErrorFormatted("GroupService.AddGroupMember", err))
+		}
+		err = CheckMember(memberAdded, member.Email, member.Name, false, 0, member.Admin, member.WorkspaceOwner, member.Id, status)
+		if err != nil {
+			t.Fatal(err)
+		}
+	}
+}
+
+func testGroupMemberGet(client *buddy.Client, workspace *buddy.Workspace, group *buddy.Group, member *buddy.Member, status string) func(t *testing.T) {
 	return func(t *testing.T) {
 		memberGet, _, err := client.GroupService.GetGroupMember(workspace.Domain, group.Id, member.Id)
 		if err != nil {
 			t.Fatal(ErrorFormatted("GroupService.GetGroupMember", err))
 		}
-		err = CheckMember(memberGet, member.Email, member.Name, false, 0, member.Admin, member.WorkspaceOwner, member.Id)
+		err = CheckMember(memberGet, member.Email, member.Name, false, 0, member.Admin, member.WorkspaceOwner, member.Id, status)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -164,14 +182,23 @@ func TestGroup(t *testing.T) {
 		t.Fatal(ErrorFormatted("SeedInitialData", err))
 	}
 	var group buddy.Group
+	var member buddy.Member
+	t.Run("CreateManager", testMemberCreate(seed.Client, seed.Workspace, &member))
 	t.Run("Create", testGroupCreate(seed.Client, seed.Workspace, &group))
 	t.Run("Update", testGroupUpdate(seed.Client, seed.Workspace, &group))
 	t.Run("UpdateProjectAssign", testGroupUpdateAssignToProjects(seed.Client, seed.Workspace, seed.Permission, &group))
 	t.Run("Get", testGroupGet(seed.Client, seed.Workspace, &group))
 	t.Run("GetList", testGroupsGet(seed.Client, seed.Workspace, 1))
-	t.Run("MemberAdd", testGroupMemberAdd(seed.Client, seed.Workspace, &group, seed.Member))
-	t.Run("MemberGet", testGroupMemberGet(seed.Client, seed.Workspace, &group, seed.Member))
-	t.Run("MemberGetList", testGroupMembersGet(seed.Client, seed.Workspace, &group, 1))
+	t.Run("MemberAdd", testGroupMemberAdd(seed.Client, seed.Workspace, &group, seed.Member, ""))
+	t.Run("ManagerAdd", testGroupMemberAdd(seed.Client, seed.Workspace, &group, &member, buddy.GroupMemberStatusManager))
+	t.Run("MemberGet", testGroupMemberGet(seed.Client, seed.Workspace, &group, seed.Member, buddy.GroupMemberStatusMember))
+	t.Run("MemberGet", testGroupMemberGet(seed.Client, seed.Workspace, &group, &member, buddy.GroupMemberStatusManager))
+	t.Run("MemberUpdate", testGroupMemberUpdate(seed.Client, seed.Workspace, &group, seed.Member, buddy.GroupMemberStatusManager))
+	t.Run("MemberUpdate", testGroupMemberUpdate(seed.Client, seed.Workspace, &group, &member, buddy.GroupMemberStatusMember))
+	t.Run("MemberGet", testGroupMemberGet(seed.Client, seed.Workspace, &group, seed.Member, buddy.GroupMemberStatusManager))
+	t.Run("MemberGet", testGroupMemberGet(seed.Client, seed.Workspace, &group, &member, buddy.GroupMemberStatusMember))
+	t.Run("MemberGetList", testGroupMembersGet(seed.Client, seed.Workspace, &group, 2))
 	t.Run("MemberDelete", testGroupMemberDelete(seed.Client, seed.Workspace, &group, seed.Member))
+	t.Run("MemberDelete", testGroupMemberDelete(seed.Client, seed.Workspace, &group, &member))
 	t.Run("Delete", testGroupDelete(seed.Client, seed.Workspace, &group))
 }
