@@ -1,3 +1,6 @@
+# Release v1.3.0 (2022-06-29)
+* Adds `status` to `GroupMember`
+
 # Release v1.2.0 (2022-05-31)
 * Adds `project_team_access_level` to `permission`
 
