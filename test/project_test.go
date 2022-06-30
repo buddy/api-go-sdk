@@ -150,7 +150,7 @@ func TestProjectCustom(t *testing.T) {
 	}
 	var project buddy.Project
 	t.Run("Create", testProjectCustomCreate(seed.Client, seed.Workspace, &project))
-	time.Sleep(10 * time.Second)
+	time.Sleep(20 * time.Second)
 	t.Run("Update", testProjectUpdate(seed.Client, seed.Workspace, &project))
 	t.Run("Get", testProjectGet(seed.Client, seed.Workspace, &project))
 	t.Run("GetList", testProjectGetList(seed.Client, seed.Workspace, 2))
