@@ -170,6 +170,7 @@ func TestProjectBuddy(t *testing.T) {
 func TestProjectCustom(t *testing.T) {
 	seed, err := SeedInitialData(&SeedOps{
 		workspace: true,
+		project:   true,
 	})
 	if err != nil {
 		t.Fatal(ErrorFormatted("SeedInitialData", err))
