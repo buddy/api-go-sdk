@@ -100,21 +100,23 @@ func ErrorFieldEmpty(field string) error {
 }
 
 type SeedOps struct {
-	workspace  bool
-	project    bool
-	group      bool
-	member     bool
-	permission bool
+	workspace      bool
+	project        bool
+	group          bool
+	member         bool
+	permission     bool
+	gitIntegration bool
 }
 
 type Seed struct {
-	Client      *buddy.Client
-	Workspace   *buddy.Workspace
-	Project     *buddy.Project
-	Group       *buddy.Group
-	Member      *buddy.Member
-	Permission  *buddy.Permission
-	Permission2 *buddy.Permission
+	Client         *buddy.Client
+	Workspace      *buddy.Workspace
+	Project        *buddy.Project
+	Group          *buddy.Group
+	Member         *buddy.Member
+	Permission     *buddy.Permission
+	Permission2    *buddy.Permission
+	GitIntegration *buddy.Integration
 }
 
 func SeedInitialData(ops *SeedOps) (*Seed, error) {
@@ -134,6 +136,23 @@ func SeedInitialData(ops *SeedOps) (*Seed, error) {
 			return nil, err
 		}
 		seed.Workspace = workspace
+		if ops.gitIntegration {
+			in := UniqueString()
+			it := buddy.IntegrationTypeGitHub
+			is := buddy.IntegrationScopeWorkspace
+			io := os.Getenv("BUDDY_GH_TOKEN")
+			i := buddy.IntegrationOps{
+				Name:  &in,
+				Type:  &it,
+				Scope: &is,
+				Token: &io,
+			}
+			integration, _, err := client.IntegrationService.Create(domain, &i)
+			if err != nil {
+				return nil, err
+			}
+			seed.GitIntegration = integration
+		}
 		if ops.project {
 			projectDisplayName := UniqueString()
 			p := buddy.ProjectCreateOps{
@@ -205,7 +224,7 @@ func SeedInitialData(ops *SeedOps) (*Seed, error) {
 	return &seed, nil
 }
 
-func CheckProject(project *buddy.Project, name string, displayName string, short bool) error {
+func CheckProject(project *buddy.Project, name string, displayName string, short bool, updateDefaultBranch bool) error {
 	if err := CheckFieldSet("Project.Url", project.Url); err != nil {
 		return err
 	}
@@ -222,6 +241,9 @@ func CheckProject(project *buddy.Project, name string, displayName string, short
 		return err
 	}
 	if !short {
+		if err := CheckBoolFieldEqual("Project.UpdateDefaultBranchFromExternal", project.UpdateDefaultBranchFromExternal, updateDefaultBranch); err != nil {
+			return err
+		}
 		if err := CheckFieldSet("Project.CreateDate", project.CreateDate); err != nil {
 			return err
 		}
@@ -1077,7 +1099,7 @@ func CheckPipeline(project *buddy.Project, pipeline *buddy.Pipeline, expected *b
 	if pipeline.Project == nil {
 		return errors.New("Pipeline.Project must be set")
 	}
-	if err := CheckProject(pipeline.Project, project.Name, project.DisplayName, true); err != nil {
+	if err := CheckProject(pipeline.Project, project.Name, project.DisplayName, true, false); err != nil {
 		return err
 	}
 	if pipeline.Creator == nil {
