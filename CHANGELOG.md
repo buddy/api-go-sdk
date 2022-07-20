@@ -1,3 +1,6 @@
+# Release v1.4.0 (2022-07-20)
+* Adds `update_default_branch_from_external` to `Project` integrated with external repository
+
 # Release v1.3.0 (2022-06-29)
 * Adds `status` to `GroupMember`
 

@@ -14,16 +14,17 @@ type ProjectService struct {
 }
 
 type Project struct {
-	Url            string  `json:"url"`
-	HtmlUrl        string  `json:"html_url"`
-	Name           string  `json:"name"`
-	DisplayName    string  `json:"display_name"`
-	Status         string  `json:"status"`
-	CreateDate     string  `json:"create_date"`
-	CreatedBy      *Member `json:"created_by"`
-	HttpRepository string  `json:"http_repository"`
-	SshRepository  string  `json:"ssh_repository"`
-	DefaultBranch  string  `json:"default_branch"`
+	Url                             string  `json:"url"`
+	HtmlUrl                         string  `json:"html_url"`
+	Name                            string  `json:"name"`
+	DisplayName                     string  `json:"display_name"`
+	Status                          string  `json:"status"`
+	CreateDate                      string  `json:"create_date"`
+	CreatedBy                       *Member `json:"created_by"`
+	HttpRepository                  string  `json:"http_repository"`
+	SshRepository                   string  `json:"ssh_repository"`
+	DefaultBranch                   string  `json:"default_branch"`
+	UpdateDefaultBranchFromExternal bool    `json:"update_default_branch_from_external"`
 }
 
 type Projects struct {
@@ -37,20 +38,22 @@ type ProjectIntegration struct {
 }
 
 type ProjectCreateOps struct {
-	Name               *string             `json:"name,omitempty"`
-	DisplayName        *string             `json:"display_name,omitempty"`
-	ExternalProjectId  *string             `json:"external_project_id,omitempty"`
-	GitLabProjectId    *string             `json:"git_lab_project_id,omitempty"`
-	CustomRepoUrl      *string             `json:"custom_repo_url,omitempty"`
-	CustomRepoUser     *string             `json:"custom_repo_user,omitempty"`
-	CustomRepoPass     *string             `json:"custom_repo_pass,omitempty"`
-	CustomRepoSshKeyId *int                `json:"custom_repo_ssh_key_id,omitempty"`
-	Integration        *ProjectIntegration `json:"integration,omitempty"`
+	Name                            *string             `json:"name,omitempty"`
+	DisplayName                     *string             `json:"display_name,omitempty"`
+	ExternalProjectId               *string             `json:"external_project_id,omitempty"`
+	GitLabProjectId                 *string             `json:"git_lab_project_id,omitempty"`
+	CustomRepoUrl                   *string             `json:"custom_repo_url,omitempty"`
+	CustomRepoUser                  *string             `json:"custom_repo_user,omitempty"`
+	CustomRepoPass                  *string             `json:"custom_repo_pass,omitempty"`
+	CustomRepoSshKeyId              *int                `json:"custom_repo_ssh_key_id,omitempty"`
+	UpdateDefaultBranchFromExternal *bool               `json:"update_default_branch_from_external,omitempty"`
+	Integration                     *ProjectIntegration `json:"integration,omitempty"`
 }
 
 type ProjectUpdateOps struct {
-	DisplayName *string `json:"display_name,omitempty"`
-	Name        *string `json:"name,omitempty"`
+	DisplayName                     *string `json:"display_name,omitempty"`
+	Name                            *string `json:"name,omitempty"`
+	UpdateDefaultBranchFromExternal *bool   `json:"update_default_branch_from_external,omitempty"`
 }
 
 type ProjectListQuery struct {
