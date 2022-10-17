@@ -7,6 +7,7 @@ require (
 	github.com/google/go-querystring v1.1.0
 	github.com/hashicorp/go-retryablehttp v0.7.1
 	github.com/hashicorp/terraform-plugin-sdk/v2 v2.16.0
+	golang.org/x/crypto v0.0.0-20220411220226-7b82a4e95df4
 	golang.org/x/time v0.0.0-20220411224347-583f2d630306
 )
 

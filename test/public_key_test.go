@@ -5,13 +5,13 @@ import (
 	"testing"
 )
 
-const (
-	ssh1 = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQC5h1SgFvq45BGpYIDowIlaWiGe24kZg2DJ8NYqFo003PcAGdk30oJNvBqJfooGaI7GUkVoCzx9w3Oz/CYmC/NKsz45yUafJRwOBAQ4Gtt1o5RfLNIgj4GlfP1WmCFXIe4cuzureUkPCUIx2K+i1oAOdbEVorzfR3zqPIN/0u3Jwq3nLGmLYS8xCTq3odJT7GvyAj1jyOnXo+dpYZRm6LIteAkhtrnIAI+Le87Bp7JivPZwov/DG7HjW4IuStlTCJOQoYSUtTTu/zBWfSIbmZFakNqIBpiw8vmCeOOgBeOA5u4/JdfNMxH3CP0zxspjPplxkl3DiK/bBs1EGL0zvJrf test1"
-)
-
 func testPublicKeyCreate(client *buddy.Client, out *buddy.PublicKey) func(t *testing.T) {
 	return func(t *testing.T) {
-		content := ssh1
+		err, publicKey, _ := GenerateRsaKeyPair()
+		if err != nil {
+			t.Fatal(ErrorFormatted("testPublicKeyCreate", err))
+		}
+		content := publicKey
 		title := RandString(10)
 		ops := buddy.PublicKeyOps{
 			Content: &content,

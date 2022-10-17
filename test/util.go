@@ -1,12 +1,18 @@
 package test
 
 import (
+	crand "crypto/rand"
+	"crypto/rsa"
+	"crypto/x509"
+	"encoding/pem"
 	"errors"
 	"fmt"
 	"github.com/buddy/api-go-sdk/buddy"
+	"golang.org/x/crypto/ssh"
 	"math/rand"
 	"os"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -687,7 +693,7 @@ func CheckPublicKey(key *buddy.PublicKey, title string, content string, id int) 
 	if err := CheckFieldEqualAndSet("PublicKey.Title", key.Title, title); err != nil {
 		return err
 	}
-	if err := CheckFieldEqualAndSet("PublicKey.Content", key.Content, content); err != nil {
+	if err := CheckFieldEqualAndSet("PublicKey.Content", strings.TrimSpace(key.Content), strings.TrimSpace(content)); err != nil {
 		return err
 	}
 	if id != 0 {
@@ -1138,6 +1144,25 @@ func CheckPipeline(project *buddy.Project, pipeline *buddy.Pipeline, expected *b
 		return err
 	}
 	return nil
+}
+
+func GenerateRsaKeyPair() (error, string, string) {
+	privateKey, err := rsa.GenerateKey(crand.Reader, 4096)
+	if err != nil {
+		return err, "", ""
+	}
+	privateKeyBytes := x509.MarshalPKCS1PrivateKey(privateKey)
+	privateKeyBlock := &pem.Block{
+		Type:  "RSA PRIVATE KEY",
+		Bytes: privateKeyBytes,
+	}
+	privateKeyBytesEncoded := pem.EncodeToMemory(privateKeyBlock)
+	sshPublicKey, err := ssh.NewPublicKey(&privateKey.PublicKey)
+	if err != nil {
+		return err, "", ""
+	}
+	sshPublicKeyBytes := ssh.MarshalAuthorizedKey(sshPublicKey)
+	return nil, string(sshPublicKeyBytes), string(privateKeyBytesEncoded)
 }
 
 func CheckIntegration(integration *buddy.Integration, expected *buddy.Integration, ops *buddy.IntegrationOps) error {
