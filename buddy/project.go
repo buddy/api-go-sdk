@@ -7,6 +7,9 @@ import (
 const (
 	ProjectStatusActive = "ACTIVE"
 	ProjectStatusClosed = "CLOSED"
+
+	ProjectAccessPublic  = "PUBLIC"
+	ProjectAccessPrivate = "PRIVATE"
 )
 
 type ProjectService struct {
@@ -25,6 +28,10 @@ type Project struct {
 	SshRepository                   string  `json:"ssh_repository"`
 	DefaultBranch                   string  `json:"default_branch"`
 	UpdateDefaultBranchFromExternal bool    `json:"update_default_branch_from_external"`
+	FetchSubmodules                 bool    `json:"fetch_submodules"`
+	FetchSubmodulesEnvKey           string  `json:"fetch_submodules_env_key"`
+	Access                          string  `json:"access"`
+	AllowPullRequests               bool    `json:"allow_pull_requests"`
 }
 
 type Projects struct {
@@ -48,12 +55,20 @@ type ProjectCreateOps struct {
 	CustomRepoSshKeyId              *int                `json:"custom_repo_ssh_key_id,omitempty"`
 	UpdateDefaultBranchFromExternal *bool               `json:"update_default_branch_from_external,omitempty"`
 	Integration                     *ProjectIntegration `json:"integration,omitempty"`
+	FetchSubmodules                 *bool               `json:"fetch_submodules,omitempty"`
+	FetchSubmodulesEnvKey           *string             `json:"fetch_submodules_env_key,omitempty"`
+	Access                          *string             `json:"access,omitempty"`
+	AllowPullRequests               *bool               `json:"allow_pull_requests,omitempty"`
 }
 
 type ProjectUpdateOps struct {
 	DisplayName                     *string `json:"display_name,omitempty"`
 	Name                            *string `json:"name,omitempty"`
 	UpdateDefaultBranchFromExternal *bool   `json:"update_default_branch_from_external,omitempty"`
+	FetchSubmodules                 *bool   `json:"fetch_submodules,omitempty"`
+	FetchSubmodulesEnvKey           *string `json:"fetch_submodules_env_key,omitempty"`
+	Access                          *string `json:"access,omitempty"`
+	AllowPullRequests               *bool   `json:"allow_pull_requests,omitempty"`
 }
 
 type ProjectListQuery struct {

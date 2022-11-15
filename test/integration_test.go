@@ -14,7 +14,7 @@ func TestIntegration(t *testing.T) {
 	if err != nil {
 		t.Fatal(ErrorFormatted("SeedInitialData", err))
 	}
-	t.Run("Amazon", testIntegrationAmazon(seed.Client, seed.Workspace))
+	t.Run("Amazon", testIntegrationAmazon(seed.Client, seed.Workspace, seed.Project))
 	t.Run("GitHub", testIntegrationGitHub(seed.Client, seed.Workspace))
 	t.Run("GitLab", testIntegrationGitLab(seed.Client, seed.Workspace))
 	t.Run("DigitalOcean", testIntegrationDigitalOcean(seed.Client, seed.Workspace, seed.Project))
@@ -139,7 +139,7 @@ func testIntegrationGitHub(client *buddy.Client, workspace *buddy.Workspace) fun
 	}
 }
 
-func testIntegrationAmazon(client *buddy.Client, workspace *buddy.Workspace) func(t *testing.T) {
+func testIntegrationAmazon(client *buddy.Client, workspace *buddy.Workspace, project *buddy.Project) func(t *testing.T) {
 	return func(t *testing.T) {
 		name := RandString(10)
 		scope := buddy.IntegrationScopeAdmin
@@ -166,10 +166,11 @@ func testIntegrationAmazon(client *buddy.Client, workspace *buddy.Workspace) fun
 			RoleAssumptions: &roleAssumptions,
 		}
 		newName := RandString(10)
-		newScope := buddy.IntegrationScopeWorkspace
+		newScope := buddy.IntegrationScopePrivateInProject
 		updateOps := buddy.IntegrationOps{
-			Scope: &newScope,
-			Name:  &newName,
+			Scope:       &newScope,
+			ProjectName: &project.Name,
+			Name:        &newName,
 		}
 		t.Run("Create", testIntegrationCreate(client, workspace, &createOps, &integration))
 		t.Run("Update", testIntegrationUpdate(client, workspace, integration.HashId, &updateOps, &integration))
