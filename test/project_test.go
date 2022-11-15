@@ -15,17 +15,19 @@ func testProjectExternalCreate(client *buddy.Client, workspace *buddy.Workspace,
 		}
 		n := os.Getenv("BUDDY_GH_PROJECT")
 		updateBranch := false
+		allowPullRequests := true
 		ops := buddy.ProjectCreateOps{
 			DisplayName:                     &displayName,
 			Integration:                     &i,
 			ExternalProjectId:               &n,
 			UpdateDefaultBranchFromExternal: &updateBranch,
+			AllowPullRequests:               &allowPullRequests,
 		}
 		project, _, err := client.ProjectService.Create(workspace.Domain, &ops)
 		if err != nil {
 			t.Fatal(ErrorFormatted("ProjectService.Create", err))
 		}
-		err = CheckProject(project, displayName, displayName, false, updateBranch)
+		err = CheckProject(project, displayName, displayName, false, updateBranch, allowPullRequests, false, "", buddy.ProjectAccessPrivate)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -48,16 +50,20 @@ func testProjectCustomCreate(client *buddy.Client, workspace *buddy.Workspace, o
 		}
 		repoUrl := "git@github.com:octocat/Hello-World.git"
 		displayName := UniqueString()
+		fetchSubmodules := true
+		fetchSubmodulesEnvKey := "id_workspace"
 		ops := buddy.ProjectCreateOps{
-			DisplayName:        &displayName,
-			CustomRepoUrl:      &repoUrl,
-			CustomRepoSshKeyId: &variableId,
+			DisplayName:           &displayName,
+			CustomRepoUrl:         &repoUrl,
+			CustomRepoSshKeyId:    &variableId,
+			FetchSubmodules:       &fetchSubmodules,
+			FetchSubmodulesEnvKey: &fetchSubmodulesEnvKey,
 		}
 		project, _, err := client.ProjectService.Create(workspace.Domain, &ops)
 		if err != nil {
 			t.Fatal(ErrorFormatted("ProjectService.Create", err))
 		}
-		err = CheckProject(project, displayName, displayName, false, false)
+		err = CheckProject(project, displayName, displayName, false, false, false, fetchSubmodules, fetchSubmodulesEnvKey, buddy.ProjectAccessPrivate)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -68,14 +74,16 @@ func testProjectCustomCreate(client *buddy.Client, workspace *buddy.Workspace, o
 func testProjectCreate(client *buddy.Client, workspace *buddy.Workspace, out *buddy.Project) func(t *testing.T) {
 	return func(t *testing.T) {
 		displayName := UniqueString()
+		access := buddy.ProjectAccessPublic
 		ops := buddy.ProjectCreateOps{
 			DisplayName: &displayName,
+			Access:      &access,
 		}
 		project, _, err := client.ProjectService.Create(workspace.Domain, &ops)
 		if err != nil {
 			t.Fatal(ErrorFormatted("ProjectService.Create", err))
 		}
-		err = CheckProject(project, displayName, displayName, false, false)
+		err = CheckProject(project, displayName, displayName, false, false, false, false, "", access)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -83,7 +91,7 @@ func testProjectCreate(client *buddy.Client, workspace *buddy.Workspace, out *bu
 	}
 }
 
-func testProjectUpdate(client *buddy.Client, workspace *buddy.Workspace, updateBranch bool, out *buddy.Project) func(t *testing.T) {
+func testProjectUpdate(client *buddy.Client, workspace *buddy.Workspace, updateBranch bool, allowPullRequests bool, fetchSubmodules bool, fetchSubmodulesKey string, access string, out *buddy.Project) func(t *testing.T) {
 	return func(t *testing.T) {
 		displayName := RandString(10)
 		name := UniqueString()
@@ -91,12 +99,16 @@ func testProjectUpdate(client *buddy.Client, workspace *buddy.Workspace, updateB
 			DisplayName:                     &displayName,
 			Name:                            &name,
 			UpdateDefaultBranchFromExternal: &updateBranch,
+			Access:                          &access,
+			AllowPullRequests:               &allowPullRequests,
+			FetchSubmodules:                 &fetchSubmodules,
+			FetchSubmodulesEnvKey:           &fetchSubmodulesKey,
 		}
 		project, _, err := client.ProjectService.Update(workspace.Domain, out.Name, &ops)
 		if err != nil {
 			t.Fatal(ErrorFormatted("ProjectService.Update", err))
 		}
-		err = CheckProject(project, name, displayName, false, updateBranch)
+		err = CheckProject(project, name, displayName, false, updateBranch, allowPullRequests, fetchSubmodules, fetchSubmodulesKey, access)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -110,7 +122,7 @@ func testProjectGet(client *buddy.Client, workspace *buddy.Workspace, out *buddy
 		if err != nil {
 			t.Fatal(ErrorFormatted("ProjectService.Get", err))
 		}
-		err = CheckProject(project, out.Name, out.DisplayName, false, out.UpdateDefaultBranchFromExternal)
+		err = CheckProject(project, out.Name, out.DisplayName, false, out.UpdateDefaultBranchFromExternal, out.AllowPullRequests, out.FetchSubmodules, out.FetchSubmodulesEnvKey, out.Access)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -161,7 +173,7 @@ func TestProjectBuddy(t *testing.T) {
 	}
 	var project buddy.Project
 	t.Run("Create", testProjectCreate(seed.Client, seed.Workspace, &project))
-	t.Run("Update", testProjectUpdate(seed.Client, seed.Workspace, false, &project))
+	t.Run("Update", testProjectUpdate(seed.Client, seed.Workspace, false, false, false, "", buddy.ProjectAccessPrivate, &project))
 	t.Run("Get", testProjectGet(seed.Client, seed.Workspace, &project))
 	t.Run("GetList", testProjectGetList(seed.Client, seed.Workspace, 1))
 	t.Run("GetListAll", testProjectGetListAll(seed.Client, seed.Workspace, 1))
@@ -178,7 +190,7 @@ func TestProjectCustom(t *testing.T) {
 	var project buddy.Project
 	t.Run("Create", testProjectCustomCreate(seed.Client, seed.Workspace, &project))
 	time.Sleep(20 * time.Second)
-	t.Run("Update", testProjectUpdate(seed.Client, seed.Workspace, false, &project))
+	t.Run("Update", testProjectUpdate(seed.Client, seed.Workspace, false, false, false, "", buddy.ProjectAccessPublic, &project))
 	t.Run("Get", testProjectGet(seed.Client, seed.Workspace, &project))
 	t.Run("GetList", testProjectGetList(seed.Client, seed.Workspace, 2))
 	t.Run("GetListAll", testProjectGetListAll(seed.Client, seed.Workspace, 2))
@@ -195,5 +207,5 @@ func TestProjectExternal(t *testing.T) {
 	var project buddy.Project
 	t.Run("Create", testProjectExternalCreate(seed.Client, seed.Workspace, seed.GitIntegration, &project))
 	time.Sleep(20 * time.Second)
-	t.Run("Update", testProjectUpdate(seed.Client, seed.Workspace, true, &project))
+	t.Run("Update", testProjectUpdate(seed.Client, seed.Workspace, true, false, false, "", buddy.ProjectAccessPrivate, &project))
 }

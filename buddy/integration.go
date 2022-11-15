@@ -29,13 +29,14 @@ const (
 	IntegrationTypeGitHub               = "GIT_HUB"
 	IntegrationTypeGitLab               = "GIT_LAB"
 
-	IntegrationScopePrivate        = "PRIVATE"
-	IntegrationScopeWorkspace      = "WORKSPACE"
-	IntegrationScopeAdmin          = "ADMIN"
-	IntegrationScopeGroup          = "GROUP"
-	IntegrationScopeProject        = "PROJECT"
-	IntegrationScopeAdminInProject = "ADMIN_IN_PROJECT"
-	IntegrationScopeGroupInProject = "GROUP_IN_PROJECT"
+	IntegrationScopePrivate          = "PRIVATE"
+	IntegrationScopeWorkspace        = "WORKSPACE"
+	IntegrationScopeAdmin            = "ADMIN"
+	IntegrationScopeGroup            = "GROUP"
+	IntegrationScopeProject          = "PROJECT"
+	IntegrationScopeAdminInProject   = "ADMIN_IN_PROJECT"
+	IntegrationScopeGroupInProject   = "GROUP_IN_PROJECT"
+	IntegrationScopePrivateInProject = "PRIVATE_IN_PROJECT"
 )
 
 type Integration struct {
@@ -55,9 +56,9 @@ type Integrations struct {
 }
 
 type IntegrationOps struct {
-	Name            *string            `json:"name"`
-	Type            *string            `json:"type"`
-	Scope           *string            `json:"scope"`
+	Name            *string            `json:"name,omitempty"`
+	Type            *string            `json:"type,omitempty"`
+	Scope           *string            `json:"scope,omitempty"`
 	ProjectName     *string            `json:"project_name,omitempty"`
 	GroupId         *int               `json:"group_id,omitempty"`
 	Username        *string            `json:"username,omitempty"`

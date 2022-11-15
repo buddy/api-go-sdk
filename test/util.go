@@ -230,7 +230,7 @@ func SeedInitialData(ops *SeedOps) (*Seed, error) {
 	return &seed, nil
 }
 
-func CheckProject(project *buddy.Project, name string, displayName string, short bool, updateDefaultBranch bool) error {
+func CheckProject(project *buddy.Project, name string, displayName string, short bool, updateDefaultBranch bool, allowPullRequests bool, fetchSubmodules bool, fetchSubmodulesKey string, access string) error {
 	if err := CheckFieldSet("Project.Url", project.Url); err != nil {
 		return err
 	}
@@ -261,6 +261,20 @@ func CheckProject(project *buddy.Project, name string, displayName string, short
 		}
 		if err := CheckFieldSet("Project.DefaultBranch", project.DefaultBranch); err != nil {
 			return err
+		}
+		if err := CheckFieldEqual("Project.Access", project.Access, access); err != nil {
+			return err
+		}
+		if err := CheckBoolFieldEqual("Project.AllowPullRequests", project.AllowPullRequests, allowPullRequests); err != nil {
+			return err
+		}
+		if err := CheckBoolFieldEqual("Project.FetchSubmodules", project.FetchSubmodules, fetchSubmodules); err != nil {
+			return err
+		}
+		if fetchSubmodules {
+			if err := CheckFieldEqual("Project.FetchSubmodulesEnvKey", project.FetchSubmodulesEnvKey, fetchSubmodulesKey); err != nil {
+				return err
+			}
 		}
 		if err := CheckMember(project.CreatedBy, "", "", false, 0, true, true, 0, ""); err != nil {
 			return err
@@ -1105,7 +1119,7 @@ func CheckPipeline(project *buddy.Project, pipeline *buddy.Pipeline, expected *b
 	if pipeline.Project == nil {
 		return errors.New("Pipeline.Project must be set")
 	}
-	if err := CheckProject(pipeline.Project, project.Name, project.DisplayName, true, false); err != nil {
+	if err := CheckProject(pipeline.Project, project.Name, project.DisplayName, true, false, false, false, "", buddy.ProjectAccessPrivate); err != nil {
 		return err
 	}
 	if pipeline.Creator == nil {
@@ -1189,7 +1203,7 @@ func CheckIntegration(integration *buddy.Integration, expected *buddy.Integratio
 			groupId = *ops.GroupId
 		}
 	}
-	if scope != buddy.IntegrationScopeProject && scope != buddy.IntegrationScopeGroupInProject && scope != buddy.IntegrationScopeAdminInProject {
+	if scope != buddy.IntegrationScopeProject && scope != buddy.IntegrationScopeGroupInProject && scope != buddy.IntegrationScopeAdminInProject && scope != buddy.IntegrationScopePrivateInProject {
 		projectName = ""
 	}
 	if scope != buddy.IntegrationScopeGroup && scope != buddy.IntegrationScopeGroupInProject {
