@@ -24,7 +24,6 @@ type Variable struct {
 	Encrypted      bool   `json:"encrypted"`
 	Settable       bool   `json:"settable"`
 	Description    string `json:"description"`
-	FileName       string `json:"file_name"`
 	FilePath       string `json:"file_path"`
 	FileChmod      string `json:"file_chmod"`
 	FilePlace      string `json:"file_place"`
@@ -50,7 +49,6 @@ type VariableOps struct {
 	Pipeline    *VariablePipeline `json:"pipeline,omitempty"`
 	Action      *VariableAction   `json:"action,omitempty"`
 	FilePlace   *string           `json:"file_place,omitempty"`
-	FileName    *string           `json:"file_name,omitempty"`
 	FilePath    *string           `json:"file_path,omitempty"`
 	FileChmod   *string           `json:"file_chmod,omitempty"`
 }

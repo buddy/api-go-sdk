@@ -1,3 +1,6 @@
+# Release v1.6.0 (2022-12-01)
+* Remove `file_name` from `Variable`
+
 # Release v1.5.0 (2022-10-15)
 * Adds `allow_pull_requests, access, fetch_submodules, fetch_submodules_env_key` to `Project`
 * Adds new scope `PRIVATE_IN_PROJECT` to `Integration`

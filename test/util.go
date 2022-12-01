@@ -540,7 +540,7 @@ func CheckWorkspace(workspace *buddy.Workspace, name string, domain string, id i
 	return nil
 }
 
-func CheckVariable(variable *buddy.Variable, key string, val string, typ string, desc string, set bool, enc bool, fileName string, filePath string, fileChmod string, filePlace string, id int) error {
+func CheckVariable(variable *buddy.Variable, key string, val string, typ string, desc string, set bool, enc bool, filePath string, fileChmod string, filePlace string, id int) error {
 	if id != 0 {
 		if err := CheckIntFieldEqualAndSet("Variable.Id", variable.Id, id); err != nil {
 			return err
@@ -566,9 +566,6 @@ func CheckVariable(variable *buddy.Variable, key string, val string, typ string,
 		return err
 	}
 	if typ == buddy.VariableTypeSshKey {
-		if err := CheckFieldEqualAndSet("Variable.FileName", variable.FileName, fileName); err != nil {
-			return err
-		}
 		if err := CheckFieldEqualAndSet("Variable.FilePath", variable.FilePath, filePath); err != nil {
 			return err
 		}
