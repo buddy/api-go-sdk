@@ -32,6 +32,7 @@ type Project struct {
 	FetchSubmodulesEnvKey           string  `json:"fetch_submodules_env_key"`
 	Access                          string  `json:"access"`
 	AllowPullRequests               bool    `json:"allow_pull_requests"`
+	WithoutRepository               bool    `json:"without_repository,omitempty"`
 }
 
 type Projects struct {
@@ -59,6 +60,7 @@ type ProjectCreateOps struct {
 	FetchSubmodulesEnvKey           *string             `json:"fetch_submodules_env_key,omitempty"`
 	Access                          *string             `json:"access,omitempty"`
 	AllowPullRequests               *bool               `json:"allow_pull_requests,omitempty"`
+	WithoutRepository               *bool               `json:"without_repository,omitempty"`
 }
 
 type ProjectUpdateOps struct {
