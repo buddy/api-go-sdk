@@ -1,3 +1,6 @@
+# Release v1.7.0 (2022-12-08)
+* Adds `without_repository` to `Project`
+
 # Release v1.6.0 (2022-12-01)
 * Remove `file_name` from `Variable`
 

@@ -230,7 +230,7 @@ func SeedInitialData(ops *SeedOps) (*Seed, error) {
 	return &seed, nil
 }
 
-func CheckProject(project *buddy.Project, name string, displayName string, short bool, updateDefaultBranch bool, allowPullRequests bool, fetchSubmodules bool, fetchSubmodulesKey string, access string) error {
+func CheckProject(project *buddy.Project, name string, displayName string, short bool, updateDefaultBranch bool, allowPullRequests bool, fetchSubmodules bool, fetchSubmodulesKey string, access string, withoutRepository bool) error {
 	if err := CheckFieldSet("Project.Url", project.Url); err != nil {
 		return err
 	}
@@ -266,6 +266,9 @@ func CheckProject(project *buddy.Project, name string, displayName string, short
 			return err
 		}
 		if err := CheckBoolFieldEqual("Project.AllowPullRequests", project.AllowPullRequests, allowPullRequests); err != nil {
+			return err
+		}
+		if err := CheckBoolFieldEqual("Project.WithoutRepository", project.WithoutRepository, withoutRepository); err != nil {
 			return err
 		}
 		if err := CheckBoolFieldEqual("Project.FetchSubmodules", project.FetchSubmodules, fetchSubmodules); err != nil {
@@ -1116,7 +1119,7 @@ func CheckPipeline(project *buddy.Project, pipeline *buddy.Pipeline, expected *b
 	if pipeline.Project == nil {
 		return errors.New("Pipeline.Project must be set")
 	}
-	if err := CheckProject(pipeline.Project, project.Name, project.DisplayName, true, false, false, false, "", buddy.ProjectAccessPrivate); err != nil {
+	if err := CheckProject(pipeline.Project, project.Name, project.DisplayName, true, false, false, false, "", buddy.ProjectAccessPrivate, false); err != nil {
 		return err
 	}
 	if pipeline.Creator == nil {
