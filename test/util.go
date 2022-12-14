@@ -858,8 +858,12 @@ func CheckPipeline(project *buddy.Project, pipeline *buddy.Pipeline, expected *b
 	remoteParameters := expected.RemoteParameters
 	disabled := expected.Disabled
 	disabledReason := expected.DisabledReason
+	permissions := expected.Permissions
 	id := expected.Id
 	if ops != nil {
+		if ops.Permissions != nil {
+			permissions = ops.Permissions
+		}
 		if ops.Name != nil {
 			name = *ops.Name
 		}
@@ -996,6 +1000,35 @@ func CheckPipeline(project *buddy.Project, pipeline *buddy.Pipeline, expected *b
 		}
 		if err := CheckFieldEqualAndSet("Pipeline.Events[0].Refs[0]", pipeline.Events[0].Refs[0], events[0].Refs[0]); err != nil {
 			return err
+		}
+	}
+	if permissions != nil {
+		if err := CheckFieldEqualAndSet("Pipeline.Permissions.Others", pipeline.Permissions.Others, permissions.Others); err != nil {
+			return err
+		}
+		usersLen := len(permissions.Users)
+		groupsLen := len(permissions.Groups)
+		if err := CheckIntFieldEqual("len(Pipeline.Permissions.Users)", len(pipeline.Permissions.Users), usersLen); err != nil {
+			return err
+		}
+		if err := CheckIntFieldEqual("len(Pipeline.Permissions.Groups)", len(pipeline.Permissions.Groups), groupsLen); err != nil {
+			return err
+		}
+		if usersLen > 0 {
+			if err := CheckIntFieldEqual("Pipeline.Permissions.Users[0].Id", pipeline.Permissions.Users[0].Id, permissions.Users[0].Id); err != nil {
+				return err
+			}
+			if err := CheckFieldEqual("Pipeline.Permissions.Users[0].AccessLevel", pipeline.Permissions.Users[0].AccessLevel, permissions.Users[0].AccessLevel); err != nil {
+				return err
+			}
+		}
+		if groupsLen > 0 {
+			if err := CheckIntFieldEqual("Pipeline.Permissions.Groups[0].Id", pipeline.Permissions.Groups[0].Id, permissions.Groups[0].Id); err != nil {
+				return err
+			}
+			if err := CheckFieldEqual("Pipeline.Permissions.Groups[0].AccessLevel", pipeline.Permissions.Groups[0].AccessLevel, permissions.Groups[0].AccessLevel); err != nil {
+				return err
+			}
 		}
 	}
 	if err := CheckIntFieldEqual("len(Pipeline.TriggerConditions)", len(pipeline.TriggerConditions), lenTriggerConditions); err != nil {

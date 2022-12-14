@@ -1,3 +1,6 @@
+# Release v1.8.0 (2023-01-10)
+* Adds `permissions` to `Pipeline`
+
 # Release v1.7.0 (2022-12-08)
 * Adds `without_repository` to `Project`
 

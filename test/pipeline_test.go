@@ -376,6 +376,64 @@ func TestPipelineRemote(t *testing.T) {
 	t.Run("Delete", testPipelineDelete(seed.Client, seed.Workspace, seed.Project, &pipeline))
 }
 
+func TestPipelineWithPermissions(t *testing.T) {
+	seed, err := SeedInitialData(&SeedOps{
+		workspace:  true,
+		project:    true,
+		member:     true,
+		group:      true,
+		permission: true,
+	})
+	if err != nil {
+		t.Fatal(ErrorFormatted("SeedInitialData", err))
+	}
+	t.Run("CreateProjectMember", testProjectMemberCreate(seed.Client, seed.Workspace, seed.Project, seed.Member, seed.Permission))
+	t.Run("CreateProjectGroup", testProjectGroupCreate(seed.Client, seed.Workspace, seed.Project, seed.Group, seed.Permission2))
+	name := RandString(10)
+	on := buddy.PipelineOnClick
+	ref := RandString(10)
+	refs := []string{ref}
+	failOnPrepareEnvWarning := true
+	userPerm := buddy.PipelineResourcePermission{
+		Id:          seed.Member.Id,
+		AccessLevel: buddy.PipelinePermissionReadWrite,
+	}
+	groupPerm := buddy.PipelineResourcePermission{
+		Id:          seed.Group.Id,
+		AccessLevel: buddy.PipelinePermissionDefault,
+	}
+	perms := buddy.PipelinePermissions{
+		Others: buddy.PipelinePermissionDenied,
+		Groups: []*buddy.PipelineResourcePermission{&groupPerm},
+		Users:  []*buddy.PipelineResourcePermission{&userPerm},
+	}
+	ops := buddy.PipelineOps{
+		Name:                    &name,
+		On:                      &on,
+		Refs:                    &refs,
+		Permissions:             &perms,
+		FailOnPrepareEnvWarning: &failOnPrepareEnvWarning,
+	}
+	updUserPem := buddy.PipelineResourcePermission{
+		Id:          seed.Member.Id,
+		AccessLevel: buddy.PipelinePermissionReadOnly,
+	}
+	updPerms := buddy.PipelinePermissions{
+		Others: buddy.PipelinePermissionReadWrite,
+		Users:  []*buddy.PipelineResourcePermission{&updUserPem},
+	}
+	updOps := buddy.PipelineOps{
+		Permissions: &updPerms,
+	}
+	var pipeline buddy.Pipeline
+	t.Run("Create", testPipelineCreate(seed.Client, seed.Workspace, seed.Project, &ops, &pipeline))
+	t.Run("Update", testPipelineUpdate(seed.Client, seed.Workspace, seed.Project, &updOps, &pipeline))
+	t.Run("Get", testPipelineGet(seed.Client, seed.Workspace, seed.Project, &pipeline))
+	t.Run("GetList", testPipelineGetList(seed.Client, seed.Workspace, seed.Project, 1))
+	t.Run("GetListAll", testPipelineGetListAll(seed.Client, seed.Workspace, seed.Project, 1))
+	t.Run("Delete", testPipelineDelete(seed.Client, seed.Workspace, seed.Project, &pipeline))
+}
+
 func TestPipelineClick(t *testing.T) {
 	seed, err := SeedInitialData(&SeedOps{
 		workspace: true,
