@@ -37,6 +37,9 @@ const (
 	IntegrationScopeAdminInProject   = "ADMIN_IN_PROJECT"
 	IntegrationScopeGroupInProject   = "GROUP_IN_PROJECT"
 	IntegrationScopePrivateInProject = "PRIVATE_IN_PROJECT"
+
+	IntegrationAuthTypeToken             = "TOKEN"
+	IntegrationAuthTypeTokenAppExtension = "TOKEN_APP_EXTENSION"
 )
 
 type Integration struct {
@@ -71,6 +74,8 @@ type IntegrationOps struct {
 	Password        *string            `json:"password,omitempty"`
 	ApiKey          *string            `json:"api_key,omitempty"`
 	Email           *string            `json:"email,omitempty"`
+	AuthType        *string            `json:"auth_type"`
+	PartnerToken    *string            `json:"partner_token"`
 	RoleAssumptions *[]*RoleAssumption `json:"role_assumptions,omitempty"`
 }
 
