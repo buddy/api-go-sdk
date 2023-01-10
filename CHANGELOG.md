@@ -1,3 +1,6 @@
+# Release v1.8.1 (2023-01-10)
+* Fix `permissions` in `Pipeline`
+
 # Release v1.8.0 (2023-01-10)
 * Adds `permissions` to `Pipeline`
 

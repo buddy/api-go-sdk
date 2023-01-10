@@ -97,9 +97,9 @@ type PipelineResourcePermission struct {
 }
 
 type PipelinePermissions struct {
-	Others string                        `json:"others,omitempty"`
-	Users  []*PipelineResourcePermission `json:"users,omitempty"`
-	Groups []*PipelineResourcePermission `json:"groups,omitempty"`
+	Others string                        `json:"others"`
+	Users  []*PipelineResourcePermission `json:"users"`
+	Groups []*PipelineResourcePermission `json:"groups"`
 }
 
 type PipelineTriggerCondition struct {
