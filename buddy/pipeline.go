@@ -26,6 +26,12 @@ const (
 
 	PipelineDefinitionSourceLocal  = "LOCAL"
 	PipelineDefinitionSourceRemote = "REMOTE"
+
+	PipelinePermissionDefault   = "DEFAULT"
+	PipelinePermissionDenied    = "DENIED"
+	PipelinePermissionReadOnly  = "READ_ONLY"
+	PipelinePermissionRunOnly   = "RUN_ONLY"
+	PipelinePermissionReadWrite = "READ_WRITE"
 )
 
 type Pipeline struct {
@@ -66,6 +72,7 @@ type Pipeline struct {
 	RemoteParameters          []*PipelineRemoteParameter  `json:"remote_parameters"`
 	Disabled                  bool                        `json:"disabled"`
 	DisabledReason            string                      `json:"disabled_reason"`
+	Permissions               *PipelinePermissions        `json:"permissions"`
 }
 
 type Pipelines struct {
@@ -82,6 +89,17 @@ type PipelineRemoteParameter struct {
 type PipelineEvent struct {
 	Type string   `json:"type"`
 	Refs []string `json:"refs"`
+}
+
+type PipelineResourcePermission struct {
+	Id          int    `json:"id"`
+	AccessLevel string `json:"access_level"`
+}
+
+type PipelinePermissions struct {
+	Others string                        `json:"others"`
+	Users  []*PipelineResourcePermission `json:"users"`
+	Groups []*PipelineResourcePermission `json:"groups"`
 }
 
 type PipelineTriggerCondition struct {
@@ -130,6 +148,7 @@ type PipelineOps struct {
 	RemoteParameters          *[]*PipelineRemoteParameter  `json:"remote_parameters,omitempty"`
 	Disabled                  *bool                        `json:"disabled,omitempty"`
 	DisabledReason            *string                      `json:"disabled_reason,omitempty"`
+	Permissions               *PipelinePermissions         `json:"permissions,omitempty"`
 }
 
 func (s *PipelineService) Create(domain string, projectName string, ops *PipelineOps) (*Pipeline, *http.Response, error) {
