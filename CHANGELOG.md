@@ -1,3 +1,6 @@
+# Release v1.8.2 (2023-01-11)
+* Adds new Shopify integration type
+
 # Release v1.8.1 (2023-01-10)
 * Fix `permissions` in `Pipeline`
 

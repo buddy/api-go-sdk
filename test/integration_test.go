@@ -19,6 +19,7 @@ func TestIntegration(t *testing.T) {
 	t.Run("GitLab", testIntegrationGitLab(seed.Client, seed.Workspace))
 	t.Run("DigitalOcean", testIntegrationDigitalOcean(seed.Client, seed.Workspace, seed.Project))
 	t.Run("Shopify", testIntegrationShopify(seed.Client, seed.Workspace, seed.Group, seed.Project))
+	t.Run("Shopify Partner", testIntegrationShopifyPartner(seed.Client, seed.Workspace, seed.Group, seed.Project))
 }
 
 func testIntegrationUpdate(client *buddy.Client, workspace *buddy.Workspace, hashId string, ops *buddy.IntegrationOps, out *buddy.Integration) func(t *testing.T) {
@@ -223,6 +224,39 @@ func testIntegrationShopify(client *buddy.Client, workspace *buddy.Workspace, gr
 			Token:   &token,
 			Shop:    &shop,
 			GroupId: &group.Id,
+		}
+		newName := RandString(10)
+		newScope := buddy.IntegrationScopeAdminInProject
+		updateOps := buddy.IntegrationOps{
+			Scope:       &newScope,
+			ProjectName: &project.Name,
+			Name:        &newName,
+		}
+		t.Run("Create", testIntegrationCreate(client, workspace, &createOps, &integration))
+		t.Run("Update", testIntegrationUpdate(client, workspace, integration.HashId, &updateOps, &integration))
+		t.Run("Get", testIntegrationGet(client, workspace, integration.HashId, &integration))
+		t.Run("GetList", testIntegrationGetList(client, workspace, 1))
+		t.Run("Delete", testIntegrationDelete(client, workspace, integration.HashId))
+	}
+}
+
+func testIntegrationShopifyPartner(client *buddy.Client, workspace *buddy.Workspace, group *buddy.Group, project *buddy.Project) func(t *testing.T) {
+	return func(t *testing.T) {
+		var integration buddy.Integration
+		name := RandString(10)
+		scope := buddy.IntegrationScopeGroup
+		typ := buddy.IntegrationTypeShopify
+		token := RandString(10)
+		partnerToken := RandString(10)
+		authType := buddy.IntegrationAuthTypeTokenAppExtension
+		createOps := buddy.IntegrationOps{
+			Name:         &name,
+			Scope:        &scope,
+			Type:         &typ,
+			Token:        &token,
+			PartnerToken: &partnerToken,
+			AuthType:     &authType,
+			GroupId:      &group.Id,
 		}
 		newName := RandString(10)
 		newScope := buddy.IntegrationScopeAdminInProject
