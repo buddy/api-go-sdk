@@ -63,7 +63,7 @@ func testProjectCustomCreate(client *buddy.Client, workspace *buddy.Workspace, o
 		if err != nil {
 			t.Fatal(ErrorFormatted("ProjectService.Create", err))
 		}
-		err = CheckProject(project, displayName, displayName, false, false, false, fetchSubmodules, fetchSubmodulesEnvKey, buddy.ProjectAccessPrivate, false)
+		err = CheckProject(project, displayName, displayName, false, true, false, fetchSubmodules, fetchSubmodulesEnvKey, buddy.ProjectAccessPrivate, false)
 		if err != nil {
 			t.Fatal(err)
 		}
