@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-func testVariableCreate(client *buddy.Client, workspace *buddy.Workspace, project *buddy.Project, typ string, out *buddy.Variable) func(t *testing.T) {
+func testVariableCreate(client *buddy.Client, workspace *buddy.Workspace, project *buddy.Project, typ string, enc bool, set bool, out *buddy.Variable) func(t *testing.T) {
 	return func(t *testing.T) {
 		err, _, privateKey := GenerateRsaKeyPair()
 		if err != nil {
@@ -14,8 +14,6 @@ func testVariableCreate(client *buddy.Client, workspace *buddy.Workspace, projec
 		key := RandString(10)
 		val := RandString(10)
 		desc := RandString(10)
-		set := true
-		enc := false
 		fileChmod := ""
 		filePath := ""
 		filePlace := ""
@@ -145,7 +143,7 @@ func TestVariable(t *testing.T) {
 		t.Fatal(ErrorFormatted("SeedInitialData", err))
 	}
 	var variable buddy.Variable
-	t.Run("Create", testVariableCreate(seed.Client, seed.Workspace, nil, buddy.VariableTypeVar, &variable))
+	t.Run("Create", testVariableCreate(seed.Client, seed.Workspace, nil, buddy.VariableTypeVar, false, true, &variable))
 	t.Run("Update", testVariableUpdate(seed.Client, seed.Workspace, &variable))
 	t.Run("Get", testVariableGet(seed.Client, seed.Workspace, &variable))
 	t.Run("GetList", testVariableGetList(seed.Client, seed.Workspace, nil, 2))
@@ -162,7 +160,7 @@ func TestVariableSsh(t *testing.T) {
 		t.Fatal(ErrorFormatted("SeedInitialData", err))
 	}
 	var variable buddy.Variable
-	t.Run("Create", testVariableCreate(seed.Client, seed.Workspace, seed.Project, buddy.VariableTypeSshKey, &variable))
+	t.Run("Create", testVariableCreate(seed.Client, seed.Workspace, seed.Project, buddy.VariableTypeSshKey, true, false, &variable))
 	t.Run("Update", testVariableUpdate(seed.Client, seed.Workspace, &variable))
 	t.Run("Get", testVariableGet(seed.Client, seed.Workspace, &variable))
 	t.Run("GetList", testVariableGetList(seed.Client, seed.Workspace, nil, 1))
