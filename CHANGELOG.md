@@ -1,3 +1,6 @@
+# Release v1.9.0 (2023-03-17)
+* Adds SSO integration
+
 # Release v1.8.2 (2023-01-11)
 * Adds new Shopify integration type
 
