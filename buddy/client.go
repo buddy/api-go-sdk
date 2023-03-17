@@ -59,6 +59,7 @@ type Client struct {
 	ProjectGroupService  *ProjectGroupService
 	WebhookService       *WebhookService
 	VariableService      *VariableService
+	SsoService           *SsoService
 	IntegrationService   *IntegrationService
 	PipelineService      *PipelineService
 	SourceService        *SourceService
@@ -217,6 +218,7 @@ func NewClient(token string, baseUrl string, insecure bool) (*Client, error) {
 	c.IntegrationService = &IntegrationService{client: c}
 	c.PipelineService = &PipelineService{client: c}
 	c.SourceService = &SourceService{client: c}
+	c.SsoService = &SsoService{client: c}
 	return c, nil
 }
 
@@ -225,7 +227,11 @@ func (c *Client) Create(url *UrlPath, postBody interface{}, query interface{}, r
 	if err != nil {
 		return nil, err
 	}
-	return c.Do(req, &respBody)
+	var result interface{}
+	if !c.isNil(respBody) {
+		result = &respBody
+	}
+	return c.Do(req, result)
 }
 
 func (c *Client) Get(url *UrlPath, respBody interface{}, query interface{}) (*http.Response, error) {

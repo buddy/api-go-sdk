@@ -1,14 +1,17 @@
 package test
 
 import (
+	"bytes"
 	crand "crypto/rand"
 	"crypto/rsa"
 	"crypto/x509"
+	"crypto/x509/pkix"
 	"encoding/pem"
 	"errors"
 	"fmt"
 	"github.com/buddy/api-go-sdk/buddy"
 	"golang.org/x/crypto/ssh"
+	"math/big"
 	"math/rand"
 	"os"
 	"strconv"
@@ -504,6 +507,34 @@ func CheckWebhook(webhook *buddy.Webhook, targetUrl string, secretKey string, pr
 		return err
 	}
 	if err := CheckFieldEqualAndSet("Webhook.Events[0]", webhook.Events[0], event); err != nil {
+		return err
+	}
+	return nil
+}
+
+func CheckSso(sso *buddy.Sso, ssoUrl string, issuer string, certificate string, signature string, digest string, requireSsoForAllMembers bool) error {
+	if err := CheckFieldSet("Sso.Url", sso.Url); err != nil {
+		return err
+	}
+	if err := CheckFieldSet("Sso.HtmlUrl", sso.HtmlUrl); err != nil {
+		return err
+	}
+	if err := CheckFieldEqual("Sso.SsoUrl", sso.SsoUrl, ssoUrl); err != nil {
+		return err
+	}
+	if err := CheckFieldEqual("Sso.Issuer", sso.Issuer, issuer); err != nil {
+		return err
+	}
+	if err := CheckFieldEqual("Sso.Certificate", sso.Certificate, certificate); err != nil {
+		return err
+	}
+	if err := CheckFieldEqual("Sso.SignatureMethod", sso.SignatureMethod, signature); err != nil {
+		return err
+	}
+	if err := CheckFieldEqual("Sso.DigestMethod", sso.DigestMethod, digest); err != nil {
+		return err
+	}
+	if err := CheckBoolFieldEqual("Sso.RequireSsoForAllMembers", sso.RequireSsoForAllMembers, requireSsoForAllMembers); err != nil {
 		return err
 	}
 	return nil
@@ -1191,6 +1222,38 @@ func CheckPipeline(project *buddy.Project, pipeline *buddy.Pipeline, expected *b
 		return err
 	}
 	return nil
+}
+
+func GenerateCertificate() (error, string) {
+	cert := &x509.Certificate{
+		SerialNumber: big.NewInt(1658),
+		Subject: pkix.Name{
+			Organization: []string{"Company, INC."},
+			Country:      []string{"US"},
+		},
+		NotBefore:    time.Now(),
+		NotAfter:     time.Now().AddDate(10, 0, 0),
+		SubjectKeyId: []byte{1, 2, 3, 4, 6},
+		ExtKeyUsage:  []x509.ExtKeyUsage{x509.ExtKeyUsageClientAuth, x509.ExtKeyUsageServerAuth},
+		KeyUsage:     x509.KeyUsageDigitalSignature,
+	}
+	certPrivKey, err := rsa.GenerateKey(crand.Reader, 4096)
+	if err != nil {
+		return err, ""
+	}
+	certBytes, err := x509.CreateCertificate(crand.Reader, cert, cert, &certPrivKey.PublicKey, certPrivKey)
+	if err != nil {
+		return err, ""
+	}
+	certPEM := new(bytes.Buffer)
+	err = pem.Encode(certPEM, &pem.Block{
+		Type:  "CERTIFICATE",
+		Bytes: certBytes,
+	})
+	if err != nil {
+		return err, ""
+	}
+	return nil, certPEM.String()
 }
 
 func GenerateRsaKeyPair() (error, string, string) {
