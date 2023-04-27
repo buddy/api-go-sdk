@@ -62,6 +62,7 @@ type Client struct {
 	SsoService           *SsoService
 	IntegrationService   *IntegrationService
 	PipelineService      *PipelineService
+	TokenService         *TokenService
 	SourceService        *SourceService
 }
 
@@ -219,6 +220,7 @@ func NewClient(token string, baseUrl string, insecure bool) (*Client, error) {
 	c.PipelineService = &PipelineService{client: c}
 	c.SourceService = &SourceService{client: c}
 	c.SsoService = &SsoService{client: c}
+	c.TokenService = &TokenService{client: c}
 	return c, nil
 }
 

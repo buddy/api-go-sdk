@@ -1,3 +1,6 @@
+# Release v1.10.0 (2023-04-27)
+* Adds token service
+
 # Release v1.9.0 (2023-03-17)
 * Adds SSO integration
 
