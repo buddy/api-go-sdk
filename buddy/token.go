@@ -2,6 +2,30 @@ package buddy
 
 import "net/http"
 
+const (
+	TokenScopeWorkspace       = "WORKSPACE"
+	TokenScopeProjectDelete   = "PROJECT_DELETE"
+	TokenScopeRepositoryRead  = "REPOSITORY_READ"
+	TokenScopeRepositoryWrite = "REPOSITORY_WRITE"
+	TokenScopeExecutionInfo   = "EXECUTION_INFO"
+	TokenScopeExecutionRun    = "EXECUTION_RUN"
+	TokenScopeExecutionManage = "EXECUTION_MANAGE"
+	TokenScopeUserInfo        = "USER_INFO"
+	TokenScopeUserKey         = "USER_KEY"
+	TokenScopeUserEmail       = "USER_EMAIL"
+	TokenScopeIntegrationInfo = "INTEGRATION_INFO"
+	TokenScopeMemberEmail     = "MEMBER_EMAIL"
+	TokenScopeManageEmails    = "MANAGE_EMAILS"
+	TokenScopeWebhookInfo     = "WEBHOOK_INFO"
+	TokenScopeWebhookAdd      = "WEBHOOK_ADD"
+	TokenScopeWebhookManage   = "WEBHOOK_MANAGE"
+	TokenScopeVariableAdd     = "VARIABLE_ADD"
+	TokenScopeVariableInfo    = "VARIABLE_INFO"
+	TokenScopeVariableManage  = "VARIABLE_MANAGE"
+	TokenScopeTokenInfo       = "TOKEN_INFO"
+	TokenScopeTokenManage     = "TOKEN_MANAGE"
+)
+
 type TokenService struct {
 	client *Client
 }
