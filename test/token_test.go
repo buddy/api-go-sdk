@@ -24,7 +24,7 @@ func testTokenCreateAdvanced(client *buddy.Client, workspace *buddy.Workspace, o
 		if err != nil {
 			t.Fatal(ErrorFormatted("TokenService.Create", err))
 		}
-		err = CheckToken(token, name, expiresIn, "", scopes, workspaceRestrictions, ipRestrictions, "")
+		err = CheckToken(token, name, expiresIn, "", scopes, workspaceRestrictions, ipRestrictions, "", true)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -60,7 +60,7 @@ func testTokenGet(client *buddy.Client, token *buddy.Token) func(t *testing.T) {
 		if err != nil {
 			t.Fatal(ErrorFormatted("TokenService.Get", err))
 		}
-		err = CheckToken(getToken, token.Name, 0, token.ExpiresAt, token.Scopes, token.WorkspaceRestrictions, token.IpRestrictions, token.Id)
+		err = CheckToken(getToken, token.Name, 0, token.ExpiresAt, token.Scopes, token.WorkspaceRestrictions, token.IpRestrictions, token.Id, false)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -82,7 +82,7 @@ func testTokenCreateBasic(client *buddy.Client) func(t *testing.T) {
 		if err != nil {
 			t.Fatal(ErrorFormatted("TokenService.Create", err))
 		}
-		err = CheckToken(token, name, 0, expiresAt, scopes, nil, nil, "")
+		err = CheckToken(token, name, 0, expiresAt, scopes, nil, nil, "", true)
 		if err != nil {
 			t.Fatal(err)
 		}
