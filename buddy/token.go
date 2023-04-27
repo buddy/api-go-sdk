@@ -11,6 +11,7 @@ type Token struct {
 	HtmlUrl               string   `json:"html_url"`
 	Id                    string   `json:"id"`
 	Name                  string   `json:"name"`
+	Token                 string   `json:"token"`
 	ExpiresAt             string   `json:"expires_at"`
 	Scopes                []string `json:"scopes"`
 	IpRestrictions        []string `json:"ip_restrictions"`

@@ -1,3 +1,6 @@
+# Release v1.10.1 (2023-04-27)
+* Adds token value on add
+
 # Release v1.10.0 (2023-04-27)
 * Adds token service
 

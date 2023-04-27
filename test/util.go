@@ -726,9 +726,14 @@ func CheckSourceFile(sf *buddy.SourceFile, name string, path string, message str
 	return nil
 }
 
-func CheckToken(token *buddy.Token, name string, expiresIn int, expiresAt string, scopes []string, workspaceRestrictions []string, ipRestrictions []string, id string) error {
+func CheckToken(token *buddy.Token, name string, expiresIn int, expiresAt string, scopes []string, workspaceRestrictions []string, ipRestrictions []string, id string, hasToken bool) error {
 	if err := CheckFieldSet("Token.Url", token.Url); err != nil {
 		return err
+	}
+	if hasToken {
+		if err := CheckFieldSet("Token.Token", token.Token); err != nil {
+			return err
+		}
 	}
 	if err := CheckFieldSet("Token.HtmlUrl", token.HtmlUrl); err != nil {
 		return err
