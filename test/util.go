@@ -86,6 +86,24 @@ func CheckIntFieldEqual(field string, got int, want int) error {
 	return nil
 }
 
+func CheckStringArrayEqual(field string, got []string, want []string) error {
+	if len(got) != len(want) {
+		return fmt.Errorf("expected %q to be equal length", field)
+	}
+	for _, s1 := range want {
+		found := false
+		for _, s2 := range got {
+			if s1 == s2 {
+				found = true
+			}
+		}
+		if !found {
+			return fmt.Errorf("expected %q to have all elements in array", field)
+		}
+	}
+	return nil
+}
+
 func CheckIntFieldEqualAndSet(field string, got int, want int) error {
 	if err := CheckIntFieldEqual(field, got, want); err != nil {
 		return err
@@ -412,6 +430,19 @@ func CheckProjects(projects *buddy.Projects, count int) error {
 	return nil
 }
 
+func CheckTokens(tokens *buddy.Tokens, count int) error {
+	if err := CheckFieldSet("Tokens.HtmlUrl", tokens.HtmlUrl); err != nil {
+		return err
+	}
+	if err := CheckFieldSet("Tokens.Url", tokens.Url); err != nil {
+		return err
+	}
+	if err := CheckIntFieldEqual("len(Tokens)", len(tokens.AccessTokens), count); err != nil {
+		return err
+	}
+	return nil
+}
+
 func CheckGroups(groups *buddy.Groups, count int) error {
 	if err := CheckFieldSet("Groups.HtmlUrl", groups.HtmlUrl); err != nil {
 		return err
@@ -690,6 +721,53 @@ func CheckSourceFile(sf *buddy.SourceFile, name string, path string, message str
 		return err
 	}
 	if err := CheckMember(sf.Commit.Author, "", "", false, 0, true, true, 0, ""); err != nil {
+		return err
+	}
+	return nil
+}
+
+func CheckToken(token *buddy.Token, name string, expiresIn int, expiresAt string, scopes []string, workspaceRestrictions []string, ipRestrictions []string, id string) error {
+	if err := CheckFieldSet("Token.Url", token.Url); err != nil {
+		return err
+	}
+	if err := CheckFieldSet("Token.HtmlUrl", token.HtmlUrl); err != nil {
+		return err
+	}
+	if id != "" {
+		if err := CheckFieldEqualAndSet("Token.Id", token.Id, id); err != nil {
+			return err
+		}
+	} else {
+		if err := CheckFieldSet("Token.Id", token.Id); err != nil {
+			return err
+		}
+	}
+	if err := CheckFieldEqualAndSet("Token.Name", token.Name, name); err != nil {
+		return err
+	}
+	expiresGot, _ := time.Parse(time.RFC3339, token.ExpiresAt)
+	var expiresWant time.Time
+	if expiresIn != 0 {
+		expiresWant = time.Now().AddDate(0, 0, expiresIn)
+	} else if expiresAt != "" {
+		expiresWant, _ = time.Parse(time.RFC3339, expiresAt)
+	}
+	if err := CheckIntFieldEqualAndSet("Token.Expires.Year", expiresGot.Year(), expiresWant.Year()); err != nil {
+		return err
+	}
+	if err := CheckIntFieldEqualAndSet("Token.Expires.Month", int(expiresGot.Month()), int(expiresWant.Month())); err != nil {
+		return err
+	}
+	if err := CheckIntFieldEqualAndSet("Token.Expires.Day", expiresGot.Day(), expiresWant.Day()); err != nil {
+		return err
+	}
+	if err := CheckStringArrayEqual("Token.Scopes", token.Scopes, scopes); err != nil {
+		return err
+	}
+	if err := CheckStringArrayEqual("Token.WorkspaceRestrictions", token.WorkspaceRestrictions, workspaceRestrictions); err != nil {
+		return err
+	}
+	if err := CheckStringArrayEqual("Token.IpRestrictions", token.IpRestrictions, ipRestrictions); err != nil {
 		return err
 	}
 	return nil
