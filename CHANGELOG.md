@@ -1,3 +1,6 @@
+# Release v1.10.3 (2023-04-28)
+* Adds `GetMe` to `TokenService`
+
 # Release v1.10.2 (2023-04-27)
 * Adds token const
 

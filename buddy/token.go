@@ -69,6 +69,12 @@ func (s *TokenService) Get(tokenId string) (*Token, *http.Response, error) {
 	return t, resp, err
 }
 
+func (s *TokenService) GetMe() (*Token, *http.Response, error) {
+	var t *Token
+	resp, err := s.client.Get(s.client.NewUrlPath("/user/token"), &t, nil)
+	return t, resp, err
+}
+
 func (s *TokenService) GetList() (*Tokens, *http.Response, error) {
 	var t *Tokens
 	resp, err := s.client.Get(s.client.NewUrlPath("/user/tokens"), &t, nil)
