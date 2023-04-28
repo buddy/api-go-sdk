@@ -54,6 +54,27 @@ func testTokenGetList(client *buddy.Client, count int) func(t *testing.T) {
 	}
 }
 
+func testTokenGetMe(client *buddy.Client) func(t *testing.T) {
+	return func(t *testing.T) {
+		token, _, err := client.TokenService.GetMe()
+		if err != nil {
+			t.Fatal(ErrorFormatted("TokenService.GetMe", err))
+		}
+		err = CheckFieldSet("Token.Id", token.Id)
+		if err != nil {
+			t.Fatal(err)
+		}
+		err = CheckFieldSet("Token.Url", token.Url)
+		if err != nil {
+			t.Fatal(err)
+		}
+		err = CheckFieldSet("Token.HtmlUrl", token.HtmlUrl)
+		if err != nil {
+			t.Fatal(err)
+		}
+	}
+}
+
 func testTokenGet(client *buddy.Client, token *buddy.Token) func(t *testing.T) {
 	return func(t *testing.T) {
 		getToken, _, err := client.TokenService.Get(token.Id)
@@ -99,6 +120,7 @@ func TestToken(t *testing.T) {
 	var token buddy.Token
 	t.Run("CreateBasic", testTokenCreateBasic(seed.Client))
 	t.Run("CreateAdvanced", testTokenCreateAdvanced(seed.Client, seed.Workspace, &token))
+	t.Run("GetMe", testTokenGetMe(seed.Client))
 	t.Run("Get", testTokenGet(seed.Client, &token))
 	t.Run("GetList", testTokenGetList(seed.Client, 3))
 	t.Run("Delete", testTokenDelete(seed.Client, &token))
