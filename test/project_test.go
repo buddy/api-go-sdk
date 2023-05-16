@@ -83,7 +83,7 @@ func testProjectCreate(client *buddy.Client, workspace *buddy.Workspace, out *bu
 		if err != nil {
 			t.Fatal(ErrorFormatted("ProjectService.Create", err))
 		}
-		err = CheckProject(project, displayName, displayName, false, false, false, false, "", access, false)
+		err = CheckProject(project, displayName, displayName, false, true, false, false, "", access, false)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -105,7 +105,7 @@ func testProjectCreateWithoutRepository(client *buddy.Client, workspace *buddy.W
 		if err != nil {
 			t.Fatal(ErrorFormatted("ProjectService.Create", err))
 		}
-		err = CheckProject(project, displayName, displayName, false, false, false, false, "", access, withoutRepo)
+		err = CheckProject(project, displayName, displayName, false, true, false, false, "", access, withoutRepo)
 		if err != nil {
 			t.Fatal(err)
 		}

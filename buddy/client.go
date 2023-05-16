@@ -11,7 +11,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/logging"
 	"golang.org/x/time/rate"
 	"io"
-	"io/ioutil"
 	"math/rand"
 	"net/http"
 	"net/url"
@@ -180,7 +179,7 @@ func NewClient(token string, baseUrl string, insecure bool) (*Client, error) {
 	t.MaxIdleConnsPerHost = 100
 	// http client
 	h := &http.Client{
-		Transport: logging.NewTransport("Buddy", t),
+		Transport: logging.NewLoggingHTTPTransport(t),
 		Timeout:   30 * time.Second,
 	}
 	// api client
@@ -381,7 +380,7 @@ func CheckResponse(req *retryablehttp.Request, res *http.Response) error {
 		Response: res,
 		Request:  req,
 	}
-	data, err := ioutil.ReadAll(res.Body)
+	data, err := io.ReadAll(res.Body)
 	if err == nil && data != nil {
 		errorResponse.Body = data
 		var raw interface{}
@@ -395,13 +394,14 @@ func CheckResponse(req *retryablehttp.Request, res *http.Response) error {
 }
 
 // Format:
-// {
-//     "errors": [
-//			{
-//				"message": "..."
-//			}
-//    	]
-// }
+//
+//	{
+//	    "errors": [
+//				{
+//					"message": "..."
+//				}
+//	   	]
+//	}
 func parseError(raw interface{}) string {
 	switch raw := raw.(type) {
 	case string:
