@@ -2,7 +2,7 @@
 
 `api-go-sdk` is the Buddy SDK for the Go programming language.
 
-The SDK requires a minimum version of `Go 1.17`.
+The SDK requires a minimum version of `Go 1.19`.
 
 Checkout out [our blog](https://buddy.works/blog) for information about the latest changes
 

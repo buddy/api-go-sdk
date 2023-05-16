@@ -1,3 +1,8 @@
+# Release v1.11.0 (2023-05-16)
+* Supported min GO version 1.19
+* Upgraded deps
+* Fix tests
+
 # Release v1.10.3 (2023-04-28)
 * Adds `GetMe` to `TokenService`
 
