@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"github.com/google/go-querystring/query"
 	"github.com/hashicorp/go-retryablehttp"
+	"github.com/hashicorp/terraform-plugin-log/tfsdklog"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/logging"
 	"golang.org/x/time/rate"
 	"io"
@@ -37,7 +38,8 @@ func (u *UrlPath) Compute() string {
 }
 
 type Client struct {
-	client *retryablehttp.Client
+	client  *retryablehttp.Client
+	context context.Context
 
 	baseUrl *url.URL
 
@@ -167,7 +169,7 @@ func NewDefaultClient(token string) (*Client, error) {
 	return NewClient(token, "", false)
 }
 
-func NewClient(token string, baseUrl string, insecure bool) (*Client, error) {
+func NewClientWithContext(context context.Context, token string, baseUrl string, insecure bool) (*Client, error) {
 	tlsConfig := &tls.Config{}
 	// turn off ssl verification
 	if insecure {
@@ -183,7 +185,9 @@ func NewClient(token string, baseUrl string, insecure bool) (*Client, error) {
 		Timeout:   30 * time.Second,
 	}
 	// api client
-	c := &Client{}
+	c := &Client{
+		context: context,
+	}
 	if baseUrl != "" {
 		err := c.setBaseUrl(baseUrl)
 		if err != nil {
@@ -221,6 +225,11 @@ func NewClient(token string, baseUrl string, insecure bool) (*Client, error) {
 	c.SsoService = &SsoService{client: c}
 	c.TokenService = &TokenService{client: c}
 	return c, nil
+}
+
+func NewClient(token string, baseUrl string, insecure bool) (*Client, error) {
+	ctx := tfsdklog.NewRootProviderLogger(context.Background(), tfsdklog.WithoutLocation())
+	return NewClientWithContext(ctx, token, baseUrl, insecure)
 }
 
 func (c *Client) Create(url *UrlPath, postBody interface{}, query interface{}, respBody interface{}) (*http.Response, error) {
@@ -320,7 +329,7 @@ func (c *Client) NewRequest(method, path string, body interface{}, params interf
 		}
 		u.RawQuery = q.Encode()
 	}
-	req, err := retryablehttp.NewRequest(method, u.String(), b)
+	req, err := retryablehttp.NewRequestWithContext(c.context, method, u.String(), b)
 	if err != nil {
 		return nil, err
 	}
