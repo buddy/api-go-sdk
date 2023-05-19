@@ -8,8 +8,6 @@ import (
 	"fmt"
 	"github.com/google/go-querystring/query"
 	"github.com/hashicorp/go-retryablehttp"
-	"github.com/hashicorp/terraform-plugin-log/tfsdklog"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/logging"
 	"golang.org/x/time/rate"
 	"io"
 	"math/rand"
@@ -38,8 +36,7 @@ func (u *UrlPath) Compute() string {
 }
 
 type Client struct {
-	client  *retryablehttp.Client
-	context context.Context
+	client *retryablehttp.Client
 
 	baseUrl *url.URL
 
@@ -169,7 +166,7 @@ func NewDefaultClient(token string) (*Client, error) {
 	return NewClient(token, "", false)
 }
 
-func NewClientWithContext(context context.Context, token string, baseUrl string, insecure bool) (*Client, error) {
+func NewClient(token string, baseUrl string, insecure bool) (*Client, error) {
 	tlsConfig := &tls.Config{}
 	// turn off ssl verification
 	if insecure {
@@ -181,13 +178,11 @@ func NewClientWithContext(context context.Context, token string, baseUrl string,
 	t.MaxIdleConnsPerHost = 100
 	// http client
 	h := &http.Client{
-		Transport: logging.NewLoggingHTTPTransport(t),
+		Transport: NewLoggingHttpTransport(t),
 		Timeout:   30 * time.Second,
 	}
 	// api client
-	c := &Client{
-		context: context,
-	}
+	c := &Client{}
 	if baseUrl != "" {
 		err := c.setBaseUrl(baseUrl)
 		if err != nil {
@@ -225,11 +220,6 @@ func NewClientWithContext(context context.Context, token string, baseUrl string,
 	c.SsoService = &SsoService{client: c}
 	c.TokenService = &TokenService{client: c}
 	return c, nil
-}
-
-func NewClient(token string, baseUrl string, insecure bool) (*Client, error) {
-	ctx := tfsdklog.NewRootProviderLogger(context.Background(), tfsdklog.WithoutLocation())
-	return NewClientWithContext(ctx, token, baseUrl, insecure)
 }
 
 func (c *Client) Create(url *UrlPath, postBody interface{}, query interface{}, respBody interface{}) (*http.Response, error) {
@@ -329,7 +319,7 @@ func (c *Client) NewRequest(method, path string, body interface{}, params interf
 		}
 		u.RawQuery = q.Encode()
 	}
-	req, err := retryablehttp.NewRequestWithContext(c.context, method, u.String(), b)
+	req, err := retryablehttp.NewRequest(method, u.String(), b)
 	if err != nil {
 		return nil, err
 	}
