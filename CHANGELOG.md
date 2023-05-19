@@ -1,3 +1,6 @@
+# Release v1.11.2 (2023-05-19)
+* more logging fixes
+
 # Release v1.11.1 (2023-05-19)
 * fix logging system
 
