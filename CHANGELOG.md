@@ -1,3 +1,6 @@
+# Release v1.11.1 (2023-05-19)
+* fix logging system
+
 # Release v1.11.0 (2023-05-16)
 * Supported min GO version 1.19
 * Upgraded deps
