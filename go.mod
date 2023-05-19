@@ -5,10 +5,7 @@ go 1.19
 require (
 	github.com/golangci/golangci-lint v1.52.2
 	github.com/google/go-querystring v1.1.0
-	github.com/hashicorp/go-hclog v1.4.0
 	github.com/hashicorp/go-retryablehttp v0.7.2
-	github.com/hashicorp/terraform-plugin-log v0.8.0
-	github.com/hashicorp/terraform-plugin-sdk/v2 v2.26.1
 	golang.org/x/crypto v0.9.0
 	golang.org/x/time v0.3.0
 )
@@ -78,11 +75,10 @@ require (
 	github.com/gostaticanalysis/nilerr v0.1.1 // indirect
 	github.com/hashicorp/errwrap v1.0.0 // indirect
 	github.com/hashicorp/go-cleanhttp v0.5.2 // indirect
+	github.com/hashicorp/go-hclog v1.4.0 // indirect
 	github.com/hashicorp/go-multierror v1.1.1 // indirect
-	github.com/hashicorp/go-uuid v1.0.3 // indirect
 	github.com/hashicorp/go-version v1.6.0 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
-	github.com/hashicorp/logutils v1.0.0 // indirect
 	github.com/hexops/gotextdiff v1.0.3 // indirect
 	github.com/inconshreveable/mousetrap v1.0.1 // indirect
 	github.com/jgautheron/goconst v1.5.1 // indirect
@@ -111,7 +107,6 @@ require (
 	github.com/mbilski/exhaustivestruct v1.2.0 // indirect
 	github.com/mgechev/revive v1.3.1 // indirect
 	github.com/mitchellh/go-homedir v1.1.0 // indirect
-	github.com/mitchellh/go-testing-interface v1.14.1 // indirect
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
 	github.com/moricho/tparallel v0.3.1 // indirect
 	github.com/nakabonne/nestif v0.3.1 // indirect
