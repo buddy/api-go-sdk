@@ -1,3 +1,6 @@
+# Release v1.12.0 (2023-07-17)
+* Adds `STACK_HAWK` integration type
+
 # Release v1.11.2 (2023-05-19)
 * more logging fixes
 
