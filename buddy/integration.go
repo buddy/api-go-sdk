@@ -7,6 +7,7 @@ import (
 const (
 	IntegrationTypeDigitalOcean         = "DIGITAL_OCEAN"
 	IntegrationTypeAmazon               = "AMAZON"
+	IntegrationTypeStackHawk            = "STACK_HAWK"
 	IntegrationTypeShopify              = "SHOPIFY"
 	IntegrationTypePushover             = "PUSHOVER"
 	IntegrationTypeRackspace            = "RACKSPACE"

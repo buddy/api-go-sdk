@@ -20,6 +20,7 @@ func TestIntegration(t *testing.T) {
 	t.Run("DigitalOcean", testIntegrationDigitalOcean(seed.Client, seed.Workspace, seed.Project))
 	t.Run("Shopify", testIntegrationShopify(seed.Client, seed.Workspace, seed.Group, seed.Project))
 	t.Run("Shopify Partner", testIntegrationShopifyPartner(seed.Client, seed.Workspace, seed.Group, seed.Project))
+	t.Run("Stack Hawk", testIntegrationStackHawk(seed.Client, seed.Workspace))
 }
 
 func testIntegrationUpdate(client *buddy.Client, workspace *buddy.Workspace, hashId string, ops *buddy.IntegrationOps, out *buddy.Integration) func(t *testing.T) {
@@ -83,6 +84,33 @@ func testIntegrationDelete(client *buddy.Client, workspace *buddy.Workspace, has
 		if err != nil {
 			t.Fatal(ErrorFormatted("IntegrationService.Delete", err))
 		}
+	}
+}
+
+func testIntegrationStackHawk(client *buddy.Client, workspace *buddy.Workspace) func(t *testing.T) {
+	return func(t *testing.T) {
+		name := RandString(10)
+		typ := buddy.IntegrationTypeStackHawk
+		scope := buddy.IntegrationScopeWorkspace
+		apiKey := RandString(10)
+		var integration buddy.Integration
+		createOps := buddy.IntegrationOps{
+			Name:   &name,
+			Type:   &typ,
+			Scope:  &scope,
+			ApiKey: &apiKey,
+		}
+		newName := RandString(10)
+		newScope := buddy.IntegrationScopeAdmin
+		updateOps := buddy.IntegrationOps{
+			Scope: &newScope,
+			Name:  &newName,
+		}
+		t.Run("Create", testIntegrationCreate(client, workspace, &createOps, &integration))
+		t.Run("Update", testIntegrationUpdate(client, workspace, integration.HashId, &updateOps, &integration))
+		t.Run("Get", testIntegrationGet(client, workspace, integration.HashId, &integration))
+		t.Run("GetList", testIntegrationGetList(client, workspace, 1))
+		t.Run("Delete", testIntegrationDelete(client, workspace, integration.HashId))
 	}
 }
 
