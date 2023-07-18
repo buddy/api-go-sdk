@@ -12,6 +12,9 @@ const (
 	DigestMethodSha1   = "sha1"
 	DigestMethodSha256 = "sha256"
 	DigestMethodSha512 = "sha512"
+
+	SsoTypeSaml = "SAML"
+	SsoTypeOidc = "OIDC"
 )
 
 type SsoService struct {
@@ -21,6 +24,9 @@ type SsoService struct {
 type SsoUpdateOps struct {
 	SsoUrl                  *string `json:"sso_url,omitempty"`
 	Issuer                  *string `json:"issuer,omitempty"`
+	Type                    *string `json:"type,omitempty"`
+	ClientId                *string `json:"client_id"`
+	ClientSecret            *string `json:"client_secret"`
 	Certificate             *string `json:"certificate,omitempty"`
 	SignatureMethod         *string `json:"signature_method,omitempty"`
 	DigestMethod            *string `json:"digest_method,omitempty"`
@@ -30,6 +36,7 @@ type SsoUpdateOps struct {
 type Sso struct {
 	Url                     string `json:"url"`
 	HtmlUrl                 string `json:"html_url"`
+	Type                    string `json:"type"`
 	SsoUrl                  string `json:"sso_url"`
 	Issuer                  string `json:"issuer"`
 	Certificate             string `json:"certificate"`

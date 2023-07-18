@@ -14,6 +14,7 @@ func TestIntegration(t *testing.T) {
 	if err != nil {
 		t.Fatal(ErrorFormatted("SeedInitialData", err))
 	}
+	t.Run("Amazon OIDC", testIntegrationAmazonOidc(seed.Client, seed.Workspace))
 	t.Run("Amazon", testIntegrationAmazon(seed.Client, seed.Workspace, seed.Project))
 	t.Run("GitHub", testIntegrationGitHub(seed.Client, seed.Workspace))
 	t.Run("GitLab", testIntegrationGitLab(seed.Client, seed.Workspace))
@@ -168,6 +169,44 @@ func testIntegrationGitHub(client *buddy.Client, workspace *buddy.Workspace) fun
 	}
 }
 
+func testIntegrationAmazonOidc(client *buddy.Client, workspace *buddy.Workspace) func(t *testing.T) {
+	return func(t *testing.T) {
+		name := RandString(10)
+		scope := buddy.IntegrationScopeWorkspace
+		typ := buddy.IntegrationTypeAmazon
+		authType := buddy.IntegrationAuthTypeOidc
+		roleAssumptions := []*buddy.RoleAssumption{
+			{
+				Arn: RandString(10),
+			},
+		}
+		audience := RandString(10)
+		var integration buddy.Integration
+		createOps := buddy.IntegrationOps{
+			Name:            &name,
+			AuthType:        &authType,
+			Type:            &typ,
+			Scope:           &scope,
+			RoleAssumptions: &roleAssumptions,
+			Audience:        &audience,
+		}
+		newName := RandString(10)
+		newScope := buddy.IntegrationScopeAdmin
+		newAudience := RandString(10)
+		updateOps := buddy.IntegrationOps{
+			Name:     &newName,
+			AuthType: &authType,
+			Scope:    &newScope,
+			Audience: &newAudience,
+		}
+		t.Run("Create", testIntegrationCreate(client, workspace, &createOps, &integration))
+		t.Run("Update", testIntegrationUpdate(client, workspace, integration.HashId, &updateOps, &integration))
+		t.Run("Get", testIntegrationGet(client, workspace, integration.HashId, &integration))
+		t.Run("GetList", testIntegrationGetList(client, workspace, 1))
+		t.Run("Delete", testIntegrationDelete(client, workspace, integration.HashId))
+	}
+}
+
 func testIntegrationAmazon(client *buddy.Client, workspace *buddy.Workspace, project *buddy.Project) func(t *testing.T) {
 	return func(t *testing.T) {
 		name := RandString(10)
@@ -291,6 +330,7 @@ func testIntegrationShopifyPartner(client *buddy.Client, workspace *buddy.Worksp
 		updateOps := buddy.IntegrationOps{
 			Scope:       &newScope,
 			ProjectName: &project.Name,
+			AuthType:    &authType,
 			Name:        &newName,
 		}
 		t.Run("Create", testIntegrationCreate(client, workspace, &createOps, &integration))

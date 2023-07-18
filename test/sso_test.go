@@ -38,11 +38,36 @@ func testSsoGet(client *buddy.Client, workspace *buddy.Workspace, sso *buddy.Sso
 		if err != nil {
 			t.Fatal(ErrorFormatted("SsoService.Get", err))
 		}
-		err = CheckSso(ssoGet, sso.SsoUrl, sso.Issuer, sso.Certificate, sso.SignatureMethod, sso.DigestMethod, sso.RequireSsoForAllMembers)
+		err = CheckSso(ssoGet, sso.Type, sso.SsoUrl, sso.Issuer, sso.Certificate, sso.SignatureMethod, sso.DigestMethod, sso.RequireSsoForAllMembers)
 		if err != nil {
 			t.Fatal(err)
 		}
 		*sso = *ssoGet
+	}
+}
+
+func testSsoUpdateOidc(client *buddy.Client, workspace *buddy.Workspace, require bool, out *buddy.Sso) func(t *testing.T) {
+	return func(t *testing.T) {
+		issuer := "https://test.com/" + UniqueString()
+		clientId := UniqueString()
+		clientSecret := UniqueString()
+		typ := buddy.SsoTypeOidc
+		ops := buddy.SsoUpdateOps{
+			Type:                    &typ,
+			Issuer:                  &issuer,
+			ClientId:                &clientId,
+			ClientSecret:            &clientSecret,
+			RequireSsoForAllMembers: &require,
+		}
+		sso, _, err := client.SsoService.Update(workspace.Domain, &ops)
+		if err != nil {
+			t.Fatal(ErrorFormatted("SsoService.Update", err))
+		}
+		err = CheckSso(sso, typ, "", issuer, "", "", "", require)
+		if err != nil {
+			t.Fatal(err)
+		}
+		*out = *sso
 	}
 }
 
@@ -68,7 +93,7 @@ func testSsoUpdate(client *buddy.Client, workspace *buddy.Workspace, require boo
 		if err != nil {
 			t.Fatal(ErrorFormatted("SsoService.Update", err))
 		}
-		err = CheckSso(sso, ssoUrl, issuer, cert, signature, digest, require)
+		err = CheckSso(sso, buddy.SsoTypeSaml, ssoUrl, issuer, cert, signature, digest, require)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -92,4 +117,11 @@ func TestSso(t *testing.T) {
 	t.Run("Get", testSsoGet(seed.Client, seed.Workspace, &sso))
 	t.Run("Disable", testSsoDisable(seed.Client, seed.Workspace))
 	t.Run("404", testSsoGet404(seed.Client, seed.Workspace))
+	t.Run("Enable OIDC", testSsoEnable(seed.Client, seed.Workspace))
+	t.Run("Update OIDC", testSsoUpdateOidc(seed.Client, seed.Workspace, false, &sso))
+	t.Run("Get OIDC", testSsoGet(seed.Client, seed.Workspace, &sso))
+	//t.Run("Update OIDC", testSsoUpdateOidc(seed.Client, seed.Workspace, true, &sso))
+	t.Run("Get OIDC", testSsoGet(seed.Client, seed.Workspace, &sso))
+	t.Run("Disable OIDC", testSsoDisable(seed.Client, seed.Workspace))
+	t.Run("404 OIDC", testSsoGet404(seed.Client, seed.Workspace))
 }

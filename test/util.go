@@ -543,26 +543,31 @@ func CheckWebhook(webhook *buddy.Webhook, targetUrl string, secretKey string, pr
 	return nil
 }
 
-func CheckSso(sso *buddy.Sso, ssoUrl string, issuer string, certificate string, signature string, digest string, requireSsoForAllMembers bool) error {
+func CheckSso(sso *buddy.Sso, typ string, ssoUrl string, issuer string, certificate string, signature string, digest string, requireSsoForAllMembers bool) error {
 	if err := CheckFieldSet("Sso.Url", sso.Url); err != nil {
 		return err
 	}
 	if err := CheckFieldSet("Sso.HtmlUrl", sso.HtmlUrl); err != nil {
 		return err
 	}
-	if err := CheckFieldEqual("Sso.SsoUrl", sso.SsoUrl, ssoUrl); err != nil {
+	if err := CheckFieldEqual("Sso.Type", sso.Type, typ); err != nil {
 		return err
+	}
+	if typ != buddy.SsoTypeOidc {
+		if err := CheckFieldEqual("Sso.SsoUrl", sso.SsoUrl, ssoUrl); err != nil {
+			return err
+		}
+		if err := CheckFieldEqual("Sso.Certificate", sso.Certificate, certificate); err != nil {
+			return err
+		}
+		if err := CheckFieldEqual("Sso.SignatureMethod", sso.SignatureMethod, signature); err != nil {
+			return err
+		}
+		if err := CheckFieldEqual("Sso.DigestMethod", sso.DigestMethod, digest); err != nil {
+			return err
+		}
 	}
 	if err := CheckFieldEqual("Sso.Issuer", sso.Issuer, issuer); err != nil {
-		return err
-	}
-	if err := CheckFieldEqual("Sso.Certificate", sso.Certificate, certificate); err != nil {
-		return err
-	}
-	if err := CheckFieldEqual("Sso.SignatureMethod", sso.SignatureMethod, signature); err != nil {
-		return err
-	}
-	if err := CheckFieldEqual("Sso.DigestMethod", sso.DigestMethod, digest); err != nil {
 		return err
 	}
 	if err := CheckBoolFieldEqual("Sso.RequireSsoForAllMembers", sso.RequireSsoForAllMembers, requireSsoForAllMembers); err != nil {
@@ -1365,6 +1370,7 @@ func CheckIntegration(integration *buddy.Integration, expected *buddy.Integratio
 	projectName := expected.ProjectName
 	groupId := expected.GroupId
 	hashId := expected.HashId
+	authType := expected.AuthType
 	if ops != nil {
 		if ops.Name != nil {
 			name = *ops.Name
@@ -1381,12 +1387,20 @@ func CheckIntegration(integration *buddy.Integration, expected *buddy.Integratio
 		if ops.GroupId != nil {
 			groupId = *ops.GroupId
 		}
+		if ops.AuthType != nil {
+			authType = *ops.AuthType
+		}
 	}
 	if scope != buddy.IntegrationScopeProject && scope != buddy.IntegrationScopeGroupInProject && scope != buddy.IntegrationScopeAdminInProject && scope != buddy.IntegrationScopePrivateInProject {
 		projectName = ""
 	}
 	if scope != buddy.IntegrationScopeGroup && scope != buddy.IntegrationScopeGroupInProject {
 		groupId = 0
+	}
+	if authType != "" {
+		if err := CheckFieldEqual("Integration.AuthType", integration.AuthType, authType); err != nil {
+			return err
+		}
 	}
 	if err := CheckFieldSet("Integration.Url", integration.Url); err != nil {
 		return err
