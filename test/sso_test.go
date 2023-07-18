@@ -120,7 +120,7 @@ func TestSso(t *testing.T) {
 	t.Run("Enable OIDC", testSsoEnable(seed.Client, seed.Workspace))
 	t.Run("Update OIDC", testSsoUpdateOidc(seed.Client, seed.Workspace, false, &sso))
 	t.Run("Get OIDC", testSsoGet(seed.Client, seed.Workspace, &sso))
-	//t.Run("Update OIDC", testSsoUpdateOidc(seed.Client, seed.Workspace, true, &sso))
+	t.Run("Update OIDC", testSsoUpdateOidc(seed.Client, seed.Workspace, true, &sso))
 	t.Run("Get OIDC", testSsoGet(seed.Client, seed.Workspace, &sso))
 	t.Run("Disable OIDC", testSsoDisable(seed.Client, seed.Workspace))
 	t.Run("404 OIDC", testSsoGet404(seed.Client, seed.Workspace))
