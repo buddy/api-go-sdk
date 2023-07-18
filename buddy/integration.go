@@ -41,6 +41,9 @@ const (
 
 	IntegrationAuthTypeToken             = "TOKEN"
 	IntegrationAuthTypeTokenAppExtension = "TOKEN_APP_EXTENSION"
+	IntegrationAuthTypeDefaul            = "DEFAULT"
+	IntegrationAuthTypeTrusted           = "TRUSTED"
+	IntegrationAuthTypeOidc              = "OIDC"
 )
 
 type Integration struct {
@@ -49,6 +52,7 @@ type Integration struct {
 	HashId      string `json:"hash_id"`
 	Name        string `json:"name"`
 	Type        string `json:"type"`
+	AuthType    string `json:"auth_type"`
 	Scope       string `json:"scope"`
 	ProjectName string `json:"project_name"`
 	GroupId     int    `json:"group_id"`
@@ -70,13 +74,14 @@ type IntegrationOps struct {
 	Token           *string            `json:"token,omitempty"`
 	AccessKey       *string            `json:"access_key,omitempty"`
 	SecretKey       *string            `json:"secret_key,omitempty"`
+	Audience        *string            `json:"audience,omitempty"`
 	AppId           *string            `json:"app_id,omitempty"`
 	TenantId        *string            `json:"tenant_id,omitempty"`
 	Password        *string            `json:"password,omitempty"`
 	ApiKey          *string            `json:"api_key,omitempty"`
 	Email           *string            `json:"email,omitempty"`
-	AuthType        *string            `json:"auth_type"`
-	PartnerToken    *string            `json:"partner_token"`
+	AuthType        *string            `json:"auth_type,omitempty"`
+	PartnerToken    *string            `json:"partner_token,omitempty"`
 	RoleAssumptions *[]*RoleAssumption `json:"role_assumptions,omitempty"`
 }
 
