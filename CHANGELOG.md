@@ -1,3 +1,6 @@
+# Release v1.13.1 (2023-07-19)
+* Fixes OIDC support for Google
+
 # Release v1.13.0 (2023-07-18)
 * Adds OIDC support in integrations & login
 

@@ -41,7 +41,7 @@ const (
 
 	IntegrationAuthTypeToken             = "TOKEN"
 	IntegrationAuthTypeTokenAppExtension = "TOKEN_APP_EXTENSION"
-	IntegrationAuthTypeDefaul            = "DEFAULT"
+	IntegrationAuthTypeDefault           = "DEFAULT"
 	IntegrationAuthTypeTrusted           = "TRUSTED"
 	IntegrationAuthTypeOidc              = "OIDC"
 )
@@ -82,6 +82,8 @@ type IntegrationOps struct {
 	Email           *string            `json:"email,omitempty"`
 	AuthType        *string            `json:"auth_type,omitempty"`
 	PartnerToken    *string            `json:"partner_token,omitempty"`
+	GoogleProject   *string            `json:"google_project,omitempty"`
+	Config          *string            `json:"config,omitempty"`
 	RoleAssumptions *[]*RoleAssumption `json:"role_assumptions,omitempty"`
 }
 
