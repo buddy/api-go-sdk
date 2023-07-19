@@ -14,6 +14,7 @@ func TestIntegration(t *testing.T) {
 	if err != nil {
 		t.Fatal(ErrorFormatted("SeedInitialData", err))
 	}
+	t.Run("Google OIDC", testIntegrationGoogleOIDC(seed.Client, seed.Workspace))
 	t.Run("Amazon OIDC", testIntegrationAmazonOidc(seed.Client, seed.Workspace))
 	t.Run("Amazon", testIntegrationAmazon(seed.Client, seed.Workspace, seed.Project))
 	t.Run("GitHub", testIntegrationGitHub(seed.Client, seed.Workspace))
@@ -198,6 +199,40 @@ func testIntegrationAmazonOidc(client *buddy.Client, workspace *buddy.Workspace)
 			AuthType: &authType,
 			Scope:    &newScope,
 			Audience: &newAudience,
+		}
+		t.Run("Create", testIntegrationCreate(client, workspace, &createOps, &integration))
+		t.Run("Update", testIntegrationUpdate(client, workspace, integration.HashId, &updateOps, &integration))
+		t.Run("Get", testIntegrationGet(client, workspace, integration.HashId, &integration))
+		t.Run("GetList", testIntegrationGetList(client, workspace, 1))
+		t.Run("Delete", testIntegrationDelete(client, workspace, integration.HashId))
+	}
+}
+
+func testIntegrationGoogleOIDC(client *buddy.Client, workspace *buddy.Workspace) func(t *testing.T) {
+	return func(t *testing.T) {
+		name := RandString(10)
+		scope := buddy.IntegrationScopeAdmin
+		typ := buddy.IntegrationTypeGoogleServiceAccount
+		authType := buddy.IntegrationAuthTypeOidc
+		googleProject := RandString(10)
+		config := "{}"
+		var integration buddy.Integration
+		createOps := buddy.IntegrationOps{
+			Name:          &name,
+			Type:          &typ,
+			Scope:         &scope,
+			AuthType:      &authType,
+			GoogleProject: &googleProject,
+			Config:        &config,
+		}
+		newName := RandString(10)
+		newScope := buddy.IntegrationScopeWorkspace
+		updateOps := buddy.IntegrationOps{
+			Name:          &newName,
+			Scope:         &newScope,
+			AuthType:      &authType,
+			GoogleProject: &googleProject,
+			Config:        &config,
 		}
 		t.Run("Create", testIntegrationCreate(client, workspace, &createOps, &integration))
 		t.Run("Update", testIntegrationUpdate(client, workspace, integration.HashId, &updateOps, &integration))
