@@ -14,9 +14,9 @@ func TestIntegration(t *testing.T) {
 	if err != nil {
 		t.Fatal(ErrorFormatted("SeedInitialData", err))
 	}
+	t.Run("Amazon", testIntegrationAmazon(seed.Client, seed.Workspace, seed.Project))
 	t.Run("Google OIDC", testIntegrationGoogleOIDC(seed.Client, seed.Workspace))
 	t.Run("Amazon OIDC", testIntegrationAmazonOidc(seed.Client, seed.Workspace))
-	t.Run("Amazon", testIntegrationAmazon(seed.Client, seed.Workspace, seed.Project))
 	t.Run("GitHub", testIntegrationGitHub(seed.Client, seed.Workspace))
 	t.Run("GitLab", testIntegrationGitLab(seed.Client, seed.Workspace))
 	t.Run("DigitalOcean", testIntegrationDigitalOcean(seed.Client, seed.Workspace, seed.Project))
@@ -271,9 +271,12 @@ func testIntegrationAmazon(client *buddy.Client, workspace *buddy.Workspace, pro
 		newName := RandString(10)
 		newScope := buddy.IntegrationScopePrivateInProject
 		updateOps := buddy.IntegrationOps{
-			Scope:       &newScope,
-			ProjectName: &project.Name,
-			Name:        &newName,
+			Scope:           &newScope,
+			ProjectName:     &project.Name,
+			Name:            &newName,
+			AccessKey:       &accessKey,
+			SecretKey:       &secretKey,
+			RoleAssumptions: &roleAssumptions,
 		}
 		t.Run("Create", testIntegrationCreate(client, workspace, &createOps, &integration))
 		t.Run("Update", testIntegrationUpdate(client, workspace, integration.HashId, &updateOps, &integration))
