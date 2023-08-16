@@ -167,7 +167,7 @@ func NewDefaultClient(token string) (*Client, error) {
 }
 
 func NewClient(token string, baseUrl string, insecure bool) (*Client, error) {
-	return NewClientWithTimeout(token, baseUrl, insecure, 30)
+	return NewClientWithTimeout(token, baseUrl, insecure, 30*time.Second)
 }
 
 func NewClientWithTimeout(token string, baseUrl string, insecure bool, timeout time.Duration) (*Client, error) {

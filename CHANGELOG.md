@@ -1,3 +1,6 @@
+# Release v1.13.4 (2023-08-16)
+* Adds configureable timeout to api client
+
 # Release v1.13.3 (2023-08-16)
 * Adds configureable timeout to api client
 
