@@ -183,7 +183,7 @@ func NewClientWithTimeout(token string, baseUrl string, insecure bool, timeout t
 	// http client
 	h := &http.Client{
 		Transport: NewLoggingHttpTransport(t),
-		Timeout:   timeout * time.Second,
+		Timeout:   timeout,
 	}
 	// api client
 	c := &Client{}
