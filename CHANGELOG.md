@@ -1,3 +1,6 @@
+# Release v1.13.2 (2023-08-16)
+* Adds configureable timeout to api client
+
 # Release v1.13.1 (2023-07-19)
 * Fixes OIDC support for Google
 
