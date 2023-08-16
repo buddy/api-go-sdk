@@ -167,6 +167,10 @@ func NewDefaultClient(token string) (*Client, error) {
 }
 
 func NewClient(token string, baseUrl string, insecure bool) (*Client, error) {
+	return NewClientWithTimeout(token, baseUrl, insecure, 30)
+}
+
+func NewClientWithTimeout(token string, baseUrl string, insecure bool, timeout time.Duration) (*Client, error) {
 	tlsConfig := &tls.Config{}
 	// turn off ssl verification
 	if insecure {
@@ -179,7 +183,7 @@ func NewClient(token string, baseUrl string, insecure bool) (*Client, error) {
 	// http client
 	h := &http.Client{
 		Transport: NewLoggingHttpTransport(t),
-		Timeout:   30 * time.Second,
+		Timeout:   timeout * time.Second,
 	}
 	// api client
 	c := &Client{}
