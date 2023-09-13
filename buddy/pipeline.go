@@ -11,14 +11,18 @@ const (
 	PipelineEventTypeCreateRef = "CREATE_REF"
 	PipelineEventTypeDeleteRef = "DELETE_REF"
 
-	PipelineTriggerConditionOnChange        = "ON_CHANGE"
-	PipelineTriggerConditionOnChangeAtPath  = "ON_CHANGE_AT_PATH"
-	PipelineTriggerConditionVarIs           = "VAR_IS"
-	PipelineTriggerConditionVarIsNot        = "VAR_IS_NOT"
-	PipelineTriggerConditionVarContains     = "VAR_CONTAINS"
-	PipelineTriggerConditionVarNotContains  = "VAR_NOT_CONTAINS"
-	PipelineTriggerConditionDateTime        = "DATETIME"
-	PipelineTriggerConditionSuccessPipeline = "SUCCESS_PIPELINE"
+	PipelineTriggerConditionOnChange                   = "ON_CHANGE"
+	PipelineTriggerConditionOnChangeAtPath             = "ON_CHANGE_AT_PATH"
+	PipelineTriggerConditionVarIs                      = "VAR_IS"
+	PipelineTriggerConditionVarIsNot                   = "VAR_IS_NOT"
+	PipelineTriggerConditionVarContains                = "VAR_CONTAINS"
+	PipelineTriggerConditionVarNotContains             = "VAR_NOT_CONTAINS"
+	PipelineTriggerConditionDateTime                   = "DATETIME"
+	PipelineTriggerConditionSuccessPipeline            = "SUCCESS_PIPELINE"
+	PipelineTriggerConditionTriggeringUserIs           = "TRIGGERING_USER_IS"
+	PipelineTriggerConditionTriggeringUserIsNot        = "TRIGGERING_USER_IS_NOT"
+	PipelineTriggerConditionTriggeringUserIsInGroup    = "TRIGGERING_USER_IS_IN_GROUP"
+	PipelineTriggerConditionTriggeringUserIsNotInGroup = "TRIGGERING_USER_IS_NOT_IN_GROUP"
 
 	PipelinePriorityHigh   = "HIGH"
 	PipelinePriorityNormal = "NORMAL"
@@ -112,6 +116,8 @@ type PipelineTriggerCondition struct {
 	ZoneId                string   `json:"zone_id"`
 	TriggerProjectName    string   `json:"trigger_project_name"`
 	TriggerPipelineName   string   `json:"trigger_pipeline_name"`
+	TriggerUser           string   `json:"trigger_user"`
+	TriggerGroup          string   `json:"trigger_group"`
 }
 
 type PipelineService struct {

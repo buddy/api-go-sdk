@@ -219,6 +219,8 @@ func TestPipelineEvent(t *testing.T) {
 	seed, err := SeedInitialData(&SeedOps{
 		workspace: true,
 		project:   true,
+		member:    true,
+		group:     true,
 	})
 	if err != nil {
 		t.Fatal(ErrorFormatted("SeedInitialData", err))
@@ -315,6 +317,38 @@ func TestPipelineEvent(t *testing.T) {
 		TriggerConditions: &newTcs,
 	}
 	t.Run("UpdateTcDateTime", testPipelineUpdate(seed.Client, seed.Workspace, seed.Project, &updateOps, &pipeline))
+	newTc = buddy.PipelineTriggerCondition{
+		TriggerCondition: buddy.PipelineTriggerConditionTriggeringUserIs,
+		TriggerUser:      seed.Member.Email,
+	}
+	updateOps = buddy.PipelineOps{
+		TriggerConditions: &newTcs,
+	}
+	t.Run("UpdateTcTriggeringUserIs", testPipelineUpdate(seed.Client, seed.Workspace, seed.Project, &updateOps, &pipeline))
+	newTc = buddy.PipelineTriggerCondition{
+		TriggerCondition: buddy.PipelineTriggerConditionTriggeringUserIsNot,
+		TriggerUser:      seed.Member.Email,
+	}
+	updateOps = buddy.PipelineOps{
+		TriggerConditions: &newTcs,
+	}
+	t.Run("UpdateTcTriggeringUserIsNot", testPipelineUpdate(seed.Client, seed.Workspace, seed.Project, &updateOps, &pipeline))
+	newTc = buddy.PipelineTriggerCondition{
+		TriggerCondition: buddy.PipelineTriggerConditionTriggeringUserIsInGroup,
+		TriggerGroup:     seed.Group.Name,
+	}
+	updateOps = buddy.PipelineOps{
+		TriggerConditions: &newTcs,
+	}
+	t.Run("UpdateTcTriggeringUserIsInGroup", testPipelineUpdate(seed.Client, seed.Workspace, seed.Project, &updateOps, &pipeline))
+	newTc = buddy.PipelineTriggerCondition{
+		TriggerCondition: buddy.PipelineTriggerConditionTriggeringUserIsNotInGroup,
+		TriggerGroup:     seed.Group.Name,
+	}
+	updateOps = buddy.PipelineOps{
+		TriggerConditions: &newTcs,
+	}
+	t.Run("UpdateTcTriggeringUserIsNotInGroup", testPipelineUpdate(seed.Client, seed.Workspace, seed.Project, &updateOps, &pipeline))
 	newTc = buddy.PipelineTriggerCondition{
 		TriggerCondition:    buddy.PipelineTriggerConditionSuccessPipeline,
 		TriggerProjectName:  seed.Project.Name,
