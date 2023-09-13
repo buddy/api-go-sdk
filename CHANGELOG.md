@@ -1,3 +1,6 @@
+# Release v1.14.0 (2023-09-13)
+* Adds new trigger conditions to pipeline
+
 # Release v1.13.4 (2023-08-16)
 * Adds configureable timeout to api client
 

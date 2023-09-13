@@ -1183,6 +1183,12 @@ func CheckPipeline(project *buddy.Project, pipeline *buddy.Pipeline, expected *b
 		if err := CheckFieldEqual("PipelineTriggerCondition.TriggerPipelineName", pipelineTriggerCondition.TriggerPipelineName, expectedTriggerCondition.TriggerPipelineName); err != nil {
 			return err
 		}
+		if err := CheckFieldEqual("PipelineTriggerCondition.TriggerUser", pipelineTriggerCondition.TriggerUser, expectedTriggerCondition.TriggerUser); err != nil {
+			return err
+		}
+		if err := CheckFieldEqual("PipelineTriggerCondition.TriggerGroup", pipelineTriggerCondition.TriggerGroup, expectedTriggerCondition.TriggerGroup); err != nil {
+			return err
+		}
 		lenHours := len(expectedTriggerCondition.TriggerHours)
 		lenDays := len(expectedTriggerCondition.TriggerDays)
 		if err := CheckIntFieldEqual("len(PipelineTriggerCondition.TriggerHours)", len(pipelineTriggerCondition.TriggerHours), lenHours); err != nil {
