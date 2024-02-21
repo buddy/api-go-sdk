@@ -126,6 +126,10 @@ func ErrorFieldEmpty(field string) error {
 	return fmt.Errorf("expected %q not to be empty", field)
 }
 
+func ErrorFieldSet(field string) error {
+	return fmt.Errorf("expected %q to be empty", field)
+}
+
 type SeedOps struct {
 	workspace      bool
 	project        bool
@@ -249,6 +253,27 @@ func SeedInitialData(ops *SeedOps) (*Seed, error) {
 		}
 	}
 	return &seed, nil
+}
+
+func CheckPipelineGitConfig(gitConfig *buddy.PipelineGitConfig, wanted *buddy.PipelineGitConfig) error {
+	if wanted == nil && gitConfig != nil {
+		return ErrorFieldSet("Pipeline.GitConfig")
+	}
+	if wanted != nil {
+		if gitConfig == nil {
+			return ErrorFieldEmpty("Pipeline.GitConfig")
+		}
+		if err := CheckFieldEqual("Pipeline.Project", gitConfig.Project, wanted.Project); err != nil {
+			return err
+		}
+		if err := CheckFieldEqual("Pipeline.Branch", gitConfig.Branch, wanted.Branch); err != nil {
+			return err
+		}
+		if err := CheckFieldEqual("Pipeline.Path", gitConfig.Path, wanted.Path); err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 func CheckProject(project *buddy.Project, name string, displayName string, short bool, updateDefaultBranch bool, allowPullRequests bool, fetchSubmodules bool, fetchSubmodulesKey string, access string, withoutRepository bool) error {
@@ -970,6 +995,8 @@ func CheckPipeline(project *buddy.Project, pipeline *buddy.Pipeline, expected *b
 	executionMessageTemplate := expected.ExecutionMessageTemplate
 	worker := expected.Worker
 	targetSiteUrl := expected.TargetSiteUrl
+	gitConfigRef := expected.GitConfigRef
+	gitConfig := expected.GitConfig
 	definitionSource := expected.DefinitionSource
 	remotePath := expected.RemotePath
 	remoteBranch := expected.RemoteBranch
@@ -1070,6 +1097,16 @@ func CheckPipeline(project *buddy.Project, pipeline *buddy.Pipeline, expected *b
 		if ops.DisabledReason != nil {
 			disabledReason = *ops.DisabledReason
 		}
+		if ops.GitConfigRef != nil {
+			gitConfigRef = *ops.GitConfigRef
+			gitConfig = ops.GitConfig
+		}
+	}
+	if definitionSource == "" {
+		definitionSource = buddy.PipelineDefinitionSourceLocal
+	}
+	if gitConfigRef == "" {
+		gitConfigRef = buddy.PipelineGitConfigRefNone
 	}
 	lenRefs := len(refs)
 	lenEvents := len(events)
@@ -1284,6 +1321,12 @@ func CheckPipeline(project *buddy.Project, pipeline *buddy.Pipeline, expected *b
 		return errors.New("Pipeline.Creator must be set")
 	}
 	if err := CheckMember(pipeline.Creator, "", "", false, 0, true, true, 0, ""); err != nil {
+		return err
+	}
+	if err := CheckFieldEqual("Pipeline.GitConfigRef", pipeline.GitConfigRef, gitConfigRef); err != nil {
+		return err
+	}
+	if err := CheckPipelineGitConfig(pipeline.GitConfig, gitConfig); err != nil {
 		return err
 	}
 	if err := CheckFieldEqual("Pipeline.DefinitionSource", pipeline.DefinitionSource, definitionSource); err != nil {

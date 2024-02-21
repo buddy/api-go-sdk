@@ -36,6 +36,10 @@ const (
 	PipelinePermissionReadOnly  = "READ_ONLY"
 	PipelinePermissionRunOnly   = "RUN_ONLY"
 	PipelinePermissionReadWrite = "READ_WRITE"
+
+	PipelineGitConfigRefNone    = "NONE"
+	PipelineGitConfigRefDynamic = "DYNAMIC"
+	PipelineGitConfigRefFixed   = "FIXED"
 )
 
 type Pipeline struct {
@@ -69,6 +73,8 @@ type Pipeline struct {
 	Tags                      []string                    `json:"tags"`
 	Project                   *Project                    `json:"project"`
 	Creator                   *Member                     `json:"creator"`
+	GitConfigRef              string                      `json:"git_config_ref"`
+	GitConfig                 *PipelineGitConfig          `json:"git_config"`
 	DefinitionSource          string                      `json:"definition_source"`
 	RemotePath                string                      `json:"remote_path"`
 	RemoteBranch              string                      `json:"remote_branch"`
@@ -120,6 +126,12 @@ type PipelineTriggerCondition struct {
 	TriggerGroup          string   `json:"trigger_group"`
 }
 
+type PipelineGitConfig struct {
+	Path    string `json:"path"`
+	Branch  string `json:"branch"`
+	Project string `json:"project"`
+}
+
 type PipelineService struct {
 	client *Client
 }
@@ -147,6 +159,8 @@ type PipelineOps struct {
 	ExecutionMessageTemplate  *string                      `json:"execution_message_template,omitempty"`
 	Worker                    *string                      `json:"worker,omitempty"`
 	TargetSiteUrl             *string                      `json:"target_site_url,omitempty"`
+	GitConfigRef              *string                      `json:"git_config_ref,omitempty"`
+	GitConfig                 *PipelineGitConfig           `json:"git_config,omitempty"`
 	DefinitionSource          *string                      `json:"definition_source,omitempty"`
 	RemotePath                *string                      `json:"remote_path,omitempty"`
 	RemoteBranch              *string                      `json:"remote_branch,omitempty"`
