@@ -239,11 +239,19 @@ func TestPipelineEvent(t *testing.T) {
 		TriggerCondition: buddy.PipelineTriggerConditionOnChange,
 	}
 	tcs := []*buddy.PipelineTriggerCondition{&tc}
+	gitConfigRef := buddy.PipelineGitConfigRefFixed
+	gitConfig := &buddy.PipelineGitConfig{
+		Project: seed.Project.Name,
+		Branch:  "aaa",
+		Path:    "bbb",
+	}
 	ops := buddy.PipelineOps{
 		Name:              &name,
 		On:                &on,
 		Events:            &events,
 		TriggerConditions: &tcs,
+		GitConfigRef:      &gitConfigRef,
+		GitConfig:         gitConfig,
 	}
 	var pipeline buddy.Pipeline
 	// by default true
@@ -257,8 +265,10 @@ func TestPipelineEvent(t *testing.T) {
 		Refs: newEventRefs,
 	}
 	newEvents := []*buddy.PipelineEvent{&newEvent}
+	newGitConfigRef := buddy.PipelineGitConfigRefNone
 	updateEventOps := buddy.PipelineOps{
-		Events: &newEvents,
+		Events:       &newEvents,
+		GitConfigRef: &newGitConfigRef,
 	}
 	t.Run("UpdateEvent", testPipelineUpdate(seed.Client, seed.Workspace, seed.Project, &updateEventOps, &pipeline))
 	newTcPaths := []string{RandString(10)}
@@ -375,18 +385,26 @@ func TestPipelineRemote(t *testing.T) {
 	remoteBranch := "master"
 	paramKey := "cmd"
 	paramVal := "ls"
+	gitConfigRef := buddy.PipelineGitConfigRefDynamic
 	source := buddy.PipelineDefinitionSourceRemote
 	remoteParam := buddy.PipelineRemoteParameter{
 		Key:   paramKey,
 		Value: paramVal,
 	}
 	remoteParams := []*buddy.PipelineRemoteParameter{&remoteParam}
+	gitConfigRef2 := buddy.PipelineGitConfigRefFixed
+	gitConfig2 := &buddy.PipelineGitConfig{
+		Project: seed.Project.Name,
+		Branch:  "abc",
+		Path:    "def",
+	}
 	var remoteProject buddy.Project
 	var remoteProject2 buddy.Project
 	t.Run("YamlFile", testCreateProjectWithYaml(seed.Client, seed.Workspace, remotePath, &remoteProject))
 	t.Run("YamlFile2", testCreateProjectWithYaml(seed.Client, seed.Workspace, remotePath2, &remoteProject2))
 	ops := buddy.PipelineOps{
 		Name:              &name,
+		GitConfigRef:      &gitConfigRef,
 		RemoteBranch:      &remoteBranch,
 		RemotePath:        &remotePath,
 		RemoteProjectName: &remoteProject.Name,
@@ -397,6 +415,8 @@ func TestPipelineRemote(t *testing.T) {
 	t.Run("Create", testPipelineCreate(seed.Client, seed.Workspace, seed.Project, &ops, &pipeline))
 	updateOps := buddy.PipelineOps{
 		Name:              &newName,
+		GitConfigRef:      &gitConfigRef2,
+		GitConfig:         gitConfig2,
 		RemoteBranch:      &remoteBranch,
 		RemotePath:        &remotePath2,
 		RemoteProjectName: &remoteProject2.Name,
@@ -428,6 +448,7 @@ func TestPipelineWithPermissions(t *testing.T) {
 	ref := RandString(10)
 	refs := []string{ref}
 	failOnPrepareEnvWarning := true
+	gitConfigRef := buddy.PipelineGitConfigRefNone
 	userPerm := buddy.PipelineResourcePermission{
 		Id:          seed.Member.Id,
 		AccessLevel: buddy.PipelinePermissionReadWrite,
@@ -447,7 +468,9 @@ func TestPipelineWithPermissions(t *testing.T) {
 		Refs:                    &refs,
 		Permissions:             &perms,
 		FailOnPrepareEnvWarning: &failOnPrepareEnvWarning,
+		GitConfigRef:            &gitConfigRef,
 	}
+	gitConfigRef = buddy.PipelineGitConfigRefDynamic
 	updUserPem := buddy.PipelineResourcePermission{
 		Id:          seed.Member.Id,
 		AccessLevel: buddy.PipelinePermissionReadOnly,
@@ -457,7 +480,8 @@ func TestPipelineWithPermissions(t *testing.T) {
 		Users:  []*buddy.PipelineResourcePermission{&updUserPem},
 	}
 	updOps := buddy.PipelineOps{
-		Permissions: &updPerms,
+		Permissions:  &updPerms,
+		GitConfigRef: &gitConfigRef,
 	}
 	var pipeline buddy.Pipeline
 	t.Run("Create", testPipelineCreate(seed.Client, seed.Workspace, seed.Project, &ops, &pipeline))
