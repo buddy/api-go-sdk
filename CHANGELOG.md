@@ -1,3 +1,7 @@
+# Release v1.16.0 (2024-04-12)
+* Set Go version to 1.21
+* Bump deps
+
 # Release v1.15.0 (2024-02-21)
 * Adds git configuration to pipeline
 
