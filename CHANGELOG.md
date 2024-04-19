@@ -1,3 +1,6 @@
+# Release v1.17.0 (2024-04-19)
+* Adds identifier to integration
+
 # Release v1.16.0 (2024-04-12)
 * Set Go version to 1.21
 * Bump deps

@@ -1420,7 +1420,11 @@ func CheckIntegration(integration *buddy.Integration, expected *buddy.Integratio
 	groupId := expected.GroupId
 	hashId := expected.HashId
 	authType := expected.AuthType
+	identifier := expected.Identifier
 	if ops != nil {
+		if ops.Identifier != nil {
+			identifier = *ops.Identifier
+		}
 		if ops.Name != nil {
 			name = *ops.Name
 		}
@@ -1471,6 +1475,15 @@ func CheckIntegration(integration *buddy.Integration, expected *buddy.Integratio
 	}
 	if err := CheckIntFieldEqual("Integration.GroupId", integration.GroupId, groupId); err != nil {
 		return err
+	}
+	if identifier != "" {
+		if err := CheckFieldEqualAndSet("Integration.Identifier", integration.Identifier, identifier); err != nil {
+			return err
+		}
+	} else {
+		if err := CheckFieldSet("Integration.Identifier", integration.Identifier); err != nil {
+			return err
+		}
 	}
 	if hashId != "" {
 		if err := CheckFieldEqualAndSet("Integration.HashId", integration.HashId, hashId); err != nil {
