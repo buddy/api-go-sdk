@@ -249,6 +249,7 @@ func testIntegrationAmazon(client *buddy.Client, workspace *buddy.Workspace, pro
 		typ := buddy.IntegrationTypeAmazon
 		accessKey := RandString(10)
 		secretKey := RandString(10)
+		identifier := RandString(10)
 		roleAssumptions := []*buddy.RoleAssumption{
 			{
 				Arn: RandString(10),
@@ -267,6 +268,7 @@ func testIntegrationAmazon(client *buddy.Client, workspace *buddy.Workspace, pro
 			AccessKey:       &accessKey,
 			SecretKey:       &secretKey,
 			RoleAssumptions: &roleAssumptions,
+			Identifier:      &identifier,
 		}
 		newName := RandString(10)
 		newScope := buddy.IntegrationScopePrivateInProject

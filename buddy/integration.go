@@ -55,6 +55,7 @@ type Integration struct {
 	AuthType    string `json:"auth_type"`
 	Scope       string `json:"scope"`
 	ProjectName string `json:"project_name"`
+	Identifier  string `json:"identifier"`
 	GroupId     int    `json:"group_id"`
 }
 
@@ -84,6 +85,7 @@ type IntegrationOps struct {
 	PartnerToken    *string            `json:"partner_token,omitempty"`
 	GoogleProject   *string            `json:"google_project,omitempty"`
 	Config          *string            `json:"config,omitempty"`
+	Identifier      *string            `json:"identifier,omitempty"`
 	RoleAssumptions *[]*RoleAssumption `json:"role_assumptions,omitempty"`
 }
 
