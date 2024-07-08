@@ -30,33 +30,33 @@ const (
 	IntegrationTypeGitHub               = "GIT_HUB"
 	IntegrationTypeGitLab               = "GIT_LAB"
 
-	IntegrationScopePrivate          = "PRIVATE"
-	IntegrationScopeWorkspace        = "WORKSPACE"
-	IntegrationScopeAdmin            = "ADMIN"
-	IntegrationScopeGroup            = "GROUP"
-	IntegrationScopeProject          = "PROJECT"
-	IntegrationScopeAdminInProject   = "ADMIN_IN_PROJECT"
-	IntegrationScopeGroupInProject   = "GROUP_IN_PROJECT"
-	IntegrationScopePrivateInProject = "PRIVATE_IN_PROJECT"
+	IntegrationScopeWorkspace = "WORKSPACE"
+	IntegrationScopeProject   = "PROJECT"
 
 	IntegrationAuthTypeToken             = "TOKEN"
 	IntegrationAuthTypeTokenAppExtension = "TOKEN_APP_EXTENSION"
 	IntegrationAuthTypeDefault           = "DEFAULT"
 	IntegrationAuthTypeTrusted           = "TRUSTED"
 	IntegrationAuthTypeOidc              = "OIDC"
+
+	IntegrationPermissionManage  = "MANAGE"
+	IntegrationPermissionUseOnly = "USE_ONLY"
+	IntegrationPermissionDenied  = "DENIED"
 )
 
 type Integration struct {
-	Url         string `json:"url"`
-	HtmlUrl     string `json:"html_url"`
-	HashId      string `json:"hash_id"`
-	Name        string `json:"name"`
-	Type        string `json:"type"`
-	AuthType    string `json:"auth_type"`
-	Scope       string `json:"scope"`
-	ProjectName string `json:"project_name"`
-	Identifier  string `json:"identifier"`
-	GroupId     int    `json:"group_id"`
+	Url                 string                  `json:"url"`
+	HtmlUrl             string                  `json:"html_url"`
+	HashId              string                  `json:"hash_id"`
+	Name                string                  `json:"name"`
+	Type                string                  `json:"type"`
+	AuthType            string                  `json:"auth_type"`
+	Scope               string                  `json:"scope"`
+	ProjectName         string                  `json:"project_name"`
+	Identifier          string                  `json:"identifier"`
+	AllPipelinesAllowed bool                    `json:"all_pipelines_allowed"`
+	AllowedPipelines    []*AllowedPipeline      `json:"allowed_pipelines"`
+	Permissions         *IntegrationPermissions `json:"permissions"`
 }
 
 type Integrations struct {
@@ -65,28 +65,49 @@ type Integrations struct {
 }
 
 type IntegrationOps struct {
-	Name            *string            `json:"name,omitempty"`
-	Type            *string            `json:"type,omitempty"`
-	Scope           *string            `json:"scope,omitempty"`
-	ProjectName     *string            `json:"project_name,omitempty"`
-	GroupId         *int               `json:"group_id,omitempty"`
-	Username        *string            `json:"username,omitempty"`
-	Shop            *string            `json:"shop,omitempty"`
-	Token           *string            `json:"token,omitempty"`
-	AccessKey       *string            `json:"access_key,omitempty"`
-	SecretKey       *string            `json:"secret_key,omitempty"`
-	Audience        *string            `json:"audience,omitempty"`
-	AppId           *string            `json:"app_id,omitempty"`
-	TenantId        *string            `json:"tenant_id,omitempty"`
-	Password        *string            `json:"password,omitempty"`
-	ApiKey          *string            `json:"api_key,omitempty"`
-	Email           *string            `json:"email,omitempty"`
-	AuthType        *string            `json:"auth_type,omitempty"`
-	PartnerToken    *string            `json:"partner_token,omitempty"`
-	GoogleProject   *string            `json:"google_project,omitempty"`
-	Config          *string            `json:"config,omitempty"`
-	Identifier      *string            `json:"identifier,omitempty"`
-	RoleAssumptions *[]*RoleAssumption `json:"role_assumptions,omitempty"`
+	Name                *string                 `json:"name,omitempty"`
+	Type                *string                 `json:"type,omitempty"`
+	Scope               *string                 `json:"scope,omitempty"`
+	ProjectName         *string                 `json:"project_name,omitempty"`
+	Username            *string                 `json:"username,omitempty"`
+	Shop                *string                 `json:"shop,omitempty"`
+	Token               *string                 `json:"token,omitempty"`
+	AccessKey           *string                 `json:"access_key,omitempty"`
+	SecretKey           *string                 `json:"secret_key,omitempty"`
+	Audience            *string                 `json:"audience,omitempty"`
+	AppId               *string                 `json:"app_id,omitempty"`
+	TenantId            *string                 `json:"tenant_id,omitempty"`
+	Password            *string                 `json:"password,omitempty"`
+	ApiKey              *string                 `json:"api_key,omitempty"`
+	Email               *string                 `json:"email,omitempty"`
+	AuthType            *string                 `json:"auth_type,omitempty"`
+	PartnerToken        *string                 `json:"partner_token,omitempty"`
+	GoogleProject       *string                 `json:"google_project,omitempty"`
+	Config              *string                 `json:"config,omitempty"`
+	Identifier          *string                 `json:"identifier,omitempty"`
+	RoleAssumptions     *[]*RoleAssumption      `json:"role_assumptions,omitempty"`
+	AllPipelinesAllowed *bool                   `json:"all_pipelines_allowed,omitempty"`
+	AllowedPipelines    *[]*AllowedPipeline     `json:"allowed_pipelines,omitempty"`
+	Permissions         *IntegrationPermissions `json:"permissions,omitempty"`
+}
+
+type IntegrationPermissions struct {
+	Admins string                           `json:"admins"`
+	Others string                           `json:"others"`
+	Users  []*IntegrationResourcePermission `json:"users"`
+	Groups []*IntegrationResourcePermission `json:"groups"`
+}
+
+type IntegrationResourcePermission struct {
+	Id          int    `json:"id"`
+	AccessLevel string `json:"access_level"`
+}
+
+type AllowedPipeline struct {
+	Id      int    `json:"id"`
+	Name    string `json:"name,omitempty"`
+	Url     string `json:"url,omitempty"`
+	HtmlUrl string `json:"html_url,omitempty"`
 }
 
 type RoleAssumption struct {

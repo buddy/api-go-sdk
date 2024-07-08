@@ -136,6 +136,7 @@ type SeedOps struct {
 	group          bool
 	member         bool
 	permission     bool
+	pipeline       bool
 	gitIntegration bool
 }
 
@@ -147,6 +148,7 @@ type Seed struct {
 	Member         *buddy.Member
 	Permission     *buddy.Permission
 	Permission2    *buddy.Permission
+	Pipeline       *buddy.Pipeline
 	GitIntegration *buddy.Integration
 }
 
@@ -194,6 +196,19 @@ func SeedInitialData(ops *SeedOps) (*Seed, error) {
 				return nil, err
 			}
 			seed.Project = project
+			if ops.pipeline {
+				pipelineName := UniqueString()
+				on := buddy.PipelineOnClick
+				pp := buddy.PipelineOps{
+					Name: &pipelineName,
+					On:   &on,
+				}
+				pipeline, _, err := client.PipelineService.Create(domain, project.Name, &pp)
+				if err != nil {
+					return nil, err
+				}
+				seed.Pipeline = pipeline
+			}
 		}
 		if ops.group {
 			groupName := UniqueString()
@@ -1417,10 +1432,12 @@ func CheckIntegration(integration *buddy.Integration, expected *buddy.Integratio
 	typ := expected.Type
 	scope := expected.Scope
 	projectName := expected.ProjectName
-	groupId := expected.GroupId
 	hashId := expected.HashId
 	authType := expected.AuthType
 	identifier := expected.Identifier
+	permissions := expected.Permissions
+	allPipelinesAllowed := expected.AllPipelinesAllowed
+	allowedPipelines := expected.AllowedPipelines
 	if ops != nil {
 		if ops.Identifier != nil {
 			identifier = *ops.Identifier
@@ -1437,18 +1454,21 @@ func CheckIntegration(integration *buddy.Integration, expected *buddy.Integratio
 		if ops.ProjectName != nil {
 			projectName = *ops.ProjectName
 		}
-		if ops.GroupId != nil {
-			groupId = *ops.GroupId
-		}
 		if ops.AuthType != nil {
 			authType = *ops.AuthType
 		}
+		if ops.Permissions != nil {
+			permissions = ops.Permissions
+		}
+		if ops.AllPipelinesAllowed != nil {
+			allPipelinesAllowed = *ops.AllPipelinesAllowed
+		}
+		if ops.AllowedPipelines != nil {
+			allowedPipelines = *ops.AllowedPipelines
+		}
 	}
-	if scope != buddy.IntegrationScopeProject && scope != buddy.IntegrationScopeGroupInProject && scope != buddy.IntegrationScopeAdminInProject && scope != buddy.IntegrationScopePrivateInProject {
+	if scope != buddy.IntegrationScopeProject {
 		projectName = ""
-	}
-	if scope != buddy.IntegrationScopeGroup && scope != buddy.IntegrationScopeGroupInProject {
-		groupId = 0
 	}
 	if authType != "" {
 		if err := CheckFieldEqual("Integration.AuthType", integration.AuthType, authType); err != nil {
@@ -1473,9 +1493,6 @@ func CheckIntegration(integration *buddy.Integration, expected *buddy.Integratio
 	if err := CheckFieldEqual("Integration.ProjectName", integration.ProjectName, projectName); err != nil {
 		return err
 	}
-	if err := CheckIntFieldEqual("Integration.GroupId", integration.GroupId, groupId); err != nil {
-		return err
-	}
 	if identifier != "" {
 		if err := CheckFieldEqualAndSet("Integration.Identifier", integration.Identifier, identifier); err != nil {
 			return err
@@ -1492,6 +1509,50 @@ func CheckIntegration(integration *buddy.Integration, expected *buddy.Integratio
 	} else {
 		if err := CheckFieldSet("Integration.HashId", integration.HashId); err != nil {
 			return err
+		}
+	}
+	if err := CheckBoolFieldEqual("Integration.AllPipelinesAllowed", integration.AllPipelinesAllowed, allPipelinesAllowed); err != nil {
+		return err
+	}
+	if len(allowedPipelines) > 0 {
+		if err := CheckIntFieldEqualAndSet("Integration.AllowedPipelines[0].Id", integration.AllowedPipelines[0].Id, allowedPipelines[0].Id); err != nil {
+			return err
+		}
+	} else {
+		if err := CheckIntFieldEqual("Integration.AllowedPipelines", len(integration.AllowedPipelines), 0); err != nil {
+			return err
+		}
+	}
+	if permissions != nil {
+		if err := CheckFieldEqualAndSet("Integration.Permissions.Admins", integration.Permissions.Admins, permissions.Admins); err != nil {
+			return err
+		}
+		if err := CheckFieldEqualAndSet("Integration.Permissions.Others", integration.Permissions.Others, permissions.Others); err != nil {
+			return err
+		}
+		if len(permissions.Users) > 0 {
+			if err := CheckIntFieldEqualAndSet("Integration.Permissions.Users[0].Id", integration.Permissions.Users[0].Id, permissions.Users[0].Id); err != nil {
+				return err
+			}
+			if err := CheckFieldEqualAndSet("Integration.Permissions.Users[0].AccessLevel", integration.Permissions.Users[0].AccessLevel, permissions.Users[0].AccessLevel); err != nil {
+				return err
+			}
+		} else {
+			if err := CheckIntFieldEqual("Integration.Permissions.Users", len(integration.Permissions.Users), 0); err != nil {
+				return err
+			}
+		}
+		if len(permissions.Groups) > 0 {
+			if err := CheckIntFieldEqualAndSet("Integration.Permissions.Groups[0].Id", integration.Permissions.Groups[0].Id, permissions.Groups[0].Id); err != nil {
+				return err
+			}
+			if err := CheckFieldEqualAndSet("Integration.Permissions.Groups[0].AccessLevel", integration.Permissions.Groups[0].AccessLevel, permissions.Groups[0].AccessLevel); err != nil {
+				return err
+			}
+		} else {
+			if err := CheckIntFieldEqual("Integration.Permissions.Groups", len(integration.Permissions.Groups), 0); err != nil {
+				return err
+			}
 		}
 	}
 	return nil
