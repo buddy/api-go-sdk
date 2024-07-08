@@ -10,18 +10,20 @@ func TestIntegration(t *testing.T) {
 		workspace: true,
 		project:   true,
 		group:     true,
+		member:    true,
+		pipeline:  true,
 	})
 	if err != nil {
 		t.Fatal(ErrorFormatted("SeedInitialData", err))
 	}
-	t.Run("Amazon", testIntegrationAmazon(seed.Client, seed.Workspace, seed.Project))
+	t.Run("Amazon", testIntegrationAmazon(seed.Client, seed.Workspace, seed.Group, seed.Member))
 	t.Run("Google OIDC", testIntegrationGoogleOIDC(seed.Client, seed.Workspace))
 	t.Run("Amazon OIDC", testIntegrationAmazonOidc(seed.Client, seed.Workspace))
 	t.Run("GitHub", testIntegrationGitHub(seed.Client, seed.Workspace))
 	t.Run("GitLab", testIntegrationGitLab(seed.Client, seed.Workspace))
-	t.Run("DigitalOcean", testIntegrationDigitalOcean(seed.Client, seed.Workspace, seed.Project))
-	t.Run("Shopify", testIntegrationShopify(seed.Client, seed.Workspace, seed.Group, seed.Project))
-	t.Run("Shopify Partner", testIntegrationShopifyPartner(seed.Client, seed.Workspace, seed.Group, seed.Project))
+	t.Run("DigitalOcean", testIntegrationDigitalOcean(seed.Client, seed.Workspace, seed.Project, seed.Pipeline))
+	t.Run("Shopify", testIntegrationShopify(seed.Client, seed.Workspace))
+	t.Run("Shopify Partner", testIntegrationShopifyPartner(seed.Client, seed.Workspace))
 	t.Run("Stack Hawk", testIntegrationStackHawk(seed.Client, seed.Workspace))
 }
 
@@ -96,6 +98,7 @@ func testIntegrationStackHawk(client *buddy.Client, workspace *buddy.Workspace) 
 		scope := buddy.IntegrationScopeWorkspace
 		apiKey := RandString(10)
 		var integration buddy.Integration
+		integration.AllPipelinesAllowed = true
 		createOps := buddy.IntegrationOps{
 			Name:   &name,
 			Type:   &typ,
@@ -103,10 +106,8 @@ func testIntegrationStackHawk(client *buddy.Client, workspace *buddy.Workspace) 
 			ApiKey: &apiKey,
 		}
 		newName := RandString(10)
-		newScope := buddy.IntegrationScopeAdmin
 		updateOps := buddy.IntegrationOps{
-			Scope: &newScope,
-			Name:  &newName,
+			Name: &newName,
 		}
 		t.Run("Create", testIntegrationCreate(client, workspace, &createOps, &integration))
 		t.Run("Update", testIntegrationUpdate(client, workspace, integration.HashId, &updateOps, &integration))
@@ -123,6 +124,7 @@ func testIntegrationGitLab(client *buddy.Client, workspace *buddy.Workspace) fun
 		scope := buddy.IntegrationScopeWorkspace
 		token := RandString(10)
 		var integration buddy.Integration
+		integration.AllPipelinesAllowed = true
 		createOps := buddy.IntegrationOps{
 			Name:  &name,
 			Type:  &typ,
@@ -130,10 +132,8 @@ func testIntegrationGitLab(client *buddy.Client, workspace *buddy.Workspace) fun
 			Token: &token,
 		}
 		newName := RandString(10)
-		newScope := buddy.IntegrationScopeAdmin
 		updateOps := buddy.IntegrationOps{
-			Scope: &newScope,
-			Name:  &newName,
+			Name: &newName,
 		}
 		t.Run("Create", testIntegrationCreate(client, workspace, &createOps, &integration))
 		t.Run("Update", testIntegrationUpdate(client, workspace, integration.HashId, &updateOps, &integration))
@@ -150,6 +150,7 @@ func testIntegrationGitHub(client *buddy.Client, workspace *buddy.Workspace) fun
 		scope := buddy.IntegrationScopeWorkspace
 		token := RandString(10)
 		var integration buddy.Integration
+		integration.AllPipelinesAllowed = true
 		createOps := buddy.IntegrationOps{
 			Name:  &name,
 			Type:  &typ,
@@ -157,10 +158,8 @@ func testIntegrationGitHub(client *buddy.Client, workspace *buddy.Workspace) fun
 			Token: &token,
 		}
 		newName := RandString(10)
-		newScope := buddy.IntegrationScopeAdmin
 		updateOps := buddy.IntegrationOps{
-			Scope: &newScope,
-			Name:  &newName,
+			Name: &newName,
 		}
 		t.Run("Create", testIntegrationCreate(client, workspace, &createOps, &integration))
 		t.Run("Update", testIntegrationUpdate(client, workspace, integration.HashId, &updateOps, &integration))
@@ -183,6 +182,7 @@ func testIntegrationAmazonOidc(client *buddy.Client, workspace *buddy.Workspace)
 		}
 		audience := RandString(10)
 		var integration buddy.Integration
+		integration.AllPipelinesAllowed = true
 		createOps := buddy.IntegrationOps{
 			Name:            &name,
 			AuthType:        &authType,
@@ -192,12 +192,10 @@ func testIntegrationAmazonOidc(client *buddy.Client, workspace *buddy.Workspace)
 			Audience:        &audience,
 		}
 		newName := RandString(10)
-		newScope := buddy.IntegrationScopeAdmin
 		newAudience := RandString(10)
 		updateOps := buddy.IntegrationOps{
 			Name:     &newName,
 			AuthType: &authType,
-			Scope:    &newScope,
 			Audience: &newAudience,
 		}
 		t.Run("Create", testIntegrationCreate(client, workspace, &createOps, &integration))
@@ -211,12 +209,13 @@ func testIntegrationAmazonOidc(client *buddy.Client, workspace *buddy.Workspace)
 func testIntegrationGoogleOIDC(client *buddy.Client, workspace *buddy.Workspace) func(t *testing.T) {
 	return func(t *testing.T) {
 		name := RandString(10)
-		scope := buddy.IntegrationScopeAdmin
+		scope := buddy.IntegrationScopeWorkspace
 		typ := buddy.IntegrationTypeGoogleServiceAccount
 		authType := buddy.IntegrationAuthTypeOidc
 		googleProject := RandString(10)
 		config := "{}"
 		var integration buddy.Integration
+		integration.AllPipelinesAllowed = true
 		createOps := buddy.IntegrationOps{
 			Name:          &name,
 			Type:          &typ,
@@ -226,10 +225,8 @@ func testIntegrationGoogleOIDC(client *buddy.Client, workspace *buddy.Workspace)
 			Config:        &config,
 		}
 		newName := RandString(10)
-		newScope := buddy.IntegrationScopeWorkspace
 		updateOps := buddy.IntegrationOps{
 			Name:          &newName,
-			Scope:         &newScope,
 			AuthType:      &authType,
 			GoogleProject: &googleProject,
 			Config:        &config,
@@ -242,10 +239,10 @@ func testIntegrationGoogleOIDC(client *buddy.Client, workspace *buddy.Workspace)
 	}
 }
 
-func testIntegrationAmazon(client *buddy.Client, workspace *buddy.Workspace, project *buddy.Project) func(t *testing.T) {
+func testIntegrationAmazon(client *buddy.Client, workspace *buddy.Workspace, group *buddy.Group, member *buddy.Member) func(t *testing.T) {
 	return func(t *testing.T) {
 		name := RandString(10)
-		scope := buddy.IntegrationScopeAdmin
+		scope := buddy.IntegrationScopeWorkspace
 		typ := buddy.IntegrationTypeAmazon
 		accessKey := RandString(10)
 		secretKey := RandString(10)
@@ -260,7 +257,22 @@ func testIntegrationAmazon(client *buddy.Client, workspace *buddy.Workspace, pro
 				ExternalId: RandString(10),
 			},
 		}
+		userPerm := buddy.IntegrationResourcePermission{
+			Id:          member.Id,
+			AccessLevel: buddy.IntegrationPermissionManage,
+		}
+		groupPerm := buddy.IntegrationResourcePermission{
+			Id:          group.Id,
+			AccessLevel: buddy.IntegrationPermissionUseOnly,
+		}
+		permissions := buddy.IntegrationPermissions{
+			Others: buddy.IntegrationPermissionDenied,
+			Admins: buddy.IntegrationPermissionManage,
+			Users:  []*buddy.IntegrationResourcePermission{&userPerm},
+			Groups: []*buddy.IntegrationResourcePermission{&groupPerm},
+		}
 		var integration buddy.Integration
+		integration.AllPipelinesAllowed = true
 		createOps := buddy.IntegrationOps{
 			Name:            &name,
 			Type:            &typ,
@@ -269,16 +281,19 @@ func testIntegrationAmazon(client *buddy.Client, workspace *buddy.Workspace, pro
 			SecretKey:       &secretKey,
 			RoleAssumptions: &roleAssumptions,
 			Identifier:      &identifier,
+			Permissions:     &permissions,
 		}
 		newName := RandString(10)
-		newScope := buddy.IntegrationScopePrivateInProject
+		newPerms := buddy.IntegrationPermissions{
+			Others: buddy.IntegrationPermissionUseOnly,
+			Admins: buddy.IntegrationPermissionManage,
+		}
 		updateOps := buddy.IntegrationOps{
-			Scope:           &newScope,
-			ProjectName:     &project.Name,
 			Name:            &newName,
 			AccessKey:       &accessKey,
 			SecretKey:       &secretKey,
 			RoleAssumptions: &roleAssumptions,
+			Permissions:     &newPerms,
 		}
 		t.Run("Create", testIntegrationCreate(client, workspace, &createOps, &integration))
 		t.Run("Update", testIntegrationUpdate(client, workspace, integration.HashId, &updateOps, &integration))
@@ -288,25 +303,31 @@ func testIntegrationAmazon(client *buddy.Client, workspace *buddy.Workspace, pro
 	}
 }
 
-func testIntegrationDigitalOcean(client *buddy.Client, workspace *buddy.Workspace, project *buddy.Project) func(t *testing.T) {
+func testIntegrationDigitalOcean(client *buddy.Client, workspace *buddy.Workspace, project *buddy.Project, pipeline *buddy.Pipeline) func(t *testing.T) {
 	return func(t *testing.T) {
 		var integration buddy.Integration
+		integration.AllPipelinesAllowed = true
 		name := RandString(10)
 		scope := buddy.IntegrationScopeProject
 		typ := buddy.IntegrationTypeDigitalOcean
 		token := RandString(10)
+		allPipelines := false
+		allowedPipeline := buddy.AllowedPipeline{
+			Id: pipeline.Id,
+		}
+		allowedPipelines := []*buddy.AllowedPipeline{&allowedPipeline}
 		createOps := buddy.IntegrationOps{
-			Name:        &name,
-			Scope:       &scope,
-			Type:        &typ,
-			Token:       &token,
-			ProjectName: &project.Name,
+			Name:                &name,
+			Scope:               &scope,
+			Type:                &typ,
+			Token:               &token,
+			ProjectName:         &project.Name,
+			AllPipelinesAllowed: &allPipelines,
+			AllowedPipelines:    &allowedPipelines,
 		}
 		newName := RandString(10)
-		newScope := buddy.IntegrationScopePrivate
 		updateOps := buddy.IntegrationOps{
-			Scope: &newScope,
-			Name:  &newName,
+			Name: &newName,
 		}
 		t.Run("Create", testIntegrationCreate(client, workspace, &createOps, &integration))
 		t.Run("Update", testIntegrationUpdate(client, workspace, integration.HashId, &updateOps, &integration))
@@ -316,28 +337,25 @@ func testIntegrationDigitalOcean(client *buddy.Client, workspace *buddy.Workspac
 	}
 }
 
-func testIntegrationShopify(client *buddy.Client, workspace *buddy.Workspace, group *buddy.Group, project *buddy.Project) func(t *testing.T) {
+func testIntegrationShopify(client *buddy.Client, workspace *buddy.Workspace) func(t *testing.T) {
 	return func(t *testing.T) {
 		var integration buddy.Integration
+		integration.AllPipelinesAllowed = true
 		name := RandString(10)
-		scope := buddy.IntegrationScopeGroup
+		scope := buddy.IntegrationScopeWorkspace
 		typ := buddy.IntegrationTypeShopify
 		token := RandString(10)
 		shop := RandString(10)
 		createOps := buddy.IntegrationOps{
-			Name:    &name,
-			Scope:   &scope,
-			Type:    &typ,
-			Token:   &token,
-			Shop:    &shop,
-			GroupId: &group.Id,
+			Name:  &name,
+			Scope: &scope,
+			Type:  &typ,
+			Token: &token,
+			Shop:  &shop,
 		}
 		newName := RandString(10)
-		newScope := buddy.IntegrationScopeAdminInProject
 		updateOps := buddy.IntegrationOps{
-			Scope:       &newScope,
-			ProjectName: &project.Name,
-			Name:        &newName,
+			Name: &newName,
 		}
 		t.Run("Create", testIntegrationCreate(client, workspace, &createOps, &integration))
 		t.Run("Update", testIntegrationUpdate(client, workspace, integration.HashId, &updateOps, &integration))
@@ -347,11 +365,12 @@ func testIntegrationShopify(client *buddy.Client, workspace *buddy.Workspace, gr
 	}
 }
 
-func testIntegrationShopifyPartner(client *buddy.Client, workspace *buddy.Workspace, group *buddy.Group, project *buddy.Project) func(t *testing.T) {
+func testIntegrationShopifyPartner(client *buddy.Client, workspace *buddy.Workspace) func(t *testing.T) {
 	return func(t *testing.T) {
 		var integration buddy.Integration
+		integration.AllPipelinesAllowed = true
 		name := RandString(10)
-		scope := buddy.IntegrationScopeGroup
+		scope := buddy.IntegrationScopeWorkspace
 		typ := buddy.IntegrationTypeShopify
 		token := RandString(10)
 		partnerToken := RandString(10)
@@ -363,15 +382,11 @@ func testIntegrationShopifyPartner(client *buddy.Client, workspace *buddy.Worksp
 			Token:        &token,
 			PartnerToken: &partnerToken,
 			AuthType:     &authType,
-			GroupId:      &group.Id,
 		}
 		newName := RandString(10)
-		newScope := buddy.IntegrationScopeAdminInProject
 		updateOps := buddy.IntegrationOps{
-			Scope:       &newScope,
-			ProjectName: &project.Name,
-			AuthType:    &authType,
-			Name:        &newName,
+			AuthType: &authType,
+			Name:     &newName,
 		}
 		t.Run("Create", testIntegrationCreate(client, workspace, &createOps, &integration))
 		t.Run("Update", testIntegrationUpdate(client, workspace, integration.HashId, &updateOps, &integration))

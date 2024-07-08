@@ -1,3 +1,9 @@
+# Release v1.18.0 (2024-07-08)
+* Changes in Integration
+* Remove scopes other than `WORKSPACE`, `PROJECT`
+* Adds `permissions`
+* Adds `allowed_pipelines`
+
 # Release v1.17.0 (2024-04-19)
 * Adds identifier to integration
 
