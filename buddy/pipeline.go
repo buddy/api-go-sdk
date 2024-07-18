@@ -83,6 +83,7 @@ type Pipeline struct {
 	Disabled                  bool                        `json:"disabled"`
 	DisabledReason            string                      `json:"disabled_reason"`
 	Permissions               *PipelinePermissions        `json:"permissions"`
+	PauseOnRepeatedFailures   int                         `json:"pause_on_repeated_failures"`
 }
 
 type Pipelines struct {
@@ -168,6 +169,7 @@ type PipelineOps struct {
 	RemoteParameters          *[]*PipelineRemoteParameter  `json:"remote_parameters,omitempty"`
 	Disabled                  *bool                        `json:"disabled,omitempty"`
 	DisabledReason            *string                      `json:"disabled_reason,omitempty"`
+	PauseOnRepeatedFailures   *int                         `json:"pause_on_repeated_failures,omitempty"`
 	Permissions               *PipelinePermissions         `json:"permissions,omitempty"`
 }
 

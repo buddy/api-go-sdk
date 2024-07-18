@@ -1020,6 +1020,7 @@ func CheckPipeline(project *buddy.Project, pipeline *buddy.Pipeline, expected *b
 	disabled := expected.Disabled
 	disabledReason := expected.DisabledReason
 	permissions := expected.Permissions
+	pausedOnFailure := expected.PauseOnRepeatedFailures
 	id := expected.Id
 	if ops != nil {
 		if ops.Permissions != nil {
@@ -1115,6 +1116,9 @@ func CheckPipeline(project *buddy.Project, pipeline *buddy.Pipeline, expected *b
 		if ops.GitConfigRef != nil {
 			gitConfigRef = *ops.GitConfigRef
 			gitConfig = ops.GitConfig
+		}
+		if ops.PauseOnRepeatedFailures != nil {
+			pausedOnFailure = *ops.PauseOnRepeatedFailures
 		}
 	}
 	if definitionSource == "" {
@@ -1295,6 +1299,9 @@ func CheckPipeline(project *buddy.Project, pipeline *buddy.Pipeline, expected *b
 		return err
 	}
 	if err := CheckBoolFieldEqual("Pipeline.IgnoreFailOnProjectStatus", pipeline.IgnoreFailOnProjectStatus, ignoreFailOnProjectStatus); err != nil {
+		return err
+	}
+	if err := CheckIntFieldEqual("Pipeline.PauseOnRepeatedFailures,", pipeline.PauseOnRepeatedFailures, pausedOnFailure); err != nil {
 		return err
 	}
 	if err := CheckFieldEqual("Pipeline.StartDate", pipeline.StartDate, startDate); err != nil {
