@@ -1,3 +1,6 @@
+# Release v1.19.0 (2024-07-18)
+* Adds `PauseOnRepeatedFailures` to `Pipeline`
+
 # Release v1.18.0 (2024-07-08)
 * Changes in Integration
 * Remove scopes other than `WORKSPACE`, `PROJECT`

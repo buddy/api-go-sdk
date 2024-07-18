@@ -149,6 +149,7 @@ func TestPipelineSchedule(t *testing.T) {
 	newPaused := false
 	failOnPrepareEnvWarning := true
 	newFailOnPrepareEnvWarning := false
+	newPausedOnFailure := 50
 	fetchAllRefs := true
 	newFetchAllRefs := false
 	on := buddy.PipelineOnSchedule
@@ -163,6 +164,7 @@ func TestPipelineSchedule(t *testing.T) {
 		FetchAllRefs:            &fetchAllRefs,
 	}
 	var pipeline buddy.Pipeline
+	pipeline.PauseOnRepeatedFailures = 100 // by default it is 100
 	t.Run("Create", testPipelineCreate(seed.Client, seed.Workspace, seed.Project, &ops, &pipeline))
 	updateOps := buddy.PipelineOps{
 		Name:                    &newName,
@@ -172,6 +174,7 @@ func TestPipelineSchedule(t *testing.T) {
 		Paused:                  &newPaused,
 		FetchAllRefs:            &newFetchAllRefs,
 		FailOnPrepareEnvWarning: &newFailOnPrepareEnvWarning,
+		PauseOnRepeatedFailures: &newPausedOnFailure,
 	}
 	t.Run("Update", testPipelineUpdate(seed.Client, seed.Workspace, seed.Project, &updateOps, &pipeline))
 	t.Run("Get", testPipelineGet(seed.Client, seed.Workspace, seed.Project, &pipeline))
@@ -191,13 +194,15 @@ func TestPipelineScheduleCron(t *testing.T) {
 	name := RandString(10)
 	cron := "15 14 1 * *"
 	newCron := "0 22 * * 1-5"
+	pausedFailures := 1
 	newDisabled := true
 	newDisabledReason := RandString(10)
 	on := buddy.PipelineOnSchedule
 	ops := buddy.PipelineOps{
-		Name: &name,
-		On:   &on,
-		Cron: &cron,
+		Name:                    &name,
+		On:                      &on,
+		Cron:                    &cron,
+		PauseOnRepeatedFailures: &pausedFailures,
 	}
 	updateOps := buddy.PipelineOps{
 		Cron:           &newCron,
