@@ -1,3 +1,6 @@
+# Release v1.20.0 (2024-09-25)
+* Adds new events to `Pipeline`
+
 # Release v1.19.0 (2024-07-18)
 * Adds `PauseOnRepeatedFailures` to `Pipeline`
 
