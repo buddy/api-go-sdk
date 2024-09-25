@@ -7,9 +7,32 @@ const (
 	PipelineOnEvent    = "EVENT"
 	PipelineOnSchedule = "SCHEDULE"
 
-	PipelineEventTypePush      = "PUSH"
-	PipelineEventTypeCreateRef = "CREATE_REF"
-	PipelineEventTypeDeleteRef = "DELETE_REF"
+	PipelineEventTypePush        = "PUSH"
+	PipelineEventTypeCreateRef   = "CREATE_REF"
+	PipelineEventTypeDeleteRef   = "DELETE_REF"
+	PipelineEventTypePullRequest = "PULL_REQUEST"
+
+	PipelinePullRequestEventAssigned             = "assigned"
+	PipelinePullRequestEventUnassigned           = "unassigned"
+	PipelinePullRequestEventLabeled              = "labeled"
+	PipelinePullRequestEventUnlabeled            = "unlabeled"
+	PipelinePullRequestEventOpened               = "opened"
+	PipelinePullRequestEventEdited               = "edited"
+	PipelinePullRequestEventClosed               = "closed"
+	PipelinePullRequestEventReopened             = "reopened"
+	PipelinePullRequestEventSynchronize          = "synchronize"
+	PipelinePullRequestEventConvertedToDraft     = "converted_to_draft"
+	PipelinePullRequestEventLocked               = "locked"
+	PipelinePullRequestEventUnlocked             = "unlocked"
+	PipelinePullRequestEventEnqueued             = "enqueued"
+	PipelinePullRequestEventDequeued             = "dequeued"
+	PipelinePullRequestEventMilestoned           = "milestoned"
+	PipelinePullRequestEventDemilestoned         = "demilestoned"
+	PipelinePullRequestEventReadyForReview       = "ready_for_review"
+	PipelinePullRequestEventReviewRequested      = "review_requested"
+	PipelinePullRequestEventReviewRequestRemoved = "review_request_removed"
+	PipelinePullRequestEventAutoMergeEnabled     = "auto_merge_enabled"
+	PipelinePullRequestEventAutoMergeDisabled    = "auto_merge_disabled"
 
 	PipelineTriggerConditionOnChange                   = "ON_CHANGE"
 	PipelineTriggerConditionOnChangeAtPath             = "ON_CHANGE_AT_PATH"
@@ -98,8 +121,10 @@ type PipelineRemoteParameter struct {
 }
 
 type PipelineEvent struct {
-	Type string   `json:"type"`
-	Refs []string `json:"refs"`
+	Type     string   `json:"type"`
+	Refs     []string `json:"refs"`
+	Events   []string `json:"events"`
+	Branches []string `json:"branches"`
 }
 
 type PipelineResourcePermission struct {

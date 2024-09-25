@@ -220,6 +220,50 @@ func TestPipelineScheduleCron(t *testing.T) {
 	t.Run("Delete", testPipelineDelete(seed.Client, seed.Workspace, seed.Project, &pipeline))
 }
 
+func TestPipelinePullRequestEvent(t *testing.T) {
+	seed, err := SeedInitialData(&SeedOps{
+		workspace: true,
+		project:   true,
+	})
+	if err != nil {
+		t.Fatal(ErrorFormatted("SeedInitialData", err))
+	}
+	name := RandString(10)
+	on := buddy.PipelineOnEvent
+	eventType := buddy.PipelineEventTypePullRequest
+	pullRequestBranch := RandString(10)
+	pullRequestBranches := []string{pullRequestBranch}
+	pullRequestEvents := []string{buddy.PipelinePullRequestEventAssigned}
+	event := buddy.PipelineEvent{
+		Type:     eventType,
+		Events:   pullRequestEvents,
+		Branches: pullRequestBranches,
+	}
+	events := []*buddy.PipelineEvent{&event}
+	ops := buddy.PipelineOps{
+		Name:   &name,
+		On:     &on,
+		Events: &events,
+	}
+	var pipeline buddy.Pipeline
+	// by default true
+	pipeline.FailOnPrepareEnvWarning = true
+	t.Run("Create", testPipelineCreate(seed.Client, seed.Workspace, seed.Project, &ops, &pipeline))
+	newPullRequestBranch := RandString(10)
+	newPullRequestBranches := []string{newPullRequestBranch}
+	newPullRequestEvents := []string{buddy.PipelinePullRequestEventOpened}
+	newEvent := buddy.PipelineEvent{
+		Type:     eventType,
+		Events:   newPullRequestEvents,
+		Branches: newPullRequestBranches,
+	}
+	newEvents := []*buddy.PipelineEvent{&newEvent}
+	updateEventOps := buddy.PipelineOps{
+		Events: &newEvents,
+	}
+	t.Run("UpdateEvent", testPipelineUpdate(seed.Client, seed.Workspace, seed.Project, &updateEventOps, &pipeline))
+}
+
 func TestPipelineEvent(t *testing.T) {
 	seed, err := SeedInitialData(&SeedOps{
 		workspace: true,
