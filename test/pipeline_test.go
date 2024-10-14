@@ -152,6 +152,14 @@ func TestPipelineSchedule(t *testing.T) {
 	newPausedOnFailure := 50
 	fetchAllRefs := true
 	newFetchAllRefs := false
+	descRequired := false
+	newDescRequired := true
+	concurentRuns := true
+	newConcurentRuns := false
+	gitChangeSetBase := buddy.PipelineGitChangeSetBasePullRequest
+	newGitChangeSetBase := buddy.PipelineGitChangeSetBaseLatestRun
+	filesystemChangeSetBase := buddy.PipelineFilesystemChangeSetBaseDateModified
+	newFilesystemChangeSetBase := buddy.PipelineFilesystemChangeSetBaseContents
 	on := buddy.PipelineOnSchedule
 	ops := buddy.PipelineOps{
 		Name:                    &name,
@@ -162,6 +170,10 @@ func TestPipelineSchedule(t *testing.T) {
 		Paused:                  &paused,
 		FailOnPrepareEnvWarning: &failOnPrepareEnvWarning,
 		FetchAllRefs:            &fetchAllRefs,
+		DescriptionRequired:     &descRequired,
+		ConcurrentPipelineRuns:  &concurentRuns,
+		GitChangesetBase:        &gitChangeSetBase,
+		FilesystemChangesetBase: &filesystemChangeSetBase,
 	}
 	var pipeline buddy.Pipeline
 	pipeline.PauseOnRepeatedFailures = 100 // by default it is 100
@@ -175,6 +187,10 @@ func TestPipelineSchedule(t *testing.T) {
 		FetchAllRefs:            &newFetchAllRefs,
 		FailOnPrepareEnvWarning: &newFailOnPrepareEnvWarning,
 		PauseOnRepeatedFailures: &newPausedOnFailure,
+		DescriptionRequired:     &newDescRequired,
+		ConcurrentPipelineRuns:  &newConcurentRuns,
+		GitChangesetBase:        &newGitChangeSetBase,
+		FilesystemChangesetBase: &newFilesystemChangeSetBase,
 	}
 	t.Run("Update", testPipelineUpdate(seed.Client, seed.Workspace, seed.Project, &updateOps, &pipeline))
 	t.Run("Get", testPipelineGet(seed.Client, seed.Workspace, seed.Project, &pipeline))

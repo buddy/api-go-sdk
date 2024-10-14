@@ -1,3 +1,10 @@
+# Release v1.21.0 (2024-10-14)
+* Adds new properties to `Pipeline`
+* concurrent_pipeline_runs
+* description_required
+* git_changeset_base
+* filesystem_changeset_base
+
 # Release v1.20.0 (2024-09-25)
 * Adds new events to `Pipeline`
 
