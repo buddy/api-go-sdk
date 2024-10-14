@@ -1143,10 +1143,10 @@ func CheckPipeline(project *buddy.Project, pipeline *buddy.Pipeline, expected *b
 	if gitConfigRef == "" {
 		gitConfigRef = buddy.PipelineGitConfigRefNone
 	}
-	if gitChangeSetBase == "" {
+	if gitChangeSetBase == "" && definitionSource != buddy.PipelineDefinitionSourceLocal {
 		gitChangeSetBase = buddy.PipelineGitChangeSetBaseLatestRun
 	}
-	if filesystemChangeSetBase == "" {
+	if filesystemChangeSetBase == "" && definitionSource != buddy.PipelineDefinitionSourceLocal {
 		filesystemChangeSetBase = buddy.PipelineFilesystemChangeSetBaseDateModified
 	}
 	lenRefs := len(refs)
