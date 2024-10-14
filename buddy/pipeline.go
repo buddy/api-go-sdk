@@ -63,6 +63,13 @@ const (
 	PipelineGitConfigRefNone    = "NONE"
 	PipelineGitConfigRefDynamic = "DYNAMIC"
 	PipelineGitConfigRefFixed   = "FIXED"
+
+	PipelineGitChangeSetBaseLatestRun            = "LATEST_RUN"
+	PipelineGitChangeSetBaseLatestRunMatchingRef = "LATEST_RUN_MATCHING_REF"
+	PipelineGitChangeSetBasePullRequest          = "PULL_REQUEST"
+
+	PipelineFilesystemChangeSetBaseDateModified = "DATE_MODIFIED"
+	PipelineFilesystemChangeSetBaseContents     = "CONTENTS"
 )
 
 type Pipeline struct {
@@ -96,6 +103,7 @@ type Pipeline struct {
 	Tags                      []string                    `json:"tags"`
 	Project                   *Project                    `json:"project"`
 	Creator                   *Member                     `json:"creator"`
+	ConcurrentPipelineRuns    bool                        `json:"concurrent_pipeline_runs"`
 	GitConfigRef              string                      `json:"git_config_ref"`
 	GitConfig                 *PipelineGitConfig          `json:"git_config"`
 	DefinitionSource          string                      `json:"definition_source"`
@@ -103,6 +111,9 @@ type Pipeline struct {
 	RemoteBranch              string                      `json:"remote_branch"`
 	RemoteProjectName         string                      `json:"remote_project_name"`
 	RemoteParameters          []*PipelineRemoteParameter  `json:"remote_parameters"`
+	DescriptionRequired       bool                        `json:"description_required"`
+	FilesystemChangesetBase   string                      `json:"filesystem_changeset_base"`
+	GitChangesetBase          string                      `json:"git_changeset_base"`
 	Disabled                  bool                        `json:"disabled"`
 	DisabledReason            string                      `json:"disabled_reason"`
 	Permissions               *PipelinePermissions        `json:"permissions"`
@@ -187,11 +198,15 @@ type PipelineOps struct {
 	TargetSiteUrl             *string                      `json:"target_site_url,omitempty"`
 	GitConfigRef              *string                      `json:"git_config_ref,omitempty"`
 	GitConfig                 *PipelineGitConfig           `json:"git_config,omitempty"`
+	ConcurrentPipelineRuns    *bool                        `json:"concurrent_pipeline_runs,omitempty"`
 	DefinitionSource          *string                      `json:"definition_source,omitempty"`
 	RemotePath                *string                      `json:"remote_path,omitempty"`
 	RemoteBranch              *string                      `json:"remote_branch,omitempty"`
 	RemoteProjectName         *string                      `json:"remote_project_name,omitempty"`
 	RemoteParameters          *[]*PipelineRemoteParameter  `json:"remote_parameters,omitempty"`
+	DescriptionRequired       *bool                        `json:"description_required,omitempty"`
+	FilesystemChangesetBase   *string                      `json:"filesystem_changeset_base,omitempty"`
+	GitChangesetBase          *string                      `json:"git_changeset_base,omitempty"`
 	Disabled                  *bool                        `json:"disabled,omitempty"`
 	DisabledReason            *string                      `json:"disabled_reason,omitempty"`
 	PauseOnRepeatedFailures   *int                         `json:"pause_on_repeated_failures,omitempty"`

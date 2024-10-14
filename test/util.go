@@ -1021,6 +1021,10 @@ func CheckPipeline(project *buddy.Project, pipeline *buddy.Pipeline, expected *b
 	disabledReason := expected.DisabledReason
 	permissions := expected.Permissions
 	pausedOnFailure := expected.PauseOnRepeatedFailures
+	concurentRuns := expected.ConcurrentPipelineRuns
+	descRequired := expected.DescriptionRequired
+	gitChangeSetBase := expected.GitChangesetBase
+	filesystemChangeSetBase := expected.FilesystemChangesetBase
 	id := expected.Id
 	if ops != nil {
 		if ops.Permissions != nil {
@@ -1119,6 +1123,18 @@ func CheckPipeline(project *buddy.Project, pipeline *buddy.Pipeline, expected *b
 		}
 		if ops.PauseOnRepeatedFailures != nil {
 			pausedOnFailure = *ops.PauseOnRepeatedFailures
+		}
+		if ops.ConcurrentPipelineRuns != nil {
+			concurentRuns = *ops.ConcurrentPipelineRuns
+		}
+		if ops.DescriptionRequired != nil {
+			descRequired = *ops.DescriptionRequired
+		}
+		if ops.GitChangesetBase != nil {
+			gitChangeSetBase = *ops.GitChangesetBase
+		}
+		if ops.FilesystemChangesetBase != nil {
+			filesystemChangeSetBase = *ops.FilesystemChangesetBase
 		}
 	}
 	if definitionSource == "" {
@@ -1393,6 +1409,18 @@ func CheckPipeline(project *buddy.Project, pipeline *buddy.Pipeline, expected *b
 		return err
 	}
 	if err := CheckFieldEqual("Pipeline.DisabledReason", pipeline.DisabledReason, disabledReason); err != nil {
+		return err
+	}
+	if err := CheckBoolFieldEqual("Pipeline.ConcurrentPipelineRuns", pipeline.ConcurrentPipelineRuns, concurentRuns); err != nil {
+		return err
+	}
+	if err := CheckBoolFieldEqual("Pipeline.DescriptionRequired", pipeline.DescriptionRequired, descRequired); err != nil {
+		return err
+	}
+	if err := CheckFieldEqual("Pipeline.GitChangesetBase", pipeline.GitChangesetBase, gitChangeSetBase); err != nil {
+		return err
+	}
+	if err := CheckFieldEqual("Pipeline.FilesystemChangesetBase", pipeline.FilesystemChangesetBase, filesystemChangeSetBase); err != nil {
 		return err
 	}
 	return nil
