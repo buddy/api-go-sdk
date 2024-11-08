@@ -44,7 +44,7 @@ func testVariableCreate(client *buddy.Client, workspace *buddy.Workspace, projec
 		if err != nil {
 			t.Fatal(ErrorFormatted("VariableService.Create", err))
 		}
-		err = CheckVariable(variable, key, val, typ, desc, set, enc, filePath, fileChmod, filePlace, 0)
+		err = CheckVariable(variable, key, val, typ, desc, set, enc, filePath, fileChmod, filePlace, 0, project)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -52,7 +52,7 @@ func testVariableCreate(client *buddy.Client, workspace *buddy.Workspace, projec
 	}
 }
 
-func testVariableUpdate(client *buddy.Client, workspace *buddy.Workspace, out *buddy.Variable) func(t *testing.T) {
+func testVariableUpdate(client *buddy.Client, workspace *buddy.Workspace, project *buddy.Project, out *buddy.Variable) func(t *testing.T) {
 	return func(t *testing.T) {
 		err, _, privateKey := GenerateRsaKeyPair()
 		if err != nil {
@@ -86,7 +86,7 @@ func testVariableUpdate(client *buddy.Client, workspace *buddy.Workspace, out *b
 		if err != nil {
 			t.Fatal(ErrorFormatted("VariableService.Patch", err))
 		}
-		err = CheckVariable(variable, out.Key, val, out.Type, desc, set, enc, filePath, fileChmod, filePlace, out.Id)
+		err = CheckVariable(variable, out.Key, val, out.Type, desc, set, enc, filePath, fileChmod, filePlace, out.Id, project)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -94,13 +94,13 @@ func testVariableUpdate(client *buddy.Client, workspace *buddy.Workspace, out *b
 	}
 }
 
-func testVariableGet(client *buddy.Client, workspace *buddy.Workspace, out *buddy.Variable) func(t *testing.T) {
+func testVariableGet(client *buddy.Client, workspace *buddy.Workspace, project *buddy.Project, out *buddy.Variable) func(t *testing.T) {
 	return func(t *testing.T) {
 		variable, _, err := client.VariableService.Get(workspace.Domain, out.Id)
 		if err != nil {
 			t.Fatal(ErrorFormatted("VariableService.Get", err))
 		}
-		err = CheckVariable(variable, out.Key, out.Value, out.Type, out.Description, out.Settable, out.Encrypted, out.FilePath, out.FileChmod, out.FilePlace, out.Id)
+		err = CheckVariable(variable, out.Key, out.Value, out.Type, out.Description, out.Settable, out.Encrypted, out.FilePath, out.FileChmod, out.FilePlace, out.Id, project)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -144,8 +144,8 @@ func TestVariable(t *testing.T) {
 	}
 	var variable buddy.Variable
 	t.Run("Create", testVariableCreate(seed.Client, seed.Workspace, nil, buddy.VariableTypeVar, false, true, &variable))
-	t.Run("Update", testVariableUpdate(seed.Client, seed.Workspace, &variable))
-	t.Run("Get", testVariableGet(seed.Client, seed.Workspace, &variable))
+	t.Run("Update", testVariableUpdate(seed.Client, seed.Workspace, nil, &variable))
+	t.Run("Get", testVariableGet(seed.Client, seed.Workspace, nil, &variable))
 	t.Run("GetList", testVariableGetList(seed.Client, seed.Workspace, nil, 2))
 	t.Run("GetListInProject", testVariableGetList(seed.Client, seed.Workspace, seed.Project, 1))
 	t.Run("Delete", testVariableDelete(seed.Client, seed.Workspace, &variable))
@@ -161,8 +161,8 @@ func TestVariableSsh(t *testing.T) {
 	}
 	var variable buddy.Variable
 	t.Run("Create", testVariableCreate(seed.Client, seed.Workspace, seed.Project, buddy.VariableTypeSshKey, true, false, &variable))
-	t.Run("Update", testVariableUpdate(seed.Client, seed.Workspace, &variable))
-	t.Run("Get", testVariableGet(seed.Client, seed.Workspace, &variable))
+	t.Run("Update", testVariableUpdate(seed.Client, seed.Workspace, seed.Project, &variable))
+	t.Run("Get", testVariableGet(seed.Client, seed.Workspace, seed.Project, &variable))
 	t.Run("GetList", testVariableGetList(seed.Client, seed.Workspace, nil, 1))
 	t.Run("GetListInProject", testVariableGetList(seed.Client, seed.Workspace, seed.Project, 2))
 	t.Run("Delete", testVariableDelete(seed.Client, seed.Workspace, &variable))

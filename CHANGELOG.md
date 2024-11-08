@@ -1,3 +1,6 @@
+# Release v1.22.0 (2024-11-08)
+* Adds project, pipeline, action to variable
+
 # Release v1.21.0 (2024-10-14)
 * Adds new properties to `Pipeline`
 * concurrent_pipeline_runs

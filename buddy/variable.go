@@ -17,19 +17,22 @@ type VariableService struct {
 }
 
 type Variable struct {
-	Id             int    `json:"id"`
-	Key            string `json:"key"`
-	Value          string `json:"value"`
-	Type           string `json:"type"`
-	Encrypted      bool   `json:"encrypted"`
-	Settable       bool   `json:"settable"`
-	Description    string `json:"description"`
-	FilePath       string `json:"file_path"`
-	FileChmod      string `json:"file_chmod"`
-	FilePlace      string `json:"file_place"`
-	PublicValue    string `json:"public_value"`
-	KeyFingerprint string `json:"key_fingerprint"`
-	Checksum       string `json:"checksum"`
+	Id             int               `json:"id"`
+	Key            string            `json:"key"`
+	Value          string            `json:"value"`
+	Type           string            `json:"type"`
+	Encrypted      bool              `json:"encrypted"`
+	Settable       bool              `json:"settable"`
+	Description    string            `json:"description"`
+	FilePath       string            `json:"file_path"`
+	FileChmod      string            `json:"file_chmod"`
+	FilePlace      string            `json:"file_place"`
+	PublicValue    string            `json:"public_value"`
+	KeyFingerprint string            `json:"key_fingerprint"`
+	Checksum       string            `json:"checksum"`
+	Project        *VariableProject  `json:"project"`
+	Pipeline       *VariablePipeline `json:"pipeline"`
+	Action         *VariableAction   `json:"action"`
 }
 
 type Variables struct {
