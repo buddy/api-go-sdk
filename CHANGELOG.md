@@ -1,3 +1,6 @@
+# Release v1.22.1 (2024-12-10)
+* Adds cpu to pipeline
+
 # Release v1.22.0 (2024-11-08)
 * Adds project, pipeline, action to variable
 

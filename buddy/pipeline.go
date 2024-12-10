@@ -7,6 +7,9 @@ const (
 	PipelineOnEvent    = "EVENT"
 	PipelineOnSchedule = "SCHEDULE"
 
+	PipelineCpuX64 = "X64"
+	PipelineCpuArm = "ARM"
+
 	PipelineEventTypePush        = "PUSH"
 	PipelineEventTypeCreateRef   = "CREATE_REF"
 	PipelineEventTypeDeleteRef   = "DELETE_REF"
@@ -97,6 +100,7 @@ type Pipeline struct {
 	Delay                     int                         `json:"delay"`
 	CloneDepth                int                         `json:"clone_depth"`
 	Cron                      string                      `json:"cron"`
+	Cpu                       string                      `json:"cpu"`
 	Paused                    bool                        `json:"paused"`
 	Worker                    string                      `json:"worker"`
 	TargetSiteUrl             string                      `json:"target_site_url"`
@@ -195,6 +199,7 @@ type PipelineOps struct {
 	IgnoreFailOnProjectStatus *bool                        `json:"ignore_fail_on_project_status,omitempty"`
 	ExecutionMessageTemplate  *string                      `json:"execution_message_template,omitempty"`
 	Worker                    *string                      `json:"worker,omitempty"`
+	Cpu                       *string                      `json:"cpu,omitempty"`
 	TargetSiteUrl             *string                      `json:"target_site_url,omitempty"`
 	GitConfigRef              *string                      `json:"git_config_ref,omitempty"`
 	GitConfig                 *PipelineGitConfig           `json:"git_config,omitempty"`
