@@ -578,6 +578,7 @@ func TestPipelineClick(t *testing.T) {
 	targetSiteUrl := RandString(10)
 	refs := []string{ref}
 	cloneDepth := 10
+	cpu := buddy.PipelineCpuArm
 	ops := buddy.PipelineOps{
 		Name:                      &name,
 		On:                        &on,
@@ -589,6 +590,7 @@ func TestPipelineClick(t *testing.T) {
 		IgnoreFailOnProjectStatus: &ignoreFailOnProjectStatus,
 		ExecutionMessageTemplate:  &executionMessageTemplate,
 		TargetSiteUrl:             &targetSiteUrl,
+		Cpu:                       &cpu,
 		Refs:                      &refs,
 		CloneDepth:                &cloneDepth,
 	}
@@ -598,12 +600,14 @@ func TestPipelineClick(t *testing.T) {
 	newMsgTemplate := RandString(10)
 	newTargetSiteUrl := RandString(10)
 	newCloneDepth := 0
+	newCpu := buddy.PipelineCpuX64
 	updateOps := buddy.PipelineOps{
 		Name:                     &newName,
 		Refs:                     &newRefs,
 		ExecutionMessageTemplate: &newMsgTemplate,
 		TargetSiteUrl:            &newTargetSiteUrl,
 		CloneDepth:               &newCloneDepth,
+		Cpu:                      &newCpu,
 	}
 	var pipeline buddy.Pipeline
 	t.Run("Create", testPipelineCreate(seed.Client, seed.Workspace, seed.Project, &ops, &pipeline))

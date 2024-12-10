@@ -1030,8 +1030,12 @@ func CheckPipeline(project *buddy.Project, pipeline *buddy.Pipeline, expected *b
 	descRequired := expected.DescriptionRequired
 	gitChangeSetBase := expected.GitChangesetBase
 	filesystemChangeSetBase := expected.FilesystemChangesetBase
+	cpu := expected.Cpu
 	id := expected.Id
 	if ops != nil {
+		if ops.Cpu != nil {
+			cpu = *ops.Cpu
+		}
 		if ops.Permissions != nil {
 			permissions = ops.Permissions
 		}
@@ -1175,6 +1179,9 @@ func CheckPipeline(project *buddy.Project, pipeline *buddy.Pipeline, expected *b
 		}
 	}
 	if err := CheckFieldEqualAndSet("Pipeline.Name", pipeline.Name, name); err != nil {
+		return err
+	}
+	if err := CheckFieldEqualAndSet("Pipeline.Cpu", pipeline.Cpu, cpu); err != nil {
 		return err
 	}
 	if on != "" {
