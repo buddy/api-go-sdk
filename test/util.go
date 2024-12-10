@@ -1181,8 +1181,10 @@ func CheckPipeline(project *buddy.Project, pipeline *buddy.Pipeline, expected *b
 	if err := CheckFieldEqualAndSet("Pipeline.Name", pipeline.Name, name); err != nil {
 		return err
 	}
-	if err := CheckFieldEqualAndSet("Pipeline.Cpu", pipeline.Cpu, cpu); err != nil {
-		return err
+	if cpu != "" {
+		if err := CheckFieldEqualAndSet("Pipeline.Cpu", pipeline.Cpu, cpu); err != nil {
+			return err
+		}
 	}
 	if on != "" {
 		if err := CheckFieldEqualAndSet("Pipeline.On", pipeline.On, on); err != nil {
