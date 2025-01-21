@@ -1289,7 +1289,7 @@ func CheckPipeline(project *buddy.Project, pipeline *buddy.Pipeline, expected *b
 		if err := CheckFieldEqual("PipelineTriggerCondition.TriggerVariableValue", pipelineTriggerCondition.TriggerVariableValue, expectedTriggerCondition.TriggerVariableValue); err != nil {
 			return err
 		}
-		if err := CheckFieldEqual("PipelineTriggerCondition.ZoneId", pipelineTriggerCondition.ZoneId, expectedTriggerCondition.ZoneId); err != nil {
+		if err := CheckFieldEqual("PipelineTriggerCondition.ZoneId", pipelineTriggerCondition.Timezone, expectedTriggerCondition.Timezone); err != nil {
 			return err
 		}
 		if err := CheckFieldEqual("PipelineTriggerCondition.TriggerProjectName", pipelineTriggerCondition.TriggerProjectName, expectedTriggerCondition.TriggerProjectName); err != nil {

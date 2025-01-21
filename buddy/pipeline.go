@@ -161,7 +161,7 @@ type PipelineTriggerCondition struct {
 	TriggerVariableValue  string   `json:"trigger_variable_value"`
 	TriggerHours          []int    `json:"trigger_hours"`
 	TriggerDays           []int    `json:"trigger_days"`
-	ZoneId                string   `json:"zone_id"`
+	Timezone              string   `json:"timezone"`
 	TriggerProjectName    string   `json:"trigger_project_name"`
 	TriggerPipelineName   string   `json:"trigger_pipeline_name"`
 	TriggerUser           string   `json:"trigger_user"`

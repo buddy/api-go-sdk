@@ -1,5 +1,6 @@
 # Release v1.23.0 (2025-01-21)
-* [Breaking] - cron, startDate and delay in pipeline are moved to event 
+* [Breaking] - cron, startDate and delay in pipeline are moved to event
+* [Breaking] - zone_id -> timezone in pipeline trigger condition
 
 
 # Release v1.22.1 (2024-12-10)

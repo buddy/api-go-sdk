@@ -404,7 +404,7 @@ func TestPipelineEvent(t *testing.T) {
 		TriggerCondition: buddy.PipelineTriggerConditionDateTime,
 		TriggerHours:     []int{10},
 		TriggerDays:      []int{1},
-		ZoneId:           "America/Monterrey",
+		Timezone:         "America/Monterrey",
 	}
 	updateOps = buddy.PipelineOps{
 		TriggerConditions: &newTcs,
