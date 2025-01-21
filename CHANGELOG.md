@@ -1,6 +1,7 @@
 # Release v1.23.0 (2025-01-21)
 * [Breaking] - cron, startDate and delay in pipeline are moved to event 
 
+
 # Release v1.22.1 (2024-12-10)
 * Adds cpu to pipeline
 
