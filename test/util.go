@@ -1006,10 +1006,7 @@ func CheckPipeline(project *buddy.Project, pipeline *buddy.Pipeline, expected *b
 	autoClearCache := expected.AutoClearCache
 	noSkipToMostRecent := expected.NoSkipToMostRecent
 	doNotCreateCommitStatus := expected.DoNotCreateCommitStatus
-	startDate := expected.StartDate
-	delay := expected.Delay
 	cloneDepth := expected.CloneDepth
-	cron := expected.Cron
 	paused := expected.Paused
 	ignoreFailOnProjectStatus := expected.IgnoreFailOnProjectStatus
 	executionMessageTemplate := expected.ExecutionMessageTemplate
@@ -1078,17 +1075,8 @@ func CheckPipeline(project *buddy.Project, pipeline *buddy.Pipeline, expected *b
 		if ops.DoNotCreateCommitStatus != nil {
 			doNotCreateCommitStatus = *ops.DoNotCreateCommitStatus
 		}
-		if ops.StartDate != nil {
-			startDate = *ops.StartDate
-		}
-		if ops.Delay != nil {
-			delay = *ops.Delay
-		}
 		if ops.CloneDepth != nil {
 			cloneDepth = *ops.CloneDepth
-		}
-		if ops.Cron != nil {
-			cron = *ops.Cron
 		}
 		if ops.Paused != nil {
 			paused = *ops.Paused
@@ -1220,11 +1208,31 @@ func CheckPipeline(project *buddy.Project, pipeline *buddy.Pipeline, expected *b
 				return err
 			}
 		} else {
-			if err := CheckIntFieldEqualAndSet("len(Pipeline.Events[0].Refs)", len(pipeline.Events[0].Refs), len(events[0].Refs)); err != nil {
-				return err
+			if events[0].Refs != nil {
+				if err := CheckIntFieldEqual("len(Pipeline.Events[0].Refs)", len(pipeline.Events[0].Refs), len(events[0].Refs)); err != nil {
+					return err
+				}
+				if err := CheckFieldEqual("Pipeline.Events[0].Refs[0]", pipeline.Events[0].Refs[0], events[0].Refs[0]); err != nil {
+					return err
+				}
 			}
-			if err := CheckFieldEqualAndSet("Pipeline.Events[0].Refs[0]", pipeline.Events[0].Refs[0], events[0].Refs[0]); err != nil {
-				return err
+			if events[0].Type == buddy.PipelineEventTypeSchedule {
+				if err := CheckFieldEqual("Pipeline.Events[0].Cron", pipeline.Events[0].Cron, events[0].Cron); err != nil {
+					return err
+				}
+				timezone := events[0].Timezone
+				//if events[0].Cron != "" && timezone == "" {
+				//	timezone = "UTC"
+				//}
+				if err := CheckFieldEqual("Pipeline.Events[0].Timezone", pipeline.Events[0].Timezone, timezone); err != nil {
+					return err
+				}
+				if err := CheckFieldEqual("Pipeline.Events[0].StartDate", pipeline.Events[0].StartDate, events[0].StartDate); err != nil {
+					return err
+				}
+				if err := CheckIntFieldEqual("Pipeline.Events[0].Delay", pipeline.Events[0].Delay, events[0].Delay); err != nil {
+					return err
+				}
 			}
 		}
 	}
@@ -1355,16 +1363,7 @@ func CheckPipeline(project *buddy.Project, pipeline *buddy.Pipeline, expected *b
 	if err := CheckIntFieldEqual("Pipeline.PauseOnRepeatedFailures,", pipeline.PauseOnRepeatedFailures, pausedOnFailure); err != nil {
 		return err
 	}
-	if err := CheckFieldEqual("Pipeline.StartDate", pipeline.StartDate, startDate); err != nil {
-		return err
-	}
-	if err := CheckIntFieldEqual("Pipeline.Delay", pipeline.Delay, delay); err != nil {
-		return err
-	}
 	if err := CheckIntFieldEqual("Pipeline.CloneDepth", pipeline.CloneDepth, cloneDepth); err != nil {
-		return err
-	}
-	if err := CheckFieldEqual("Pipeline.Cron", pipeline.Cron, cron); err != nil {
 		return err
 	}
 	if err := CheckBoolFieldEqual("Pipeline.Paused", pipeline.Paused, paused); err != nil {
