@@ -3,14 +3,14 @@ package buddy
 import "net/http"
 
 const (
-	PipelineOnClick    = "CLICK"
-	PipelineOnEvent    = "EVENT"
-	PipelineOnSchedule = "SCHEDULE"
+	PipelineOnClick = "CLICK"
+	PipelineOnEvent = "EVENT"
 
 	PipelineCpuX64 = "X64"
 	PipelineCpuArm = "ARM"
 
 	PipelineEventTypePush        = "PUSH"
+	PipelineEventTypeSchedule    = "SCHEDULE"
 	PipelineEventTypeCreateRef   = "CREATE_REF"
 	PipelineEventTypeDeleteRef   = "DELETE_REF"
 	PipelineEventTypePullRequest = "PULL_REQUEST"
@@ -96,10 +96,7 @@ type Pipeline struct {
 	NoSkipToMostRecent        bool                        `json:"no_skip_to_most_recent"`
 	DoNotCreateCommitStatus   bool                        `json:"do_not_create_commit_status"`
 	IgnoreFailOnProjectStatus bool                        `json:"ignore_fail_on_project_status"`
-	StartDate                 string                      `json:"start_date"`
-	Delay                     int                         `json:"delay"`
 	CloneDepth                int                         `json:"clone_depth"`
-	Cron                      string                      `json:"cron"`
 	Cpu                       string                      `json:"cpu"`
 	Paused                    bool                        `json:"paused"`
 	Worker                    string                      `json:"worker"`
@@ -136,10 +133,14 @@ type PipelineRemoteParameter struct {
 }
 
 type PipelineEvent struct {
-	Type     string   `json:"type"`
-	Refs     []string `json:"refs"`
-	Events   []string `json:"events"`
-	Branches []string `json:"branches"`
+	Type      string   `json:"type"`
+	Refs      []string `json:"refs"`
+	Events    []string `json:"events"`
+	Branches  []string `json:"branches"`
+	StartDate string   `json:"start_date,omitempty"`
+	Delay     int      `json:"delay,omitempty"`
+	Cron      string   `json:"cron,omitempty"`
+	Timezone  string   `json:"timezone,omitempty"`
 }
 
 type PipelineResourcePermission struct {
@@ -160,7 +161,7 @@ type PipelineTriggerCondition struct {
 	TriggerVariableValue  string   `json:"trigger_variable_value"`
 	TriggerHours          []int    `json:"trigger_hours"`
 	TriggerDays           []int    `json:"trigger_days"`
-	ZoneId                string   `json:"zone_id"`
+	Timezone              string   `json:"timezone"`
 	TriggerProjectName    string   `json:"trigger_project_name"`
 	TriggerPipelineName   string   `json:"trigger_pipeline_name"`
 	TriggerUser           string   `json:"trigger_user"`
@@ -191,10 +192,7 @@ type PipelineOps struct {
 	AutoClearCache            *bool                        `json:"auto_clear_cache,omitempty"`
 	NoSkipToMostRecent        *bool                        `json:"no_skip_to_most_recent,omitempty"`
 	DoNotCreateCommitStatus   *bool                        `json:"do_not_create_commit_status,omitempty"`
-	StartDate                 *string                      `json:"start_date,omitempty"`
-	Delay                     *int                         `json:"delay,omitempty"`
 	CloneDepth                *int                         `json:"clone_depth,omitempty"`
-	Cron                      *string                      `json:"cron,omitempty"`
 	Paused                    *bool                        `json:"paused,omitempty"`
 	IgnoreFailOnProjectStatus *bool                        `json:"ignore_fail_on_project_status,omitempty"`
 	ExecutionMessageTemplate  *string                      `json:"execution_message_template,omitempty"`

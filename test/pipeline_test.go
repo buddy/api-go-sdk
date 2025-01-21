@@ -160,13 +160,17 @@ func TestPipelineSchedule(t *testing.T) {
 	newGitChangeSetBase := buddy.PipelineGitChangeSetBaseLatestRun
 	filesystemChangeSetBase := buddy.PipelineFilesystemChangeSetBaseDateModified
 	newFilesystemChangeSetBase := buddy.PipelineFilesystemChangeSetBaseContents
-	on := buddy.PipelineOnSchedule
+	on := buddy.PipelineOnEvent
+	event := buddy.PipelineEvent{
+		Type:      buddy.PipelineEventTypeSchedule,
+		StartDate: startDate,
+		Delay:     delay,
+	}
 	ops := buddy.PipelineOps{
 		Name:                    &name,
-		StartDate:               &startDate,
 		Priority:                &priority,
-		Delay:                   &delay,
 		On:                      &on,
+		Events:                  &[]*buddy.PipelineEvent{&event},
 		Paused:                  &paused,
 		FailOnPrepareEnvWarning: &failOnPrepareEnvWarning,
 		FetchAllRefs:            &fetchAllRefs,
@@ -178,12 +182,16 @@ func TestPipelineSchedule(t *testing.T) {
 	var pipeline buddy.Pipeline
 	pipeline.PauseOnRepeatedFailures = 100 // by default it is 100
 	t.Run("Create", testPipelineCreate(seed.Client, seed.Workspace, seed.Project, &ops, &pipeline))
+	newEvent := buddy.PipelineEvent{
+		Type:      buddy.PipelineEventTypeSchedule,
+		StartDate: newStartDate,
+		Delay:     newDelay,
+	}
 	updateOps := buddy.PipelineOps{
 		Name:                    &newName,
-		StartDate:               &newStartDate,
 		Priority:                &newPriority,
-		Delay:                   &newDelay,
 		Paused:                  &newPaused,
+		Events:                  &[]*buddy.PipelineEvent{&newEvent},
 		FetchAllRefs:            &newFetchAllRefs,
 		FailOnPrepareEnvWarning: &newFailOnPrepareEnvWarning,
 		PauseOnRepeatedFailures: &newPausedOnFailure,
@@ -210,18 +218,28 @@ func TestPipelineScheduleCron(t *testing.T) {
 	name := RandString(10)
 	cron := "15 14 1 * *"
 	newCron := "0 22 * * 1-5"
+	newTimezone := "Europe/Warsaw"
 	pausedFailures := 1
 	newDisabled := true
 	newDisabledReason := RandString(10)
-	on := buddy.PipelineOnSchedule
+	on := buddy.PipelineOnEvent
+	event := buddy.PipelineEvent{
+		Type: buddy.PipelineEventTypeSchedule,
+		Cron: cron,
+	}
 	ops := buddy.PipelineOps{
 		Name:                    &name,
 		On:                      &on,
-		Cron:                    &cron,
+		Events:                  &[]*buddy.PipelineEvent{&event},
 		PauseOnRepeatedFailures: &pausedFailures,
 	}
+	newEvent := buddy.PipelineEvent{
+		Type:     buddy.PipelineEventTypeSchedule,
+		Cron:     newCron,
+		Timezone: newTimezone,
+	}
 	updateOps := buddy.PipelineOps{
-		Cron:           &newCron,
+		Events:         &[]*buddy.PipelineEvent{&newEvent},
 		Disabled:       &newDisabled,
 		DisabledReason: &newDisabledReason,
 	}
@@ -386,7 +404,7 @@ func TestPipelineEvent(t *testing.T) {
 		TriggerCondition: buddy.PipelineTriggerConditionDateTime,
 		TriggerHours:     []int{10},
 		TriggerDays:      []int{1},
-		ZoneId:           "America/Monterrey",
+		Timezone:         "America/Monterrey",
 	}
 	updateOps = buddy.PipelineOps{
 		TriggerConditions: &newTcs,
