@@ -3,9 +3,6 @@ package buddy
 import "net/http"
 
 const (
-	PipelineOnClick = "CLICK"
-	PipelineOnEvent = "EVENT"
-
 	PipelineCpuX64 = "X64"
 	PipelineCpuArm = "ARM"
 
@@ -80,7 +77,6 @@ type Pipeline struct {
 	HtmlUrl                   string                      `json:"html_url"`
 	Id                        int                         `json:"id"`
 	Name                      string                      `json:"name"`
-	On                        string                      `json:"on"`
 	Refs                      []string                    `json:"refs"`
 	Events                    []*PipelineEvent            `json:"events"`
 	TriggerConditions         []*PipelineTriggerCondition `json:"trigger_conditions"`
@@ -180,7 +176,6 @@ type PipelineService struct {
 
 type PipelineOps struct {
 	Name                      *string                      `json:"name,omitempty"`
-	On                        *string                      `json:"on,omitempty"`
 	Refs                      *[]string                    `json:"refs,omitempty"`
 	Tags                      *[]string                    `json:"tags,omitempty"`
 	Events                    *[]*PipelineEvent            `json:"events,omitempty"`

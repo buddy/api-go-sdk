@@ -1,3 +1,6 @@
+# Release v1.24.0 (2025-02-04)
+* [Breaking] - 'on' is removed from pipeline
+
 # Release v1.23.0 (2025-01-21)
 * [Breaking] - cron, startDate and delay in pipeline are moved to event
 * [Breaking] - zone_id -> timezone in pipeline trigger condition
