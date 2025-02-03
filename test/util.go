@@ -198,10 +198,8 @@ func SeedInitialData(ops *SeedOps) (*Seed, error) {
 			seed.Project = project
 			if ops.pipeline {
 				pipelineName := UniqueString()
-				on := buddy.PipelineOnClick
 				pp := buddy.PipelineOps{
 					Name: &pipelineName,
-					On:   &on,
 				}
 				pipeline, _, err := client.PipelineService.Create(domain, project.Name, &pp)
 				if err != nil {
@@ -994,7 +992,6 @@ func CheckIntegrations(integrations *buddy.Integrations, count int) error {
 
 func CheckPipeline(project *buddy.Project, pipeline *buddy.Pipeline, expected *buddy.Pipeline, ops *buddy.PipelineOps) error {
 	name := expected.Name
-	on := expected.On
 	refs := expected.Refs
 	tags := expected.Tags
 	events := expected.Events
@@ -1038,9 +1035,6 @@ func CheckPipeline(project *buddy.Project, pipeline *buddy.Pipeline, expected *b
 		}
 		if ops.Name != nil {
 			name = *ops.Name
-		}
-		if ops.On != nil {
-			on = *ops.On
 		}
 		if ops.Refs != nil {
 			refs = *ops.Refs
@@ -1171,11 +1165,6 @@ func CheckPipeline(project *buddy.Project, pipeline *buddy.Pipeline, expected *b
 	}
 	if cpu != "" {
 		if err := CheckFieldEqualAndSet("Pipeline.Cpu", pipeline.Cpu, cpu); err != nil {
-			return err
-		}
-	}
-	if on != "" {
-		if err := CheckFieldEqualAndSet("Pipeline.On", pipeline.On, on); err != nil {
 			return err
 		}
 	}

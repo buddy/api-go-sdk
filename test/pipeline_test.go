@@ -160,7 +160,6 @@ func TestPipelineSchedule(t *testing.T) {
 	newGitChangeSetBase := buddy.PipelineGitChangeSetBaseLatestRun
 	filesystemChangeSetBase := buddy.PipelineFilesystemChangeSetBaseDateModified
 	newFilesystemChangeSetBase := buddy.PipelineFilesystemChangeSetBaseContents
-	on := buddy.PipelineOnEvent
 	event := buddy.PipelineEvent{
 		Type:      buddy.PipelineEventTypeSchedule,
 		StartDate: startDate,
@@ -169,7 +168,6 @@ func TestPipelineSchedule(t *testing.T) {
 	ops := buddy.PipelineOps{
 		Name:                    &name,
 		Priority:                &priority,
-		On:                      &on,
 		Events:                  &[]*buddy.PipelineEvent{&event},
 		Paused:                  &paused,
 		FailOnPrepareEnvWarning: &failOnPrepareEnvWarning,
@@ -222,14 +220,12 @@ func TestPipelineScheduleCron(t *testing.T) {
 	pausedFailures := 1
 	newDisabled := true
 	newDisabledReason := RandString(10)
-	on := buddy.PipelineOnEvent
 	event := buddy.PipelineEvent{
 		Type: buddy.PipelineEventTypeSchedule,
 		Cron: cron,
 	}
 	ops := buddy.PipelineOps{
 		Name:                    &name,
-		On:                      &on,
 		Events:                  &[]*buddy.PipelineEvent{&event},
 		PauseOnRepeatedFailures: &pausedFailures,
 	}
@@ -263,7 +259,6 @@ func TestPipelinePullRequestEvent(t *testing.T) {
 		t.Fatal(ErrorFormatted("SeedInitialData", err))
 	}
 	name := RandString(10)
-	on := buddy.PipelineOnEvent
 	eventType := buddy.PipelineEventTypePullRequest
 	pullRequestBranch := RandString(10)
 	pullRequestBranches := []string{pullRequestBranch}
@@ -276,7 +271,6 @@ func TestPipelinePullRequestEvent(t *testing.T) {
 	events := []*buddy.PipelineEvent{&event}
 	ops := buddy.PipelineOps{
 		Name:   &name,
-		On:     &on,
 		Events: &events,
 	}
 	var pipeline buddy.Pipeline
@@ -309,7 +303,6 @@ func TestPipelineEvent(t *testing.T) {
 		t.Fatal(ErrorFormatted("SeedInitialData", err))
 	}
 	name := RandString(10)
-	on := buddy.PipelineOnEvent
 	eventType := buddy.PipelineEventTypePush
 	eventRef := RandString(10)
 	eventRefs := []string{eventRef}
@@ -330,7 +323,6 @@ func TestPipelineEvent(t *testing.T) {
 	}
 	ops := buddy.PipelineOps{
 		Name:              &name,
-		On:                &on,
 		Events:            &events,
 		TriggerConditions: &tcs,
 		GitConfigRef:      &gitConfigRef,
@@ -527,7 +519,6 @@ func TestPipelineWithPermissions(t *testing.T) {
 	t.Run("CreateProjectMember", testProjectMemberCreate(seed.Client, seed.Workspace, seed.Project, seed.Member, seed.Permission))
 	t.Run("CreateProjectGroup", testProjectGroupCreate(seed.Client, seed.Workspace, seed.Project, seed.Group, seed.Permission2))
 	name := RandString(10)
-	on := buddy.PipelineOnClick
 	ref := RandString(10)
 	refs := []string{ref}
 	failOnPrepareEnvWarning := true
@@ -547,7 +538,6 @@ func TestPipelineWithPermissions(t *testing.T) {
 	}
 	ops := buddy.PipelineOps{
 		Name:                    &name,
-		On:                      &on,
 		Refs:                    &refs,
 		Permissions:             &perms,
 		FailOnPrepareEnvWarning: &failOnPrepareEnvWarning,
@@ -584,7 +574,6 @@ func TestPipelineClick(t *testing.T) {
 		t.Fatal(ErrorFormatted("SeedInitialData", err))
 	}
 	name := RandString(10)
-	on := buddy.PipelineOnClick
 	ref := RandString(10)
 	alwaysFromScratch := true
 	failOnPrepareEnvWarning := true
@@ -599,7 +588,6 @@ func TestPipelineClick(t *testing.T) {
 	cpu := buddy.PipelineCpuArm
 	ops := buddy.PipelineOps{
 		Name:                      &name,
-		On:                        &on,
 		AlwaysFromScratch:         &alwaysFromScratch,
 		FailOnPrepareEnvWarning:   &failOnPrepareEnvWarning,
 		FetchAllRefs:              &fetchAllRefs,
