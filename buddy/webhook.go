@@ -46,30 +46,30 @@ type WebhookOps struct {
 	SecretKey *string   `json:"secret_key,omitempty"`
 }
 
-func (s *WebhookService) Create(domain string, ops *WebhookOps) (*Webhook, *http.Response, error) {
+func (s *WebhookService) Create(workspaceDomain string, ops *WebhookOps) (*Webhook, *http.Response, error) {
 	var w *Webhook
-	resp, err := s.client.Create(s.client.NewUrlPath("/workspaces/%s/webhooks", domain), &ops, nil, &w)
+	resp, err := s.client.Create(s.client.NewUrlPath("/workspaces/%s/webhooks", workspaceDomain), &ops, nil, &w)
 	return w, resp, err
 }
 
-func (s *WebhookService) Delete(domain string, webhookId int) (*http.Response, error) {
-	return s.client.Delete(s.client.NewUrlPath("/workspaces/%s/webhooks/%d", domain, webhookId), nil, nil)
+func (s *WebhookService) Delete(workspaceDomain string, webhookId int) (*http.Response, error) {
+	return s.client.Delete(s.client.NewUrlPath("/workspaces/%s/webhooks/%d", workspaceDomain, webhookId), nil, nil)
 }
 
-func (s *WebhookService) Update(domain string, webhookId int, ops *WebhookOps) (*Webhook, *http.Response, error) {
+func (s *WebhookService) Update(workspaceDomain string, webhookId int, ops *WebhookOps) (*Webhook, *http.Response, error) {
 	var w *Webhook
-	resp, err := s.client.Patch(s.client.NewUrlPath("/workspaces/%s/webhooks/%d", domain, webhookId), &ops, nil, &w)
+	resp, err := s.client.Patch(s.client.NewUrlPath("/workspaces/%s/webhooks/%d", workspaceDomain, webhookId), &ops, nil, &w)
 	return w, resp, err
 }
 
-func (s *WebhookService) Get(domain string, webhookId int) (*Webhook, *http.Response, error) {
+func (s *WebhookService) Get(workspaceDomain string, webhookId int) (*Webhook, *http.Response, error) {
 	var w *Webhook
-	resp, err := s.client.Get(s.client.NewUrlPath("/workspaces/%s/webhooks/%d", domain, webhookId), &w, nil)
+	resp, err := s.client.Get(s.client.NewUrlPath("/workspaces/%s/webhooks/%d", workspaceDomain, webhookId), &w, nil)
 	return w, resp, err
 }
 
-func (s *WebhookService) GetList(domain string) (*Webhooks, *http.Response, error) {
+func (s *WebhookService) GetList(workspaceDomain string) (*Webhooks, *http.Response, error) {
 	var all *Webhooks
-	resp, err := s.client.Get(s.client.NewUrlPath("/workspaces/%s/webhooks", domain), &all, nil)
+	resp, err := s.client.Get(s.client.NewUrlPath("/workspaces/%s/webhooks", workspaceDomain), &all, nil)
 	return all, resp, err
 }

@@ -41,61 +41,61 @@ type GroupMemberOps struct {
 	Status *string `json:"status,omitempty"`
 }
 
-func (s *GroupService) Get(domain string, groupId int) (*Group, *http.Response, error) {
+func (s *GroupService) Get(workspaceDomain string, groupId int) (*Group, *http.Response, error) {
 	var g *Group
-	resp, err := s.client.Get(s.client.NewUrlPath("/workspaces/%s/groups/%d", domain, groupId), &g, nil)
+	resp, err := s.client.Get(s.client.NewUrlPath("/workspaces/%s/groups/%d", workspaceDomain, groupId), &g, nil)
 	return g, resp, err
 }
 
-func (s *GroupService) GetList(domain string) (*Groups, *http.Response, error) {
+func (s *GroupService) GetList(workspaceDomain string) (*Groups, *http.Response, error) {
 	var l *Groups
-	resp, err := s.client.Get(s.client.NewUrlPath("/workspaces/%s/groups", domain), &l, nil)
+	resp, err := s.client.Get(s.client.NewUrlPath("/workspaces/%s/groups", workspaceDomain), &l, nil)
 	return l, resp, err
 }
 
-func (s *GroupService) Create(domain string, ops *GroupOps) (*Group, *http.Response, error) {
+func (s *GroupService) Create(workspaceDomain string, ops *GroupOps) (*Group, *http.Response, error) {
 	var g *Group
-	resp, err := s.client.Create(s.client.NewUrlPath("/workspaces/%s/groups", domain), &ops, nil, &g)
+	resp, err := s.client.Create(s.client.NewUrlPath("/workspaces/%s/groups", workspaceDomain), &ops, nil, &g)
 	return g, resp, err
 }
 
-func (s *GroupService) Update(domain string, groupId int, ops *GroupOps) (*Group, *http.Response, error) {
+func (s *GroupService) Update(workspaceDomain string, groupId int, ops *GroupOps) (*Group, *http.Response, error) {
 	var g *Group
-	resp, err := s.client.Patch(s.client.NewUrlPath("/workspaces/%s/groups/%d", domain, groupId), &ops, nil, &g)
+	resp, err := s.client.Patch(s.client.NewUrlPath("/workspaces/%s/groups/%d", workspaceDomain, groupId), &ops, nil, &g)
 	return g, resp, err
 }
 
-func (s *GroupService) Delete(domain string, groupId int) (*http.Response, error) {
-	return s.client.Delete(s.client.NewUrlPath("/workspaces/%s/groups/%d", domain, groupId), nil, nil)
+func (s *GroupService) Delete(workspaceDomain string, groupId int) (*http.Response, error) {
+	return s.client.Delete(s.client.NewUrlPath("/workspaces/%s/groups/%d", workspaceDomain, groupId), nil, nil)
 }
 
-func (s *GroupService) AddGroupMember(domain string, groupId int, ops *GroupMemberOps) (*Member, *http.Response, error) {
+func (s *GroupService) AddGroupMember(workspaceDomain string, groupId int, ops *GroupMemberOps) (*Member, *http.Response, error) {
 	var m *Member
-	resp, err := s.client.Create(s.client.NewUrlPath("/workspaces/%s/groups/%d/members", domain, groupId), &ops, nil, &m)
+	resp, err := s.client.Create(s.client.NewUrlPath("/workspaces/%s/groups/%d/members", workspaceDomain, groupId), &ops, nil, &m)
 	return m, resp, err
 }
 
-func (s *GroupService) DeleteGroupMember(domain string, groupId int, memberId int) (*http.Response, error) {
-	return s.client.Delete(s.client.NewUrlPath("/workspaces/%s/groups/%d/members/%d", domain, groupId, memberId), nil, nil)
+func (s *GroupService) DeleteGroupMember(workspaceDomain string, groupId int, memberId int) (*http.Response, error) {
+	return s.client.Delete(s.client.NewUrlPath("/workspaces/%s/groups/%d/members/%d", workspaceDomain, groupId, memberId), nil, nil)
 }
 
-func (s *GroupService) UpdateGroupMember(domain string, groupId int, memberId int, status string) (*Member, *http.Response, error) {
+func (s *GroupService) UpdateGroupMember(workspaceDomain string, groupId int, memberId int, status string) (*Member, *http.Response, error) {
 	var m *Member
 	ops := GroupMemberOps{
 		Status: &status,
 	}
-	resp, err := s.client.Patch(s.client.NewUrlPath("/workspaces/%s/groups/%d/members/%d", domain, groupId, memberId), &ops, nil, &m)
+	resp, err := s.client.Patch(s.client.NewUrlPath("/workspaces/%s/groups/%d/members/%d", workspaceDomain, groupId, memberId), &ops, nil, &m)
 	return m, resp, err
 }
 
-func (s *GroupService) GetGroupMember(domain string, groupId int, memberId int) (*Member, *http.Response, error) {
+func (s *GroupService) GetGroupMember(workspaceDomain string, groupId int, memberId int) (*Member, *http.Response, error) {
 	var m *Member
-	resp, err := s.client.Get(s.client.NewUrlPath("/workspaces/%s/groups/%d/members/%d", domain, groupId, memberId), &m, nil)
+	resp, err := s.client.Get(s.client.NewUrlPath("/workspaces/%s/groups/%d/members/%d", workspaceDomain, groupId, memberId), &m, nil)
 	return m, resp, err
 }
 
-func (s *GroupService) GetGroupMembers(domain string, groupId int) (*Members, *http.Response, error) {
+func (s *GroupService) GetGroupMembers(workspaceDomain string, groupId int) (*Members, *http.Response, error) {
 	var l *Members
-	resp, err := s.client.Get(s.client.NewUrlPath("/workspaces/%s/groups/%d/members", domain, groupId), &l, nil)
+	resp, err := s.client.Get(s.client.NewUrlPath("/workspaces/%s/groups/%d/members", workspaceDomain, groupId), &l, nil)
 	return l, resp, err
 }

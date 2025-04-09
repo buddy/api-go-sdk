@@ -18,34 +18,34 @@ type ProjectMemberOps struct {
 	PermissionSet *ProjectMemberOps `json:"permission_set,omitempty"`
 }
 
-func (s *ProjectMemberService) CreateProjectMember(domain string, projectName string, ops *ProjectMemberOps) (*ProjectMember, *http.Response, error) {
+func (s *ProjectMemberService) CreateProjectMember(workspaceDomain string, projectName string, ops *ProjectMemberOps) (*ProjectMember, *http.Response, error) {
 	var pm *ProjectMember
-	resp, err := s.client.Create(s.client.NewUrlPath("/workspaces/%s/projects/%s/members", domain, projectName), &ops, nil, &pm)
+	resp, err := s.client.Create(s.client.NewUrlPath("/workspaces/%s/projects/%s/members", workspaceDomain, projectName), &ops, nil, &pm)
 	return pm, resp, err
 }
 
-func (s *ProjectMemberService) DeleteProjectMember(domain string, projectName string, memberId int) (*http.Response, error) {
-	return s.client.Delete(s.client.NewUrlPath("/workspaces/%s/projects/%s/members/%d", domain, projectName, memberId), nil, nil)
+func (s *ProjectMemberService) DeleteProjectMember(workspaceDomain string, projectName string, memberId int) (*http.Response, error) {
+	return s.client.Delete(s.client.NewUrlPath("/workspaces/%s/projects/%s/members/%d", workspaceDomain, projectName, memberId), nil, nil)
 }
 
-func (s *ProjectMemberService) GetProjectMember(domain string, projectName string, memberId int) (*ProjectMember, *http.Response, error) {
+func (s *ProjectMemberService) GetProjectMember(workspaceDomain string, projectName string, memberId int) (*ProjectMember, *http.Response, error) {
 	var pm *ProjectMember
-	resp, err := s.client.Get(s.client.NewUrlPath("/workspaces/%s/projects/%s/members/%d", domain, projectName, memberId), &pm, nil)
+	resp, err := s.client.Get(s.client.NewUrlPath("/workspaces/%s/projects/%s/members/%d", workspaceDomain, projectName, memberId), &pm, nil)
 	return pm, resp, err
 }
 
-func (s *ProjectMemberService) GetProjectMembers(domain string, projectName string, query *PageQuery) (*Members, *http.Response, error) {
+func (s *ProjectMemberService) GetProjectMembers(workspaceDomain string, projectName string, query *PageQuery) (*Members, *http.Response, error) {
 	var l *Members
-	resp, err := s.client.Get(s.client.NewUrlPath("/workspaces/%s/projects/%s/members", domain, projectName), &l, query)
+	resp, err := s.client.Get(s.client.NewUrlPath("/workspaces/%s/projects/%s/members", workspaceDomain, projectName), &l, query)
 	return l, resp, err
 }
 
-func (s *ProjectMemberService) GetProjectMembersAll(domain string, projectName string) (*Members, *http.Response, error) {
+func (s *ProjectMemberService) GetProjectMembersAll(workspaceDomain string, projectName string) (*Members, *http.Response, error) {
 	var all Members
 	page := 1
 	perPage := 30
 	for {
-		l, resp, err := s.GetProjectMembers(domain, projectName, &PageQuery{
+		l, resp, err := s.GetProjectMembers(workspaceDomain, projectName, &PageQuery{
 			Page:    page,
 			PerPage: perPage,
 		})
@@ -63,8 +63,8 @@ func (s *ProjectMemberService) GetProjectMembersAll(domain string, projectName s
 	return &all, nil, nil
 }
 
-func (s *ProjectMemberService) UpdateProjectMember(domain string, projectName string, memberId int, ops *ProjectMemberOps) (*ProjectMember, *http.Response, error) {
+func (s *ProjectMemberService) UpdateProjectMember(workspaceDomain string, projectName string, memberId int, ops *ProjectMemberOps) (*ProjectMember, *http.Response, error) {
 	var pm *ProjectMember
-	resp, err := s.client.Patch(s.client.NewUrlPath("/workspaces/%s/projects/%s/members/%d", domain, projectName, memberId), &ops, nil, &pm)
+	resp, err := s.client.Patch(s.client.NewUrlPath("/workspaces/%s/projects/%s/members/%d", workspaceDomain, projectName, memberId), &ops, nil, &pm)
 	return pm, resp, err
 }

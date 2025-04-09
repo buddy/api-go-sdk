@@ -108,6 +108,8 @@ type Pipeline struct {
 	RemoteBranch              string                      `json:"remote_branch"`
 	RemoteProjectName         string                      `json:"remote_project_name"`
 	RemoteParameters          []*PipelineRemoteParameter  `json:"remote_parameters"`
+	ManageVariablesByYaml     bool                        `json:"manage_variables_by_yaml"`
+	ManagePermissionsByYaml   bool                        `json:"manage_permissions_by_yaml"`
 	DescriptionRequired       bool                        `json:"description_required"`
 	FilesystemChangesetBase   string                      `json:"filesystem_changeset_base"`
 	GitChangesetBase          string                      `json:"git_changeset_base"`
@@ -205,46 +207,48 @@ type PipelineOps struct {
 	DescriptionRequired       *bool                        `json:"description_required,omitempty"`
 	FilesystemChangesetBase   *string                      `json:"filesystem_changeset_base,omitempty"`
 	GitChangesetBase          *string                      `json:"git_changeset_base,omitempty"`
+	ManageVariablesByYaml     *bool                        `json:"manage_variables_by_yaml"`
+	ManagePermissionsByYaml   *bool                        `json:"manage_permissions_by_yaml"`
 	Disabled                  *bool                        `json:"disabled,omitempty"`
 	DisabledReason            *string                      `json:"disabled_reason,omitempty"`
 	PauseOnRepeatedFailures   *int                         `json:"pause_on_repeated_failures,omitempty"`
 	Permissions               *PipelinePermissions         `json:"permissions,omitempty"`
 }
 
-func (s *PipelineService) Create(domain string, projectName string, ops *PipelineOps) (*Pipeline, *http.Response, error) {
+func (s *PipelineService) Create(workspaceDomain string, projectName string, ops *PipelineOps) (*Pipeline, *http.Response, error) {
 	var p *Pipeline
-	resp, err := s.client.Create(s.client.NewUrlPath("/workspaces/%s/projects/%s/pipelines", domain, projectName), &ops, nil, &p)
+	resp, err := s.client.Create(s.client.NewUrlPath("/workspaces/%s/projects/%s/pipelines", workspaceDomain, projectName), &ops, nil, &p)
 	return p, resp, err
 }
 
-func (s *PipelineService) Delete(domain string, projectName string, pipelineId int) (*http.Response, error) {
-	return s.client.Delete(s.client.NewUrlPath("/workspaces/%s/projects/%s/pipelines/%d", domain, projectName, pipelineId), nil, nil)
+func (s *PipelineService) Delete(workspaceDomain string, projectName string, pipelineId int) (*http.Response, error) {
+	return s.client.Delete(s.client.NewUrlPath("/workspaces/%s/projects/%s/pipelines/%d", workspaceDomain, projectName, pipelineId), nil, nil)
 }
 
-func (s *PipelineService) Update(domain string, projectName string, pipelineId int, ops *PipelineOps) (*Pipeline, *http.Response, error) {
+func (s *PipelineService) Update(workspaceDomain string, projectName string, pipelineId int, ops *PipelineOps) (*Pipeline, *http.Response, error) {
 	var p *Pipeline
-	resp, err := s.client.Patch(s.client.NewUrlPath("/workspaces/%s/projects/%s/pipelines/%d", domain, projectName, pipelineId), &ops, nil, &p)
+	resp, err := s.client.Patch(s.client.NewUrlPath("/workspaces/%s/projects/%s/pipelines/%d", workspaceDomain, projectName, pipelineId), &ops, nil, &p)
 	return p, resp, err
 }
 
-func (s *PipelineService) Get(domain string, projectName string, pipelineId int) (*Pipeline, *http.Response, error) {
+func (s *PipelineService) Get(workspaceDomain string, projectName string, pipelineId int) (*Pipeline, *http.Response, error) {
 	var p *Pipeline
-	resp, err := s.client.Get(s.client.NewUrlPath("/workspaces/%s/projects/%s/pipelines/%d", domain, projectName, pipelineId), &p, nil)
+	resp, err := s.client.Get(s.client.NewUrlPath("/workspaces/%s/projects/%s/pipelines/%d", workspaceDomain, projectName, pipelineId), &p, nil)
 	return p, resp, err
 }
 
-func (s *PipelineService) GetList(domain string, projectName string, query *PageQuery) (*Pipelines, *http.Response, error) {
+func (s *PipelineService) GetList(workspaceDomain string, projectName string, query *PageQuery) (*Pipelines, *http.Response, error) {
 	var l *Pipelines
-	resp, err := s.client.Get(s.client.NewUrlPath("/workspaces/%s/projects/%s/pipelines", domain, projectName), &l, query)
+	resp, err := s.client.Get(s.client.NewUrlPath("/workspaces/%s/projects/%s/pipelines", workspaceDomain, projectName), &l, query)
 	return l, resp, err
 }
 
-func (s *PipelineService) GetListAll(domain string, projectName string) (*Pipelines, *http.Response, error) {
+func (s *PipelineService) GetListAll(workspaceDomain string, projectName string) (*Pipelines, *http.Response, error) {
 	var all Pipelines
 	page := 1
 	perPage := 30
 	for {
-		l, resp, err := s.GetList(domain, projectName, &PageQuery{
+		l, resp, err := s.GetList(workspaceDomain, projectName, &PageQuery{
 			Page:    page,
 			PerPage: perPage,
 		})

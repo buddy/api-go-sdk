@@ -68,29 +68,29 @@ func (s *SourceService) prepareContent(ops *SourceFileOps) {
 	}
 }
 
-func (s *SourceService) CreateFile(domain string, projectName string, ops *SourceFileOps) (*SourceFile, *http.Response, error) {
+func (s *SourceService) CreateFile(workspaceDomain string, projectName string, ops *SourceFileOps) (*SourceFile, *http.Response, error) {
 	var c *SourceFile
 	s.prepareContent(ops)
-	resp, err := s.client.Create(s.client.NewUrlPath("/workspaces/%s/projects/%s/repository/contents", domain, projectName), &ops, nil, &c)
+	resp, err := s.client.Create(s.client.NewUrlPath("/workspaces/%s/projects/%s/repository/contents", workspaceDomain, projectName), &ops, nil, &c)
 	return c, resp, err
 }
 
-func (s *SourceService) UpdateFile(domain string, projectName string, path string, ops *SourceFileOps) (*SourceFile, *http.Response, error) {
+func (s *SourceService) UpdateFile(workspaceDomain string, projectName string, path string, ops *SourceFileOps) (*SourceFile, *http.Response, error) {
 	var c *SourceFile
 	s.prepareContent(ops)
-	resp, err := s.client.Put(s.client.NewUrlPath("/workspaces/%s/projects/%s/repository/contents/%s", domain, projectName, path), &ops, nil, &c)
+	resp, err := s.client.Put(s.client.NewUrlPath("/workspaces/%s/projects/%s/repository/contents/%s", workspaceDomain, projectName, path), &ops, nil, &c)
 	return c, resp, err
 }
 
-func (s *SourceService) Get(domain string, projectName string, path string, query *SourceContentsGetQuery) (*SourceContents, *http.Response, error) {
+func (s *SourceService) Get(workspaceDomain string, projectName string, path string, query *SourceContentsGetQuery) (*SourceContents, *http.Response, error) {
 	var c *SourceContents
-	resp, err := s.client.Get(s.client.NewUrlPath("/workspaces/%s/projects/%s/repository/contents/%s", domain, projectName, path), &c, query)
+	resp, err := s.client.Get(s.client.NewUrlPath("/workspaces/%s/projects/%s/repository/contents/%s", workspaceDomain, projectName, path), &c, query)
 	if c.ContentType == "" {
 		c.ContentType = SourceContentTypeDir
 	}
 	return c, resp, err
 }
 
-func (s *SourceService) DeleteFile(domain string, projectName string, path string, ops *SourceFileOps) (*http.Response, error) {
-	return s.client.Delete(s.client.NewUrlPath("/workspaces/%s/projects/%s/repository/contents/%s", domain, projectName, path), &ops, nil)
+func (s *SourceService) DeleteFile(workspaceDomain string, projectName string, path string, ops *SourceFileOps) (*http.Response, error) {
+	return s.client.Delete(s.client.NewUrlPath("/workspaces/%s/projects/%s/repository/contents/%s", workspaceDomain, projectName, path), &ops, nil)
 }

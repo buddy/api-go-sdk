@@ -43,6 +43,10 @@ func RandEmail() string {
 	return fmt.Sprintf("%s@0zxc.com", UniqueString())
 }
 
+func RandDomain() string {
+	return fmt.Sprintf("%s.com", UniqueString())
+}
+
 func UniqueString() string {
 	return fmt.Sprintf("%s%d", RandString(5), time.Now().UnixNano())
 }
@@ -365,6 +369,42 @@ func CheckProjectMember(projectMember *buddy.ProjectMember, member *buddy.Member
 	return nil
 }
 
+func CheckDomain(domain *buddy.Domain, name string) error {
+	if err := CheckFieldEqualAndSet("Domain.Name", domain.Name, name); err != nil {
+		return err
+	}
+	if err := CheckFieldSet("Domain.Id", domain.Id); err != nil {
+		return err
+	}
+	return nil
+}
+
+func CheckRecords(list *buddy.Records, count int) error {
+	if err := CheckIntFieldEqualAndSet("len(list.Records)", len(list.Records), count); err != nil {
+		return err
+	}
+	return nil
+}
+
+func CheckRecord(record *buddy.Record, name string, typ string, ttl int, val string) error {
+	if err := CheckFieldEqualAndSet("Record.Name", record.Name, name); err != nil {
+		return err
+	}
+	if err := CheckFieldEqualAndSet("Record.Type", record.Type, typ); err != nil {
+		return err
+	}
+	if err := CheckIntFieldEqualAndSet("Record.Ttl", record.Ttl, ttl); err != nil {
+		return err
+	}
+	if err := CheckIntFieldEqualAndSet("len(Record.Values)", len(record.Values), 1); err != nil {
+		return err
+	}
+	if err := CheckFieldEqualAndSet("Record.Values[0]", record.Values[0], val); err != nil {
+		return err
+	}
+	return nil
+}
+
 func CheckMember(member *buddy.Member, email string, name string, assignToProject bool, assignToProjectPermId int, admin bool, owner bool, id int, status string) error {
 	if err := CheckFieldSet("Member.Url", member.Url); err != nil {
 		return err
@@ -418,6 +458,13 @@ func CheckMember(member *buddy.Member, email string, name string, assignToProjec
 		return err
 	}
 	return nil
+}
+
+func CheckDomains(domains *buddy.Domains, domain *buddy.Domain) error {
+	if err := CheckIntFieldEqual("len(Domains)", len(domains.Domains), 1); err != nil {
+		return err
+	}
+	return CheckDomain(domains.Domains[0], domain.Name)
 }
 
 func CheckMembers(members *buddy.Members, count int) error {
@@ -1024,6 +1071,8 @@ func CheckPipeline(project *buddy.Project, pipeline *buddy.Pipeline, expected *b
 	descRequired := expected.DescriptionRequired
 	gitChangeSetBase := expected.GitChangesetBase
 	filesystemChangeSetBase := expected.FilesystemChangesetBase
+	manageVariablesByYaml := expected.ManageVariablesByYaml
+	managePermissionsByYaml := expected.ManagePermissionsByYaml
 	cpu := expected.Cpu
 	id := expected.Id
 	if ops != nil {
@@ -1127,6 +1176,12 @@ func CheckPipeline(project *buddy.Project, pipeline *buddy.Pipeline, expected *b
 		if ops.FilesystemChangesetBase != nil {
 			filesystemChangeSetBase = *ops.FilesystemChangesetBase
 		}
+		if ops.ManageVariablesByYaml != nil {
+			manageVariablesByYaml = *ops.ManageVariablesByYaml
+		}
+		if ops.ManagePermissionsByYaml != nil {
+			managePermissionsByYaml = *ops.ManagePermissionsByYaml
+		}
 	}
 	if definitionSource == "" {
 		definitionSource = buddy.PipelineDefinitionSourceLocal
@@ -1161,6 +1216,12 @@ func CheckPipeline(project *buddy.Project, pipeline *buddy.Pipeline, expected *b
 		}
 	}
 	if err := CheckFieldEqualAndSet("Pipeline.Name", pipeline.Name, name); err != nil {
+		return err
+	}
+	if err := CheckBoolFieldEqual("Pipeline.ManagePermissionsByYaml", pipeline.ManagePermissionsByYaml, managePermissionsByYaml); err != nil {
+		return err
+	}
+	if err := CheckBoolFieldEqual("Pipeline.ManageVariablesByYaml", pipeline.ManageVariablesByYaml, manageVariablesByYaml); err != nil {
 		return err
 	}
 	if cpu != "" {

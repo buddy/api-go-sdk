@@ -79,35 +79,35 @@ type ProjectListQuery struct {
 	Status     string `url:"status,omitempty"`
 }
 
-func (s *ProjectService) Create(domain string, ops *ProjectCreateOps) (*Project, *http.Response, error) {
+func (s *ProjectService) Create(workspaceDomain string, ops *ProjectCreateOps) (*Project, *http.Response, error) {
 	var p *Project
-	resp, err := s.client.Create(s.client.NewUrlPath("/workspaces/%s/projects", domain), &ops, nil, &p)
+	resp, err := s.client.Create(s.client.NewUrlPath("/workspaces/%s/projects", workspaceDomain), &ops, nil, &p)
 	return p, resp, err
 }
 
-func (s *ProjectService) Delete(domain string, projectName string) (*http.Response, error) {
-	return s.client.Delete(s.client.NewUrlPath("/workspaces/%s/projects/%s", domain, projectName), nil, nil)
+func (s *ProjectService) Delete(workspaceDomain string, projectName string) (*http.Response, error) {
+	return s.client.Delete(s.client.NewUrlPath("/workspaces/%s/projects/%s", workspaceDomain, projectName), nil, nil)
 }
 
-func (s *ProjectService) Update(domain string, projectName string, ops *ProjectUpdateOps) (*Project, *http.Response, error) {
+func (s *ProjectService) Update(workspaceDomain string, projectName string, ops *ProjectUpdateOps) (*Project, *http.Response, error) {
 	var p *Project
-	resp, err := s.client.Patch(s.client.NewUrlPath("/workspaces/%s/projects/%s", domain, projectName), &ops, nil, &p)
+	resp, err := s.client.Patch(s.client.NewUrlPath("/workspaces/%s/projects/%s", workspaceDomain, projectName), &ops, nil, &p)
 	return p, resp, err
 }
 
-func (s *ProjectService) Get(domain string, projectName string) (*Project, *http.Response, error) {
+func (s *ProjectService) Get(workspaceDomain string, projectName string) (*Project, *http.Response, error) {
 	var p *Project
-	resp, err := s.client.Get(s.client.NewUrlPath("/workspaces/%s/projects/%s", domain, projectName), &p, nil)
+	resp, err := s.client.Get(s.client.NewUrlPath("/workspaces/%s/projects/%s", workspaceDomain, projectName), &p, nil)
 	return p, resp, err
 }
 
-func (s *ProjectService) GetList(domain string, query *ProjectListQuery) (*Projects, *http.Response, error) {
+func (s *ProjectService) GetList(workspaceDomain string, query *ProjectListQuery) (*Projects, *http.Response, error) {
 	var l *Projects
-	resp, err := s.client.Get(s.client.NewUrlPath("/workspaces/%s/projects", domain), &l, query)
+	resp, err := s.client.Get(s.client.NewUrlPath("/workspaces/%s/projects", workspaceDomain), &l, query)
 	return l, resp, err
 }
 
-func (s *ProjectService) GetListAll(domain string, query *ProjectListQuery) (*Projects, *http.Response, error) {
+func (s *ProjectService) GetListAll(workspaceDomain string, query *ProjectListQuery) (*Projects, *http.Response, error) {
 	if query == nil {
 		query = &ProjectListQuery{}
 	}
@@ -115,7 +115,7 @@ func (s *ProjectService) GetListAll(domain string, query *ProjectListQuery) (*Pr
 	query.PerPage = 30
 	var all Projects
 	for {
-		l, resp, err := s.GetList(domain, query)
+		l, resp, err := s.GetList(workspaceDomain, query)
 		if err != nil {
 			return nil, resp, err
 		}

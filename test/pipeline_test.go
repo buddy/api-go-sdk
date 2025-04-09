@@ -156,6 +156,10 @@ func TestPipelineSchedule(t *testing.T) {
 	newDescRequired := true
 	concurentRuns := true
 	newConcurentRuns := false
+	managePermissionsByYaml := true
+	newManagePermissionsByYaml := false
+	manageVariablesByYaml := true
+	newManageVariablesByYaml := false
 	gitChangeSetBase := buddy.PipelineGitChangeSetBasePullRequest
 	newGitChangeSetBase := buddy.PipelineGitChangeSetBaseLatestRun
 	filesystemChangeSetBase := buddy.PipelineFilesystemChangeSetBaseDateModified
@@ -176,6 +180,8 @@ func TestPipelineSchedule(t *testing.T) {
 		ConcurrentPipelineRuns:  &concurentRuns,
 		GitChangesetBase:        &gitChangeSetBase,
 		FilesystemChangesetBase: &filesystemChangeSetBase,
+		ManagePermissionsByYaml: &managePermissionsByYaml,
+		ManageVariablesByYaml:   &manageVariablesByYaml,
 	}
 	var pipeline buddy.Pipeline
 	pipeline.PauseOnRepeatedFailures = 100 // by default it is 100
@@ -197,6 +203,8 @@ func TestPipelineSchedule(t *testing.T) {
 		ConcurrentPipelineRuns:  &newConcurentRuns,
 		GitChangesetBase:        &newGitChangeSetBase,
 		FilesystemChangesetBase: &newFilesystemChangeSetBase,
+		ManageVariablesByYaml:   &newManageVariablesByYaml,
+		ManagePermissionsByYaml: &newManagePermissionsByYaml,
 	}
 	t.Run("Update", testPipelineUpdate(seed.Client, seed.Workspace, seed.Project, &updateOps, &pipeline))
 	t.Run("Get", testPipelineGet(seed.Client, seed.Workspace, seed.Project, &pipeline))
