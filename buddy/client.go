@@ -49,6 +49,7 @@ type Client struct {
 	ProfileEmailService  *ProfileEmailService
 	GroupService         *GroupService
 	MemberService        *MemberService
+	DomainService        *DomainService
 	PermissionService    *PermissionService
 	WorkspaceService     *WorkspaceService
 	PublicKeyService     *PublicKeyService
@@ -210,6 +211,7 @@ func NewClientWithTimeout(token string, baseUrl string, insecure bool, timeout t
 	c.ProfileEmailService = &ProfileEmailService{client: c}
 	c.GroupService = &GroupService{client: c}
 	c.MemberService = &MemberService{client: c}
+	c.DomainService = &DomainService{client: c}
 	c.PermissionService = &PermissionService{client: c}
 	c.WorkspaceService = &WorkspaceService{client: c}
 	c.PublicKeyService = &PublicKeyService{client: c}

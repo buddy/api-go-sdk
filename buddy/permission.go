@@ -49,30 +49,30 @@ type PermissionService struct {
 	client *Client
 }
 
-func (s *PermissionService) Create(domain string, ops *PermissionOps) (*Permission, *http.Response, error) {
+func (s *PermissionService) Create(workspaceDomain string, ops *PermissionOps) (*Permission, *http.Response, error) {
 	var p *Permission
-	resp, err := s.client.Create(s.client.NewUrlPath("/workspaces/%s/permissions", domain), &ops, nil, &p)
+	resp, err := s.client.Create(s.client.NewUrlPath("/workspaces/%s/permissions", workspaceDomain), &ops, nil, &p)
 	return p, resp, err
 }
 
-func (s *PermissionService) Delete(domain string, permissionId int) (*http.Response, error) {
-	return s.client.Delete(s.client.NewUrlPath("/workspaces/%s/permissions/%d", domain, permissionId), nil, nil)
+func (s *PermissionService) Delete(workspaceDomain string, permissionId int) (*http.Response, error) {
+	return s.client.Delete(s.client.NewUrlPath("/workspaces/%s/permissions/%d", workspaceDomain, permissionId), nil, nil)
 }
 
-func (s *PermissionService) Update(domain string, permissionId int, ops *PermissionOps) (*Permission, *http.Response, error) {
+func (s *PermissionService) Update(workspaceDomain string, permissionId int, ops *PermissionOps) (*Permission, *http.Response, error) {
 	var p *Permission
-	resp, err := s.client.Patch(s.client.NewUrlPath("/workspaces/%s/permissions/%d", domain, permissionId), &ops, nil, &p)
+	resp, err := s.client.Patch(s.client.NewUrlPath("/workspaces/%s/permissions/%d", workspaceDomain, permissionId), &ops, nil, &p)
 	return p, resp, err
 }
 
-func (s *PermissionService) Get(domain string, permissionId int) (*Permission, *http.Response, error) {
+func (s *PermissionService) Get(workspaceDomain string, permissionId int) (*Permission, *http.Response, error) {
 	var p *Permission
-	resp, err := s.client.Get(s.client.NewUrlPath("/workspaces/%s/permissions/%d", domain, permissionId), &p, nil)
+	resp, err := s.client.Get(s.client.NewUrlPath("/workspaces/%s/permissions/%d", workspaceDomain, permissionId), &p, nil)
 	return p, resp, err
 }
 
-func (s *PermissionService) GetList(domain string) (*Permissions, *http.Response, error) {
+func (s *PermissionService) GetList(workspaceDomain string) (*Permissions, *http.Response, error) {
 	var l *Permissions
-	resp, err := s.client.Get(s.client.NewUrlPath("/workspaces/%s/permissions", domain), &l, nil)
+	resp, err := s.client.Get(s.client.NewUrlPath("/workspaces/%s/permissions", workspaceDomain), &l, nil)
 	return l, resp, err
 }

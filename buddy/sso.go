@@ -45,22 +45,22 @@ type Sso struct {
 	RequireSsoForAllMembers bool   `json:"require_sso_for_all_members"`
 }
 
-func (s *SsoService) Update(domain string, ops *SsoUpdateOps) (*Sso, *http.Response, error) {
+func (s *SsoService) Update(workspaceDomain string, ops *SsoUpdateOps) (*Sso, *http.Response, error) {
 	var r *Sso
-	resp, err := s.client.Patch(s.client.NewUrlPath("/workspaces/%s/sso", domain), &ops, nil, &r)
+	resp, err := s.client.Patch(s.client.NewUrlPath("/workspaces/%s/sso", workspaceDomain), &ops, nil, &r)
 	return r, resp, err
 }
 
-func (s *SsoService) Get(domain string) (*Sso, *http.Response, error) {
+func (s *SsoService) Get(workspaceDomain string) (*Sso, *http.Response, error) {
 	var r *Sso
-	resp, err := s.client.Get(s.client.NewUrlPath("/workspaces/%s/sso", domain), &r, nil)
+	resp, err := s.client.Get(s.client.NewUrlPath("/workspaces/%s/sso", workspaceDomain), &r, nil)
 	return r, resp, err
 }
 
-func (s *SsoService) Enable(domain string) (*http.Response, error) {
-	return s.client.Create(s.client.NewUrlPath("/workspaces/%s/enable-sso", domain), nil, nil, nil)
+func (s *SsoService) Enable(workspaceDomain string) (*http.Response, error) {
+	return s.client.Create(s.client.NewUrlPath("/workspaces/%s/enable-sso", workspaceDomain), nil, nil, nil)
 }
 
-func (s *SsoService) Disable(domain string) (*http.Response, error) {
-	return s.client.Create(s.client.NewUrlPath("/workspaces/%s/disable-sso", domain), nil, nil, nil)
+func (s *SsoService) Disable(workspaceDomain string) (*http.Response, error) {
+	return s.client.Create(s.client.NewUrlPath("/workspaces/%s/disable-sso", workspaceDomain), nil, nil, nil)
 }

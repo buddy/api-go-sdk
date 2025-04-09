@@ -38,25 +38,25 @@ type MemberUpdateOps struct {
 	AutoAssignPermissionSetId *int  `json:"auto_assign_permission_set_id,omitempty"`
 }
 
-func (s *MemberService) Get(domain string, memberId int) (*Member, *http.Response, error) {
+func (s *MemberService) Get(workspaceDomain string, memberId int) (*Member, *http.Response, error) {
 	var m *Member
-	resp, err := s.client.Get(s.client.NewUrlPath("/workspaces/%s/members/%d", domain, memberId), &m, nil)
+	resp, err := s.client.Get(s.client.NewUrlPath("/workspaces/%s/members/%d", workspaceDomain, memberId), &m, nil)
 	return m, resp, err
 }
 
-func (s *MemberService) GetList(domain string, query *PageQuery) (*Members, *http.Response, error) {
+func (s *MemberService) GetList(workspaceDomain string, query *PageQuery) (*Members, *http.Response, error) {
 	var l *Members
-	resp, err := s.client.Get(s.client.NewUrlPath("/workspaces/%s/members", domain), &l, query)
+	resp, err := s.client.Get(s.client.NewUrlPath("/workspaces/%s/members", workspaceDomain), &l, query)
 	return l, resp, err
 }
 
-func (s *MemberService) GetListAll(domain string) (*Members, *http.Response, error) {
+func (s *MemberService) GetListAll(workspaceDomain string) (*Members, *http.Response, error) {
 	var all Members
 	page := 1
 	perPage := 30
 	for {
 		var l *Members
-		l, resp, err := s.GetList(domain, &PageQuery{
+		l, resp, err := s.GetList(workspaceDomain, &PageQuery{
 			Page:    page,
 			PerPage: perPage,
 		})
@@ -74,18 +74,18 @@ func (s *MemberService) GetListAll(domain string) (*Members, *http.Response, err
 	return &all, nil, nil
 }
 
-func (s *MemberService) Create(domain string, ops *MemberCreateOps) (*Member, *http.Response, error) {
+func (s *MemberService) Create(workspaceDomain string, ops *MemberCreateOps) (*Member, *http.Response, error) {
 	var m *Member
-	resp, err := s.client.Create(s.client.NewUrlPath("/workspaces/%s/members", domain), &ops, nil, &m)
+	resp, err := s.client.Create(s.client.NewUrlPath("/workspaces/%s/members", workspaceDomain), &ops, nil, &m)
 	return m, resp, err
 }
 
-func (s *MemberService) Delete(domain string, memberId int) (*http.Response, error) {
-	return s.client.Delete(s.client.NewUrlPath("/workspaces/%s/members/%d", domain, memberId), nil, nil)
+func (s *MemberService) Delete(workspaceDomain string, memberId int) (*http.Response, error) {
+	return s.client.Delete(s.client.NewUrlPath("/workspaces/%s/members/%d", workspaceDomain, memberId), nil, nil)
 }
 
-func (s *MemberService) Update(domain string, memberId int, ops *MemberUpdateOps) (*Member, *http.Response, error) {
+func (s *MemberService) Update(workspaceDomain string, memberId int, ops *MemberUpdateOps) (*Member, *http.Response, error) {
 	var m *Member
-	resp, err := s.client.Patch(s.client.NewUrlPath("/workspaces/%s/members/%d", domain, memberId), &ops, nil, &m)
+	resp, err := s.client.Patch(s.client.NewUrlPath("/workspaces/%s/members/%d", workspaceDomain, memberId), &ops, nil, &m)
 	return m, resp, err
 }

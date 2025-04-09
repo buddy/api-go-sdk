@@ -74,30 +74,30 @@ type VariableAction struct {
 	Id int `json:"id"`
 }
 
-func (s *VariableService) Create(domain string, ops *VariableOps) (*Variable, *http.Response, error) {
+func (s *VariableService) Create(workspaceDomain string, ops *VariableOps) (*Variable, *http.Response, error) {
 	var v *Variable
-	resp, err := s.client.Create(s.client.NewUrlPath("/workspaces/%s/variables", domain), &ops, nil, &v)
+	resp, err := s.client.Create(s.client.NewUrlPath("/workspaces/%s/variables", workspaceDomain), &ops, nil, &v)
 	return v, resp, err
 }
 
-func (s *VariableService) Delete(domain string, variableId int) (*http.Response, error) {
-	return s.client.Delete(s.client.NewUrlPath("/workspaces/%s/variables/%d", domain, variableId), nil, nil)
+func (s *VariableService) Delete(workspaceDomain string, variableId int) (*http.Response, error) {
+	return s.client.Delete(s.client.NewUrlPath("/workspaces/%s/variables/%d", workspaceDomain, variableId), nil, nil)
 }
 
-func (s *VariableService) Update(domain string, variableId int, ops *VariableOps) (*Variable, *http.Response, error) {
+func (s *VariableService) Update(workspaceDomain string, variableId int, ops *VariableOps) (*Variable, *http.Response, error) {
 	var v *Variable
-	resp, err := s.client.Patch(s.client.NewUrlPath("/workspaces/%s/variables/%d", domain, variableId), &ops, nil, &v)
+	resp, err := s.client.Patch(s.client.NewUrlPath("/workspaces/%s/variables/%d", workspaceDomain, variableId), &ops, nil, &v)
 	return v, resp, err
 }
 
-func (s *VariableService) Get(domain string, variableId int) (*Variable, *http.Response, error) {
+func (s *VariableService) Get(workspaceDomain string, variableId int) (*Variable, *http.Response, error) {
 	var v *Variable
-	resp, err := s.client.Get(s.client.NewUrlPath("/workspaces/%s/variables/%d", domain, variableId), &v, nil)
+	resp, err := s.client.Get(s.client.NewUrlPath("/workspaces/%s/variables/%d", workspaceDomain, variableId), &v, nil)
 	return v, resp, err
 }
 
-func (s *VariableService) GetList(domain string, query *VariableGetListQuery) (*Variables, *http.Response, error) {
+func (s *VariableService) GetList(workspaceDomain string, query *VariableGetListQuery) (*Variables, *http.Response, error) {
 	var all *Variables
-	resp, err := s.client.Get(s.client.NewUrlPath("/workspaces/%s/variables", domain), &all, &query)
+	resp, err := s.client.Get(s.client.NewUrlPath("/workspaces/%s/variables", workspaceDomain), &all, &query)
 	return all, resp, err
 }
