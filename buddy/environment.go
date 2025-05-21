@@ -38,7 +38,7 @@ type Environment struct {
 	Tags                []string                `json:"tags"`
 	PublicUrl           string                  `json:"public_url"`
 	AllPipelinesAllowed bool                    `json:"all_pipelines_allowed"`
-	AllowedPipelines    []*Pipeline             `json:"allowed_pipelines"`
+	AllowedPipelines    []*AllowedPipeline      `json:"allowed_pipelines"`
 	Project             *Project                `json:"project"`
 	Variables           []*Variable             `json:"variables"`
 	Permissions         *EnvironmentPermissions `json:"permissions"`
@@ -59,7 +59,7 @@ type EnvironmentOps struct {
 	Variables           *[]*Variable            `json:"variables,omitempty"`
 	Permissions         *EnvironmentPermissions `json:"permissions,omitempty"`
 	AllPipelinesAllowed *bool                   `json:"all_pipelines_allowed,omitempty"`
-	AllowedPipelines    *[]*Pipeline            `json:"allowed_pipelines,omitempty"`
+	AllowedPipelines    *[]*AllowedPipeline     `json:"allowed_pipelines,omitempty"`
 }
 
 func (s *EnvironmentService) Create(workspaceDomain string, projectName string, ops *EnvironmentOps) (*Environment, *http.Response, error) {
