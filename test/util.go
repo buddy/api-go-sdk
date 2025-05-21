@@ -1848,12 +1848,12 @@ func CheckTarget(target *buddy.Target, expected *buddy.Target, ops *buddy.Target
 	if err := CheckFieldSet("Target.HtmlUrl", target.HtmlUrl); err != nil {
 		return err
 	}
-	if id != 0 {
-		if err := CheckIntFieldEqualAndSet("Target.Id", target.Id, id); err != nil {
+	if id != "" {
+		if err := CheckFieldEqualAndSet("Target.Id", target.Id, id); err != nil {
 			return err
 		}
 	} else {
-		if err := CheckIntFieldSet("Target.Id", target.Id); err != nil {
+		if err := CheckFieldSet("Target.Id", target.Id); err != nil {
 			return err
 		}
 	}
