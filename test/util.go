@@ -1816,3 +1816,52 @@ func CheckIntegration(integration *buddy.Integration, expected *buddy.Integratio
 	}
 	return nil
 }
+
+func CheckTargets(targets *buddy.Targets, count int) error {
+	if err := CheckFieldSet("Targets.HtmlUrl", targets.HtmlUrl); err != nil {
+		return err
+	}
+	if err := CheckFieldSet("Targets.Url", targets.Url); err != nil {
+		return err
+	}
+	if err := CheckIntFieldEqual("len(Targets)", len(targets.Targets), count); err != nil {
+		return err
+	}
+	return nil
+}
+
+func CheckTarget(target *buddy.Target, expected *buddy.Target, ops *buddy.TargetOps) error {
+	name := expected.Name
+	typ := expected.Type
+	id := expected.Id
+	if ops != nil {
+		if ops.Name != nil {
+			name = *ops.Name
+		}
+		if ops.Type != nil {
+			typ = *ops.Type
+		}
+	}
+	if err := CheckFieldSet("Target.Url", target.Url); err != nil {
+		return err
+	}
+	if err := CheckFieldSet("Target.HtmlUrl", target.HtmlUrl); err != nil {
+		return err
+	}
+	if id != 0 {
+		if err := CheckIntFieldEqualAndSet("Target.Id", target.Id, id); err != nil {
+			return err
+		}
+	} else {
+		if err := CheckIntFieldSet("Target.Id", target.Id); err != nil {
+			return err
+		}
+	}
+	if err := CheckFieldEqualAndSet("Target.Name", target.Name, name); err != nil {
+		return err
+	}
+	if err := CheckFieldEqualAndSet("Target.Type", target.Type, typ); err != nil {
+		return err
+	}
+	return nil
+}
