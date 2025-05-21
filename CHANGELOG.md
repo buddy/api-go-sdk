@@ -1,3 +1,6 @@
+# Release v1.26.0 (2025-05-08)
+* Adds environments
+
 # Release v1.25.0 (2025-04-09)
 * Adds domains
 * Adds manage_variables_by_yaml, manage_permissions_by_yaml to pipeline

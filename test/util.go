@@ -1037,6 +1037,146 @@ func CheckIntegrations(integrations *buddy.Integrations, count int) error {
 	return nil
 }
 
+func CheckEnvironments(environments *buddy.Environments, count int) error {
+	if err := CheckFieldSet("Environments.HtmlUrl", environments.HtmlUrl); err != nil {
+		return err
+	}
+	if err := CheckFieldSet("Environments.Url", environments.Url); err != nil {
+		return err
+	}
+	if err := CheckIntFieldEqual("len(Environments)", len(environments.Environments), count); err != nil {
+		return err
+	}
+	return nil
+}
+
+func CheckEnvironment(project *buddy.Project, environment *buddy.Environment, expected *buddy.Environment, ops *buddy.EnvironmentOps) error {
+	name := expected.Name
+	id := expected.Id
+	identifier := expected.Identifier
+	typ := expected.Type
+	tags := expected.Tags
+	publicUrl := expected.PublicUrl
+	allPipelineAllowed := expected.AllPipelinesAllowed
+	vars := expected.Variables
+	perms := expected.Permissions
+	if ops != nil {
+		if ops.Name != nil {
+			name = *ops.Name
+		}
+		if ops.Identifier != nil {
+			identifier = *ops.Identifier
+		}
+		if ops.Type != nil {
+			typ = *ops.Type
+		}
+		if ops.Tags != nil {
+			tags = *ops.Tags
+		}
+		if ops.PublicUrl != nil {
+			publicUrl = *ops.PublicUrl
+		}
+		if ops.AllPipelinesAllowed != nil {
+			allPipelineAllowed = *ops.AllPipelinesAllowed
+		}
+		if ops.Variables != nil {
+			vars = *ops.Variables
+		}
+		if ops.Permissions != nil {
+			perms = ops.Permissions
+		}
+	}
+	lenTags := len(tags)
+	lenVars := len(vars)
+	if err := CheckFieldSet("Environment.Url", environment.Url); err != nil {
+		return err
+	}
+	if err := CheckFieldSet("Environment.HtmlUrl", environment.HtmlUrl); err != nil {
+		return err
+	}
+	if id != "" {
+		if err := CheckFieldEqualAndSet("Environment.Id", environment.Id, id); err != nil {
+			return err
+		}
+	} else {
+		if err := CheckFieldSet("Environment.Id", environment.Id); err != nil {
+			return err
+		}
+	}
+	if err := CheckFieldEqualAndSet("Environment.Name", environment.Name, name); err != nil {
+		return err
+	}
+	if err := CheckFieldEqualAndSet("Environment.Identifier", environment.Identifier, identifier); err != nil {
+		return err
+	}
+	if err := CheckFieldEqualAndSet("Environment.Type", environment.Type, typ); err != nil {
+		return err
+	}
+	if err := CheckFieldEqual("Environment.PublicUrl", environment.PublicUrl, publicUrl); err != nil {
+		return err
+	}
+	if err := CheckBoolFieldEqual("Environment.AllPipelinesAllowed", environment.AllPipelinesAllowed, allPipelineAllowed); err != nil {
+		return err
+	}
+	if lenTags > 0 {
+		if err := CheckFieldEqualAndSet("Environment.Tags", environment.Tags[0], tags[0]); err != nil {
+			return err
+		}
+	} else {
+		if err := CheckIntFieldEqual("len(Environment.Tags)", len(environment.Tags), lenTags); err != nil {
+			return err
+		}
+	}
+	if lenVars > 0 {
+		if err := CheckFieldEqualAndSet("Environment.Variables[0].Key", environment.Variables[0].Key, vars[0].Key); err != nil {
+			return err
+		}
+		if err := CheckFieldEqualAndSet("Environment.Variables[0].Value", environment.Variables[0].Value, vars[0].Value); err != nil {
+			return err
+		}
+	} else {
+		if err := CheckIntFieldEqual("len(Environment.Variables)", len(environment.Variables), lenVars); err != nil {
+			return err
+		}
+	}
+	if perms != nil {
+		if err := CheckFieldEqualAndSet("Environment.Permissions.Others", environment.Permissions.Others, perms.Others); err != nil {
+			return err
+		}
+		usersLen := len(perms.Users)
+		groupsLen := len(perms.Groups)
+		if err := CheckIntFieldEqual("len(Environment.Permissions.Users)", len(environment.Permissions.Users), usersLen); err != nil {
+			return err
+		}
+		if err := CheckIntFieldEqual("len(Environment.Permissions.Groups)", len(environment.Permissions.Groups), groupsLen); err != nil {
+			return err
+		}
+		if usersLen > 0 {
+			if err := CheckIntFieldEqual("Environment.Permissions.Users[0].Id", environment.Permissions.Users[0].Id, perms.Users[0].Id); err != nil {
+				return err
+			}
+			if err := CheckFieldEqual("Environment.Permissions.Users[0].AccessLevel", environment.Permissions.Users[0].AccessLevel, perms.Users[0].AccessLevel); err != nil {
+				return err
+			}
+		}
+		if groupsLen > 0 {
+			if err := CheckIntFieldEqual("Environment.Permissions.Groups[0].Id", environment.Permissions.Groups[0].Id, perms.Groups[0].Id); err != nil {
+				return err
+			}
+			if err := CheckFieldEqual("Environment.Permissions.Groups[0].AccessLevel", environment.Permissions.Groups[0].AccessLevel, perms.Groups[0].AccessLevel); err != nil {
+				return err
+			}
+		}
+	}
+	if environment.Project == nil {
+		return errors.New("Environment.Project must be set")
+	}
+	if err := CheckProject(environment.Project, project.Name, project.DisplayName, true, false, false, false, "", buddy.ProjectAccessPrivate, false); err != nil {
+		return err
+	}
+	return nil
+}
+
 func CheckPipeline(project *buddy.Project, pipeline *buddy.Pipeline, expected *buddy.Pipeline, ops *buddy.PipelineOps) error {
 	name := expected.Name
 	refs := expected.Refs
