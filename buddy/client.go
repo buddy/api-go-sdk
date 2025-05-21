@@ -62,6 +62,7 @@ type Client struct {
 	IntegrationService   *IntegrationService
 	PipelineService      *PipelineService
 	EnvironmentService   *EnvironmentService
+	TargetService        *TargetService
 	TokenService         *TokenService
 	SourceService        *SourceService
 }
@@ -223,6 +224,7 @@ func NewClientWithTimeout(token string, baseUrl string, insecure bool, timeout t
 	c.VariableService = &VariableService{client: c}
 	c.IntegrationService = &IntegrationService{client: c}
 	c.PipelineService = &PipelineService{client: c}
+	c.TargetService = &TargetService{client: c}
 	c.SourceService = &SourceService{client: c}
 	c.SsoService = &SsoService{client: c}
 	c.TokenService = &TokenService{client: c}
