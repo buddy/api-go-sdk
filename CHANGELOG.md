@@ -1,3 +1,6 @@
+# Release v1.27.0 (2025-05-27)
+* Adds targets
+
 # Release v1.26.1 (2025-05-21)
 * Change environment allowed pipeline type
 
