@@ -1179,6 +1179,7 @@ func CheckEnvironment(project *buddy.Project, environment *buddy.Environment, ex
 
 func CheckPipeline(project *buddy.Project, pipeline *buddy.Pipeline, expected *buddy.Pipeline, ops *buddy.PipelineOps) error {
 	name := expected.Name
+	identifier := expected.Identifier
 	refs := expected.Refs
 	tags := expected.Tags
 	events := expected.Events
@@ -1224,6 +1225,9 @@ func CheckPipeline(project *buddy.Project, pipeline *buddy.Pipeline, expected *b
 		}
 		if ops.Name != nil {
 			name = *ops.Name
+		}
+		if ops.Identifier != nil {
+			identifier = *ops.Identifier
 		}
 		if ops.Refs != nil {
 			refs = *ops.Refs
@@ -1356,6 +1360,9 @@ func CheckPipeline(project *buddy.Project, pipeline *buddy.Pipeline, expected *b
 		}
 	}
 	if err := CheckFieldEqualAndSet("Pipeline.Name", pipeline.Name, name); err != nil {
+		return err
+	}
+	if err := CheckFieldEqualAndSet("Pipeline.Identifier", pipeline.Identifier, identifier); err != nil {
 		return err
 	}
 	if err := CheckBoolFieldEqual("Pipeline.ManagePermissionsByYaml", pipeline.ManagePermissionsByYaml, managePermissionsByYaml); err != nil {
