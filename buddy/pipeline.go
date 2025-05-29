@@ -76,6 +76,7 @@ type Pipeline struct {
 	Url                       string                      `json:"url"`
 	HtmlUrl                   string                      `json:"html_url"`
 	Id                        int                         `json:"id"`
+	Identifier                string                      `json:"identifier"`
 	Name                      string                      `json:"name"`
 	Refs                      []string                    `json:"refs"`
 	Events                    []*PipelineEvent            `json:"events"`
@@ -178,6 +179,7 @@ type PipelineService struct {
 
 type PipelineOps struct {
 	Name                      *string                      `json:"name,omitempty"`
+	Identifier                *string                      `json:"identifier,omitempty"`
 	Refs                      *[]string                    `json:"refs,omitempty"`
 	Tags                      *[]string                    `json:"tags,omitempty"`
 	Events                    *[]*PipelineEvent            `json:"events,omitempty"`

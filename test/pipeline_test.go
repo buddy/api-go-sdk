@@ -582,6 +582,7 @@ func TestPipelineClick(t *testing.T) {
 		t.Fatal(ErrorFormatted("SeedInitialData", err))
 	}
 	name := RandString(10)
+	identifier := UniqueString()
 	ref := RandString(10)
 	alwaysFromScratch := true
 	failOnPrepareEnvWarning := true
@@ -596,6 +597,7 @@ func TestPipelineClick(t *testing.T) {
 	cpu := buddy.PipelineCpuArm
 	ops := buddy.PipelineOps{
 		Name:                      &name,
+		Identifier:                &identifier,
 		AlwaysFromScratch:         &alwaysFromScratch,
 		FailOnPrepareEnvWarning:   &failOnPrepareEnvWarning,
 		FetchAllRefs:              &fetchAllRefs,
@@ -609,6 +611,7 @@ func TestPipelineClick(t *testing.T) {
 		CloneDepth:                &cloneDepth,
 	}
 	newName := RandString(10)
+	newIdentifier := UniqueString()
 	newRef := RandString(10)
 	newRefs := []string{newRef}
 	newMsgTemplate := RandString(10)
@@ -617,6 +620,7 @@ func TestPipelineClick(t *testing.T) {
 	newCpu := buddy.PipelineCpuX64
 	updateOps := buddy.PipelineOps{
 		Name:                     &newName,
+		Identifier:               &newIdentifier,
 		Refs:                     &newRefs,
 		ExecutionMessageTemplate: &newMsgTemplate,
 		TargetSiteUrl:            &newTargetSiteUrl,

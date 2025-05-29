@@ -1,3 +1,6 @@
+# Release v1.27.1 (2025-05-29)
+* Adds pipeline identifier
+
 # Release v1.27.0 (2025-05-27)
 * Adds targets
 
