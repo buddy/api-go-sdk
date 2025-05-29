@@ -1362,8 +1362,10 @@ func CheckPipeline(project *buddy.Project, pipeline *buddy.Pipeline, expected *b
 	if err := CheckFieldEqualAndSet("Pipeline.Name", pipeline.Name, name); err != nil {
 		return err
 	}
-	if err := CheckFieldEqualAndSet("Pipeline.Identifier", pipeline.Identifier, identifier); err != nil {
-		return err
+	if identifier != "" {
+		if err := CheckFieldEqualAndSet("Pipeline.Identifier", pipeline.Identifier, identifier); err != nil {
+			return err
+		}
 	}
 	if err := CheckBoolFieldEqual("Pipeline.ManagePermissionsByYaml", pipeline.ManagePermissionsByYaml, managePermissionsByYaml); err != nil {
 		return err
