@@ -3,10 +3,6 @@ package buddy
 import "net/http"
 
 const (
-	EnvironmentTypeDev        = "DEV"
-	EnvironmentTypeStage      = "STAGE"
-	EnvironmentTypeProduction = "PRODUCTION"
-
 	EnvironmentPermissionAccessLevelManage  = "MANAGE"
 	EnvironmentPermissionAccessLevelUseOnly = "USE_ONLY"
 	EnvironmentPermissionAccessLevelDefault = "DEFAULT"
@@ -34,7 +30,6 @@ type Environment struct {
 	Id                  string                  `json:"id"`
 	Name                string                  `json:"name"`
 	Identifier          string                  `json:"identifier"`
-	Type                string                  `json:"type"`
 	Tags                []string                `json:"tags"`
 	PublicUrl           string                  `json:"public_url"`
 	AllPipelinesAllowed bool                    `json:"all_pipelines_allowed"`
@@ -53,7 +48,6 @@ type Environments struct {
 type EnvironmentOps struct {
 	Name                *string                 `json:"name,omitempty"`
 	Identifier          *string                 `json:"identifier,omitempty"`
-	Type                *string                 `json:"type,omitempty"`
 	PublicUrl           *string                 `json:"public_url,omitempty"`
 	Tags                *[]string               `json:"tags,omitempty"`
 	Variables           *[]*Variable            `json:"variables,omitempty"`

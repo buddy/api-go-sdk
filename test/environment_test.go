@@ -100,8 +100,6 @@ func TestEnvironment(t *testing.T) {
 	newName := RandString(10)
 	identifier := UniqueString()
 	newIdentifier := UniqueString()
-	typ := buddy.EnvironmentTypeStage
-	newTyp := buddy.EnvironmentTypeProduction
 	publicUrl := "https://google.com"
 	newPublicUrl := "https://bing.com"
 	tags := []string{"aaa", "bbb"}
@@ -136,7 +134,6 @@ func TestEnvironment(t *testing.T) {
 	ops := buddy.EnvironmentOps{
 		Name:                &name,
 		Identifier:          &identifier,
-		Type:                &typ,
 		PublicUrl:           &publicUrl,
 		Tags:                &tags,
 		Variables:           &vars,
@@ -146,7 +143,6 @@ func TestEnvironment(t *testing.T) {
 	updOps := buddy.EnvironmentOps{
 		Name:                &newName,
 		Identifier:          &newIdentifier,
-		Type:                &newTyp,
 		PublicUrl:           &newPublicUrl,
 		Tags:                &newTags,
 		Variables:           &newVars,

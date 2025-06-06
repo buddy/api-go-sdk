@@ -550,11 +550,9 @@ func testTargetSshAsset(client *buddy.Client, workspaceDomain string, projectNam
 	return func(t *testing.T) {
 		envName := UniqueString()
 		envId := UniqueString()
-		envTyp := buddy.EnvironmentTypeDev
 		envOps := buddy.EnvironmentOps{
 			Name:       &envName,
 			Identifier: &envId,
-			Type:       &envTyp,
 		}
 		env, _, err := client.EnvironmentService.Create(workspaceDomain, projectName, &envOps)
 		if err != nil {
