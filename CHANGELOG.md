@@ -1,3 +1,6 @@
+# Release v1.28.1 (2025-06-06)
+* [Breaking] - 'allowed_pipelines' removed from environment
+
 # Release v1.28.0 (2025-06-06)
 * [Breaking] - 'type' removed from environment
 
