@@ -1054,7 +1054,6 @@ func CheckEnvironment(project *buddy.Project, environment *buddy.Environment, ex
 	name := expected.Name
 	id := expected.Id
 	identifier := expected.Identifier
-	typ := expected.Type
 	tags := expected.Tags
 	publicUrl := expected.PublicUrl
 	allPipelineAllowed := expected.AllPipelinesAllowed
@@ -1066,9 +1065,6 @@ func CheckEnvironment(project *buddy.Project, environment *buddy.Environment, ex
 		}
 		if ops.Identifier != nil {
 			identifier = *ops.Identifier
-		}
-		if ops.Type != nil {
-			typ = *ops.Type
 		}
 		if ops.Tags != nil {
 			tags = *ops.Tags
@@ -1107,9 +1103,6 @@ func CheckEnvironment(project *buddy.Project, environment *buddy.Environment, ex
 		return err
 	}
 	if err := CheckFieldEqualAndSet("Environment.Identifier", environment.Identifier, identifier); err != nil {
-		return err
-	}
-	if err := CheckFieldEqualAndSet("Environment.Type", environment.Type, typ); err != nil {
 		return err
 	}
 	if err := CheckFieldEqual("Environment.PublicUrl", environment.PublicUrl, publicUrl); err != nil {

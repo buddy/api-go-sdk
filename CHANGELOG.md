@@ -1,3 +1,6 @@
+# Release v1.28.0 (2025-06-06)
+* [Breaking] - 'type' removed from environment
+
 # Release v1.27.1 (2025-05-29)
 * Adds pipeline identifier
 
