@@ -14,7 +14,7 @@ default: lint
 test_dev:
 	$(eval BUDDY_TOKEN=$(shell sh -c "${BUDDY_GET_TOKEN}"))
 	go clean -testcache
-	TF_LOG=${TF_LOG} BUDDY_TOKEN=${BUDDY_TOKEN} BUDDY_GH_TOKEN=${BUDDY_GH_TOKEN} BUDDY_GH_PROJECT=${BUDDY_GH_PROJECT} BUDDY_BASE_URL=https://api.dev.io BUDDY_INSECURE=true go test $(TEST) -v ${TESTNAME} -timeout 60m
+	TF_LOG=${TF_LOG} BUDDY_TOKEN=${BUDDY_TOKEN} BUDDY_GH_TOKEN=${BUDDY_GH_TOKEN} BUDDY_GH_PROJECT=${BUDDY_GH_PROJECT} BUDDY_BASE_URL=https://api.awsdev.net BUDDY_INSECURE=true go test $(TEST) -v ${TESTNAME} -timeout 60m
 
 test:
 	go clean -testcache
