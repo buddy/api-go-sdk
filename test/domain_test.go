@@ -43,7 +43,7 @@ func testDomainRecordGet(client *buddy.Client, workspace *buddy.Workspace, domai
 		if err != nil {
 			t.Fatal(ErrorFormatted("DomainService.GetRecord", err))
 		}
-		err = CheckRecord(r, record.Name, record.Type, record.Ttl, record.Values[0])
+		err = CheckRecord(r, record.Name, record.Type, record.Ttl, buddy.DomainRecordRoutingSimple, record.Values[0], "", "", "", "")
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -72,6 +72,57 @@ func testDomainRecordGetList(client *buddy.Client, workspace *buddy.Workspace, d
 	}
 }
 
+func testDomainGeoRecordUpsert(client *buddy.Client, workspace *buddy.Workspace, domain *buddy.Domain, out *buddy.Record) func(t *testing.T) {
+	return func(t *testing.T) {
+		name := UniqueString()
+		fullName := fmt.Sprintf("%s.%s", name, domain.Name)
+		ttl := 600
+		typ := "TXT"
+		val := "Z"
+		vals := []string{val}
+		routing := buddy.DomainRecordRoutingGeolocation
+		countryName := buddy.DomainRecordCountryNepal
+		countryValue := "A"
+		country := map[string][]string{
+			countryName: {countryValue},
+		}
+		ops := buddy.RecordUpsertOps{
+			Ttl:     &ttl,
+			Routing: &routing,
+			Country: &country,
+			Values:  &vals,
+		}
+		record, _, err := client.DomainService.UpsertRecord(workspace.Domain, fullName, typ, &ops)
+		if err != nil {
+			t.Fatal(ErrorFormatted("DomainService.UpsertRecord", err))
+		}
+		err = CheckRecord(record, name, typ, ttl, routing, val, "", "", countryName, countryValue)
+		if err != nil {
+			t.Fatal(err)
+		}
+		continentName := buddy.DomainRecordContinentAsia
+		continentValue := "C"
+		continent := map[string][]string{
+			continentName: {continentValue},
+		}
+		ops = buddy.RecordUpsertOps{
+			Ttl:       &ttl,
+			Routing:   &routing,
+			Continent: &continent,
+			Values:    &vals,
+		}
+		record, _, err = client.DomainService.UpsertRecord(workspace.Domain, fullName, typ, &ops)
+		if err != nil {
+			t.Fatal(ErrorFormatted("DomainService.UpsertRecord", err))
+		}
+		err = CheckRecord(record, name, typ, ttl, routing, val, continentName, continentValue, "", "")
+		if err != nil {
+			t.Fatal(err)
+		}
+		*out = *record
+	}
+}
+
 func testDomainRecordUpsert(client *buddy.Client, workspace *buddy.Workspace, domain *buddy.Domain, out *buddy.Record) func(t *testing.T) {
 	return func(t *testing.T) {
 		name := UniqueString()
@@ -88,7 +139,7 @@ func testDomainRecordUpsert(client *buddy.Client, workspace *buddy.Workspace, do
 		if err != nil {
 			t.Fatal(ErrorFormatted("DomainService.UpsertRecord", err))
 		}
-		err = CheckRecord(record, name, typ, ttl, val)
+		err = CheckRecord(record, name, typ, ttl, buddy.DomainRecordRoutingSimple, val, "", "", "", "")
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -103,7 +154,7 @@ func testDomainRecordUpsert(client *buddy.Client, workspace *buddy.Workspace, do
 		if err != nil {
 			t.Fatal(ErrorFormatted("DomainService.UpsertRecord", err))
 		}
-		err = CheckRecord(record, name, typ, newTtl, newVal)
+		err = CheckRecord(record, name, typ, newTtl, buddy.DomainRecordRoutingSimple, newVal, "", "", "", "")
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -126,4 +177,5 @@ func TestDomain(t *testing.T) {
 	t.Run("RecordGet", testDomainRecordGet(seed.Client, seed.Workspace, &domain, &record))
 	t.Run("RecordGetList", testDomainRecordGetList(seed.Client, seed.Workspace, &domain))
 	t.Run("RecordDelete", testDomainRecordDelete(seed.Client, seed.Workspace, &domain, &record))
+	t.Run("GeoRecordUpsert", testDomainGeoRecordUpsert(seed.Client, seed.Workspace, &domain, &record))
 }
