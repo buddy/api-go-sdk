@@ -1,3 +1,6 @@
+# Release v1.29.0 (2025-07-22)
+* Adds geolocation to dns record
+
 # Release v1.28.1 (2025-06-06)
 * [Breaking] - 'allowed_pipelines' removed from environment
 

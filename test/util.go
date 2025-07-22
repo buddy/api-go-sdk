@@ -386,7 +386,7 @@ func CheckRecords(list *buddy.Records, count int) error {
 	return nil
 }
 
-func CheckRecord(record *buddy.Record, name string, typ string, ttl int, val string) error {
+func CheckRecord(record *buddy.Record, name string, typ string, ttl int, routing string, val string, continentName string, continentValue string, countryName string, countryValue string) error {
 	if err := CheckFieldEqualAndSet("Record.Name", record.Name, name); err != nil {
 		return err
 	}
@@ -396,11 +396,44 @@ func CheckRecord(record *buddy.Record, name string, typ string, ttl int, val str
 	if err := CheckIntFieldEqualAndSet("Record.Ttl", record.Ttl, ttl); err != nil {
 		return err
 	}
-	if err := CheckIntFieldEqualAndSet("len(Record.Values)", len(record.Values), 1); err != nil {
+	if err := CheckFieldEqualAndSet("Record.Routing", record.Routing, routing); err != nil {
 		return err
 	}
-	if err := CheckFieldEqualAndSet("Record.Values[0]", record.Values[0], val); err != nil {
-		return err
+	if val != "" {
+		if err := CheckIntFieldEqual("len(Record.Values)", len(record.Values), 1); err != nil {
+			return err
+		}
+		if err := CheckFieldEqualAndSet("Record.Values[0]", record.Values[0], val); err != nil {
+			return err
+		}
+	} else {
+		if err := CheckIntFieldEqual("len(Record.Values)", len(record.Values), 0); err != nil {
+			return err
+		}
+	}
+	if countryName != "" {
+		if err := CheckIntFieldEqual("len(Record.Country)", len(record.Country), 1); err != nil {
+			return err
+		}
+		if err := CheckFieldEqualAndSet("Record.Country[countryName][0]", record.Country[countryName][0], countryValue); err != nil {
+			return err
+		}
+	} else {
+		if err := CheckIntFieldEqual("len(Record.Country)", len(record.Country), 0); err != nil {
+			return err
+		}
+	}
+	if continentName != "" {
+		if err := CheckIntFieldEqual("len(Record.Continent)", len(record.Continent), 1); err != nil {
+			return err
+		}
+		if err := CheckFieldEqualAndSet("Record.Continent[continentName][0]", record.Continent[continentName][0], continentValue); err != nil {
+			return err
+		}
+	} else {
+		if err := CheckIntFieldEqual("len(Record.Continent)", len(record.Continent), 0); err != nil {
+			return err
+		}
 	}
 	return nil
 }
