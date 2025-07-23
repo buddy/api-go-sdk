@@ -1228,6 +1228,7 @@ func CheckPipeline(project *buddy.Project, pipeline *buddy.Pipeline, expected *b
 	definitionSource := expected.DefinitionSource
 	remotePath := expected.RemotePath
 	remoteBranch := expected.RemoteBranch
+	remoteRef := expected.RemoteRef
 	remoteProjectName := expected.RemoteProjectName
 	remoteParameters := expected.RemoteParameters
 	disabled := expected.Disabled
@@ -1314,6 +1315,10 @@ func CheckPipeline(project *buddy.Project, pipeline *buddy.Pipeline, expected *b
 		}
 		if ops.RemoteBranch != nil {
 			remoteBranch = *ops.RemoteBranch
+			remoteRef = remoteBranch
+		} else if ops.RemoteRef != nil {
+			remoteRef = *ops.RemoteRef
+			remoteBranch = remoteRef
 		}
 		if ops.RemoteProjectName != nil {
 			remoteProjectName = *ops.RemoteProjectName
@@ -1633,6 +1638,9 @@ func CheckPipeline(project *buddy.Project, pipeline *buddy.Pipeline, expected *b
 		return err
 	}
 	if err := CheckFieldEqual("Pipeline.RemoteBranch", pipeline.RemoteBranch, remoteBranch); err != nil {
+		return err
+	}
+	if err := CheckFieldEqual("Pipeline.RemoteRef", pipeline.RemoteRef, remoteRef); err != nil {
 		return err
 	}
 	if err := CheckFieldEqual("Pipeline.RemoteProjectName", pipeline.RemoteProjectName, remoteProjectName); err != nil {
