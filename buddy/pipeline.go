@@ -107,6 +107,7 @@ type Pipeline struct {
 	DefinitionSource          string                      `json:"definition_source"`
 	RemotePath                string                      `json:"remote_path"`
 	RemoteBranch              string                      `json:"remote_branch"`
+	RemoteRef                 string                      `json:"remote_ref"`
 	RemoteProjectName         string                      `json:"remote_project_name"`
 	RemoteParameters          []*PipelineRemoteParameter  `json:"remote_parameters"`
 	ManageVariablesByYaml     bool                        `json:"manage_variables_by_yaml"`
@@ -204,6 +205,7 @@ type PipelineOps struct {
 	DefinitionSource          *string                      `json:"definition_source,omitempty"`
 	RemotePath                *string                      `json:"remote_path,omitempty"`
 	RemoteBranch              *string                      `json:"remote_branch,omitempty"`
+	RemoteRef                 *string                      `json:"remote_ref,omitempty"`
 	RemoteProjectName         *string                      `json:"remote_project_name,omitempty"`
 	RemoteParameters          *[]*PipelineRemoteParameter  `json:"remote_parameters,omitempty"`
 	DescriptionRequired       *bool                        `json:"description_required,omitempty"`

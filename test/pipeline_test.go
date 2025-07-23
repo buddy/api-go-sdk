@@ -500,7 +500,7 @@ func TestPipelineRemote(t *testing.T) {
 		Name:              &newName,
 		GitConfigRef:      &gitConfigRef2,
 		GitConfig:         gitConfig2,
-		RemoteBranch:      &remoteBranch,
+		RemoteRef:         &remoteBranch,
 		RemotePath:        &remotePath2,
 		RemoteProjectName: &remoteProject2.Name,
 		RemoteParameters:  &remoteParams,

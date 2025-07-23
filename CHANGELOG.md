@@ -1,3 +1,6 @@
+# Release v1.30.0 (2025-07-23)
+* Adds `remote_ref` to pipeline
+
 # Release v1.29.0 (2025-07-22)
 * Adds geolocation to dns record
 
