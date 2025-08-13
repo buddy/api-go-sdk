@@ -7,7 +7,7 @@ import (
 
 func testPublicKeyCreate(client *buddy.Client, out *buddy.PublicKey) func(t *testing.T) {
 	return func(t *testing.T) {
-		err, publicKey, _ := GenerateRsaKeyPair()
+		publicKey, _, err := GenerateRsaKeyPair()
 		if err != nil {
 			t.Fatal(ErrorFormatted("testPublicKeyCreate", err))
 		}

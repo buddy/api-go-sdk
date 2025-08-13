@@ -26,6 +26,6 @@ fmt:
 lint: fmt golangci
 
 golangci:
-	go run github.com/golangci/golangci-lint/cmd/golangci-lint run ./...
+	go run github.com/golangci/golangci-lint/v2/cmd/golangci-lint run ./...
 
 .PHONY: default build test_dev test fmt lint golangci

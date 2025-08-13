@@ -77,7 +77,7 @@ func testSsoUpdate(client *buddy.Client, workspace *buddy.Workspace, require boo
 		issuer := "https://sts.windows.net/" + UniqueString()
 		signature := buddy.SignatureMethodSha256
 		digest := buddy.DigestMethodSha256
-		err, cert := GenerateCertificate()
+		cert, err := GenerateCertificate()
 		if err != nil {
 			t.Fatal(ErrorFormatted("GenerateCertificate", err))
 		}
