@@ -7,7 +7,7 @@ import (
 
 func testVariableCreate(client *buddy.Client, workspace *buddy.Workspace, project *buddy.Project, typ string, enc bool, set bool, out *buddy.Variable) func(t *testing.T) {
 	return func(t *testing.T) {
-		err, _, privateKey := GenerateRsaKeyPair()
+		_, privateKey, err := GenerateRsaKeyPair()
 		if err != nil {
 			t.Fatal(ErrorFormatted("create rsa key pair", err))
 		}
@@ -54,7 +54,7 @@ func testVariableCreate(client *buddy.Client, workspace *buddy.Workspace, projec
 
 func testVariableUpdate(client *buddy.Client, workspace *buddy.Workspace, project *buddy.Project, out *buddy.Variable) func(t *testing.T) {
 	return func(t *testing.T) {
-		err, _, privateKey := GenerateRsaKeyPair()
+		_, privateKey, err := GenerateRsaKeyPair()
 		if err != nil {
 			t.Fatal(ErrorFormatted("create rsa key pair", err))
 		}
