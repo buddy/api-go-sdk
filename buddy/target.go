@@ -120,10 +120,10 @@ type TargetOps struct {
 }
 
 type TargetGetListQuery struct {
-	ProjectName   string `url:"projectName,omitempty"`
-	PipelineId    int    `url:"pipelineId,omitempty"`
-	ActionId      int    `url:"actionId,omitempty"`
-	EnvironmentId string `url:"environmentId,omitempty"`
+	ProjectName   string `url:"project_name,omitempty"`
+	PipelineId    int    `url:"pipeline_id,omitempty"`
+	ActionId      int    `url:"action_id,omitempty"`
+	EnvironmentId string `url:"environment_id,omitempty"`
 }
 
 type Targets struct {

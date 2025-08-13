@@ -1,3 +1,6 @@
+# Release v1.30.1 (2025-07-23)
+* Fix target list query params (projectName -> project_name, pipelineId -> pipeline_id, environmentId -> environment_id, actionId -> action_id)
+
 # Release v1.30.0 (2025-07-23)
 * Adds `remote_ref` to pipeline
 
