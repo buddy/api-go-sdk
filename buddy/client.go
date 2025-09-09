@@ -65,11 +65,16 @@ type Client struct {
 	TargetService        *TargetService
 	TokenService         *TokenService
 	SourceService        *SourceService
+	SandboxService       *SandboxService
 }
 
 type PageQuery struct {
 	Page    int `url:"page"`
 	PerPage int `url:"per_page"`
+}
+
+type Query struct {
+	ProjectName *string `url:"project_name,omitempty"`
 }
 
 func (c *Client) setBaseUrl(urlStr string) error {
@@ -229,6 +234,7 @@ func NewClientWithTimeout(token string, baseUrl string, insecure bool, timeout t
 	c.TokenService = &TokenService{client: c}
 	c.EnvironmentService = &EnvironmentService{client: c}
 	c.TargetService = &TargetService{client: c}
+	c.SandboxService = &SandboxService{client: c}
 	return c, nil
 }
 

@@ -1,3 +1,6 @@
+# Release v1.32.0 (2025-09-09)
+* Adds sandboxes
+
 # Release v1.31.0 (2025-08-13)
 * Bump deps & move to go 1.23
 
