@@ -103,6 +103,7 @@ type Sandbox struct {
 	Id              string            `json:"id"`
 	Identifier      string            `json:"identifier"`
 	Name            string            `json:"name"`
+	ProjectName     string            `json:"project_name"`
 	Status          string            `json:"status"`
 	Os              string            `json:"os"`
 	Resources       string            `json:"resources"`

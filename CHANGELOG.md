@@ -1,3 +1,6 @@
+# Release v1.32.1 (2025-09-10)
+* Adds project_name to sandbox
+
 # Release v1.32.0 (2025-09-09)
 * Adds sandboxes
 
