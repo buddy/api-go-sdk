@@ -1317,7 +1317,7 @@ func CheckSandbox(sandbox *buddy.Sandbox, expected *buddy.Sandbox, ops *buddy.Sa
 	if err := CheckFieldSet("Sandbox.HtmlUrl", sandbox.HtmlUrl); err != nil {
 		return err
 	}
-	if err := CheckFieldSet("Sandbox.ProjectName", sandbox.ProjectName); err != nil {
+	if err := CheckFieldSet("Sandbox.ProjectName", sandbox.Project.Name); err != nil {
 		return err
 	}
 	if id != "" {
