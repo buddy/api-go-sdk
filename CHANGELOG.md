@@ -1,3 +1,6 @@
+# Release v1.32.4 (2025-09-12)
+* Adds stop & start of sandbox
+
 # Release v1.32.3 (2025-09-11)
 * Adds stop & start of sandbox
 

@@ -117,6 +117,9 @@ type Sandbox struct {
   Endpoints       []SandboxEndpoint `json:"endpoints"`
 }
 
+type SandboxStatusOps struct {
+}
+
 type SandboxOps struct {
   Name            *string            `json:"name,omitempty"`
   Identifier      *string            `json:"identifier,omitempty"`
@@ -162,13 +165,13 @@ func (s *SandboxService) GetList(workspaceDomain string, query Query) (*Sandboxe
 
 func (s *SandboxService) Stop(workspaceDomain string, sandboxId string) (*Sandbox, *http.Response, error) {
   var sb *Sandbox
-  resp, err := s.client.Create(s.client.NewUrlPath("/workspaces/%s/sandboxes/%s/stop", workspaceDomain, sandboxId), nil, nil, &sb)
+  resp, err := s.client.Create(s.client.NewUrlPath("/workspaces/%s/sandboxes/%s/stop", workspaceDomain, sandboxId), &SandboxStatusOps{}, nil, &sb)
   return sb, resp, err
 }
 
 func (s *SandboxService) Start(workspaceDomain string, sandboxId string) (*Sandbox, *http.Response, error) {
   var sb *Sandbox
-  resp, err := s.client.Create(s.client.NewUrlPath("/workspaces/%s/sandboxes/%s/start", workspaceDomain, sandboxId), nil, nil, &sb)
+  resp, err := s.client.Create(s.client.NewUrlPath("/workspaces/%s/sandboxes/%s/start", workspaceDomain, sandboxId), &SandboxStatusOps{}, nil, &sb)
   return sb, resp, err
 }
 
