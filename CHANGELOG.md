@@ -1,3 +1,6 @@
+# Release v1.33.0 (2025-09-17)
+* Adds new event in pipeline - WEBHOOK
+
 # Release v1.32.4 (2025-09-12)
 * Adds stop & start of sandbox
 

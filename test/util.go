@@ -1610,7 +1610,8 @@ func CheckPipeline(project *buddy.Project, pipeline *buddy.Pipeline, expected *b
 		if err := CheckFieldEqualAndSet("Pipeline.Events[0].Type", pipeline.Events[0].Type, events[0].Type); err != nil {
 			return err
 		}
-		if events[0].Type == buddy.PipelineEventTypePullRequest {
+		switch events[0].Type {
+		case buddy.PipelineEventTypePullRequest:
 			if err := CheckIntFieldEqualAndSet("len(pipeline.Events[0].Events)", len(pipeline.Events[0].Events), len(events[0].Events)); err != nil {
 				return err
 			}
@@ -1623,7 +1624,11 @@ func CheckPipeline(project *buddy.Project, pipeline *buddy.Pipeline, expected *b
 			if err := CheckFieldEqualAndSet("pipeline.Events[0].Branches[0]", pipeline.Events[0].Branches[0], events[0].Branches[0]); err != nil {
 				return err
 			}
-		} else {
+		case buddy.PipelineEventTypeWebhook:
+			if err := CheckBoolFieldEqual("", pipeline.Events[0].Totp, events[0].Totp); err != nil {
+				return err
+			}
+		default:
 			if events[0].Refs != nil {
 				if err := CheckIntFieldEqual("len(Pipeline.Events[0].Refs)", len(pipeline.Events[0].Refs), len(events[0].Refs)); err != nil {
 					return err

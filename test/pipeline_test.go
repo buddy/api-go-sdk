@@ -258,6 +258,40 @@ func TestPipelineScheduleCron(t *testing.T) {
 	t.Run("Delete", testPipelineDelete(seed.Client, seed.Workspace, seed.Project, &pipeline))
 }
 
+func TestPipelineTriggerWebhook(t *testing.T) {
+	seed, err := SeedInitialData(&SeedOps{
+		workspace: true,
+		project:   true,
+	})
+	if err != nil {
+		t.Fatal(ErrorFormatted("SeedInitialData", err))
+	}
+	name := RandString(10)
+	eventType := buddy.PipelineEventTypeWebhook
+	event := buddy.PipelineEvent{
+		Type: eventType,
+		Totp: false,
+	}
+	events := []*buddy.PipelineEvent{&event}
+	ops := buddy.PipelineOps{
+		Name:   &name,
+		Events: &events,
+	}
+	var pipeline buddy.Pipeline
+	// by default its true
+	pipeline.FailOnPrepareEnvWarning = true
+	t.Run("Create", testPipelineCreate(seed.Client, seed.Workspace, seed.Project, &ops, &pipeline))
+	newEvent := buddy.PipelineEvent{
+		Type: eventType,
+		Totp: true,
+	}
+	newEvents := []*buddy.PipelineEvent{&newEvent}
+	updateEventOps := buddy.PipelineOps{
+		Events: &newEvents,
+	}
+	t.Run("UpdateEvent", testPipelineUpdate(seed.Client, seed.Workspace, seed.Project, &updateEventOps, &pipeline))
+}
+
 func TestPipelinePullRequestEvent(t *testing.T) {
 	seed, err := SeedInitialData(&SeedOps{
 		workspace: true,

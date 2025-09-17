@@ -11,6 +11,7 @@ const (
 	PipelineEventTypeCreateRef   = "CREATE_REF"
 	PipelineEventTypeDeleteRef   = "DELETE_REF"
 	PipelineEventTypePullRequest = "PULL_REQUEST"
+	PipelineEventTypeWebhook     = "WEBHOOK"
 
 	PipelinePullRequestEventAssigned             = "assigned"
 	PipelinePullRequestEventUnassigned           = "unassigned"
@@ -141,6 +142,7 @@ type PipelineEvent struct {
 	Delay     int      `json:"delay,omitempty"`
 	Cron      string   `json:"cron,omitempty"`
 	Timezone  string   `json:"timezone,omitempty"`
+	Totp      bool     `json:"totp"`
 }
 
 type PipelineResourcePermission struct {
