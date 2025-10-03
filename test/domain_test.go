@@ -16,7 +16,7 @@ func testDomainCreate(client *buddy.Client, workspace *buddy.Workspace, out *bud
 		if err != nil {
 			t.Fatal(ErrorFormatted("DomainService.Create", err))
 		}
-		err = CheckDomain(domain, name)
+		err = CheckDomain(domain, name, false)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -28,7 +28,7 @@ func testDomainList(client *buddy.Client, workspace *buddy.Workspace, domain *bu
 	return func(t *testing.T) {
 		domains, _, err := client.DomainService.GetList(workspace.Domain)
 		if err != nil {
-			t.Fatal(ErrorFormatted("DomainService.Create", err))
+			t.Fatal(ErrorFormatted("DomainService.GetList", err))
 		}
 		err = CheckDomains(domains, domain)
 		if err != nil {
@@ -39,7 +39,7 @@ func testDomainList(client *buddy.Client, workspace *buddy.Workspace, domain *bu
 
 func testDomainRecordGet(client *buddy.Client, workspace *buddy.Workspace, domain *buddy.Domain, record *buddy.Record) func(t *testing.T) {
 	return func(t *testing.T) {
-		r, _, err := client.DomainService.GetRecord(workspace.Domain, fmt.Sprintf("%s.%s", record.Name, domain.Name), "A")
+		r, _, err := client.DomainService.GetRecord(workspace.Domain, domain.Id, fmt.Sprintf("%s.%s", record.Name, domain.Name), "A")
 		if err != nil {
 			t.Fatal(ErrorFormatted("DomainService.GetRecord", err))
 		}
@@ -52,7 +52,7 @@ func testDomainRecordGet(client *buddy.Client, workspace *buddy.Workspace, domai
 
 func testDomainRecordDelete(client *buddy.Client, workspace *buddy.Workspace, domain *buddy.Domain, record *buddy.Record) func(t *testing.T) {
 	return func(t *testing.T) {
-		_, err := client.DomainService.DeleteRecord(workspace.Domain, fmt.Sprintf("%s.%s", record.Name, domain.Name), "A")
+		_, err := client.DomainService.DeleteRecord(workspace.Domain, domain.Id, fmt.Sprintf("%s.%s", record.Name, domain.Name), "A")
 		if err != nil {
 			t.Fatal(ErrorFormatted("DomainService.DeleteRecord", err))
 		}
@@ -61,7 +61,7 @@ func testDomainRecordDelete(client *buddy.Client, workspace *buddy.Workspace, do
 
 func testDomainRecordGetList(client *buddy.Client, workspace *buddy.Workspace, domain *buddy.Domain) func(t *testing.T) {
 	return func(t *testing.T) {
-		list, _, err := client.DomainService.GetRecords(workspace.Domain, domain.Name)
+		list, _, err := client.DomainService.GetRecords(workspace.Domain, domain.Id)
 		if err != nil {
 			t.Fatal(ErrorFormatted("DomainService.GetRecords", err))
 		}
@@ -92,7 +92,7 @@ func testDomainGeoRecordUpsert(client *buddy.Client, workspace *buddy.Workspace,
 			Country: &country,
 			Values:  &vals,
 		}
-		record, _, err := client.DomainService.UpsertRecord(workspace.Domain, fullName, typ, &ops)
+		record, _, err := client.DomainService.UpsertRecord(workspace.Domain, domain.Id, fullName, typ, &ops)
 		if err != nil {
 			t.Fatal(ErrorFormatted("DomainService.UpsertRecord", err))
 		}
@@ -111,7 +111,7 @@ func testDomainGeoRecordUpsert(client *buddy.Client, workspace *buddy.Workspace,
 			Continent: &continent,
 			Values:    &vals,
 		}
-		record, _, err = client.DomainService.UpsertRecord(workspace.Domain, fullName, typ, &ops)
+		record, _, err = client.DomainService.UpsertRecord(workspace.Domain, domain.Id, fullName, typ, &ops)
 		if err != nil {
 			t.Fatal(ErrorFormatted("DomainService.UpsertRecord", err))
 		}
@@ -135,7 +135,7 @@ func testDomainRecordUpsert(client *buddy.Client, workspace *buddy.Workspace, do
 			Ttl:    &ttl,
 			Values: &vals,
 		}
-		record, _, err := client.DomainService.UpsertRecord(workspace.Domain, fullName, typ, &ops)
+		record, _, err := client.DomainService.UpsertRecord(workspace.Domain, domain.Id, fullName, typ, &ops)
 		if err != nil {
 			t.Fatal(ErrorFormatted("DomainService.UpsertRecord", err))
 		}
@@ -150,7 +150,7 @@ func testDomainRecordUpsert(client *buddy.Client, workspace *buddy.Workspace, do
 			Ttl:    &newTtl,
 			Values: &newValues,
 		}
-		record, _, err = client.DomainService.UpsertRecord(workspace.Domain, fullName, typ, &ops)
+		record, _, err = client.DomainService.UpsertRecord(workspace.Domain, domain.Id, fullName, typ, &ops)
 		if err != nil {
 			t.Fatal(ErrorFormatted("DomainService.UpsertRecord", err))
 		}

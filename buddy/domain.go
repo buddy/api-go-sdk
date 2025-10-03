@@ -3,6 +3,10 @@ package buddy
 import "net/http"
 
 const (
+	DomainTypeRegistered = "REGISTERED"
+	DomainTypePointed    = "POINTED"
+	DomainTypeClaimed    = "CLAIMED"
+
 	DomainRecordRoutingGeolocation = "Geolocation"
 	DomainRecordRoutingSimple      = "Simple"
 
@@ -221,6 +225,8 @@ type DomainService struct {
 }
 
 type Record struct {
+	Url       string              `json:"url"`
+	HtmlUrl   string              `json:"html_url"`
 	Name      string              `json:"name"`
 	Type      string              `json:"type"`
 	Ttl       int                 `json:"ttl"`
@@ -231,8 +237,16 @@ type Record struct {
 }
 
 type Domain struct {
-	Name string `json:"name"`
-	Id   string `json:"id"`
+	Url          string   `json:"url"`
+	HtmlUrl      string   `json:"html_url"`
+	Name         string   `json:"name"`
+	Id           string   `json:"id"`
+	Type         string   `json:"type"`
+	AutoRenew    bool     `json:"auto_renew"`
+	TransferLock bool     `json:"transfer_lock"`
+	Dnssec       bool     `json:"dnssec"`
+	ExpiryDate   string   `json:"expiry_date"`
+	PointedVia   []string `json:"pointed_via"`
 }
 
 type DomainCreateOps struct {
@@ -267,24 +281,36 @@ func (s *DomainService) Create(workspaceDomain string, ops *DomainCreateOps) (*D
 	return d, resp, err
 }
 
-func (s *DomainService) GetRecords(workspaceDomain string, domain string) (*Records, *http.Response, error) {
+func (s *DomainService) Get(workspaceDomain string, domainId string) (*Domain, *http.Response, error) {
+	var d *Domain
+	resp, err := s.client.Get(s.client.NewUrlPath("/workspaces/%s/domains/%s", workspaceDomain, domainId), &d, nil)
+	return d, resp, err
+}
+
+func (s *DomainService) GetRecords(workspaceDomain string, domainId string) (*Records, *http.Response, error) {
 	var r *Records
-	resp, err := s.client.Get(s.client.NewUrlPath("/workspaces/%s/domains/%s/records", workspaceDomain, domain), &r, nil)
+	resp, err := s.client.Get(s.client.NewUrlPath("/workspaces/%s/domains/%s/records", workspaceDomain, domainId), &r, nil)
 	return r, resp, err
 }
 
-func (s *DomainService) GetRecord(workspaceDomain string, domain string, typ string) (*Record, *http.Response, error) {
+func (s *DomainService) GetRecordsInSubdomain(workspaceDomain string, domainId string, subdomain string) (*Records, *http.Response, error) {
+	var r *Records
+	resp, err := s.client.Get(s.client.NewUrlPath("/workspaces/%s/domains/%s/records/%s", workspaceDomain, domainId, subdomain), &r, nil)
+	return r, resp, err
+}
+
+func (s *DomainService) GetRecord(workspaceDomain string, domainId string, subdomain string, typ string) (*Record, *http.Response, error) {
 	var r *Record
-	resp, err := s.client.Get(s.client.NewUrlPath("/workspaces/%s/domains/%s/records/%s", workspaceDomain, domain, typ), &r, nil)
+	resp, err := s.client.Get(s.client.NewUrlPath("/workspaces/%s/domains/%s/records/%s/%s", workspaceDomain, domainId, subdomain, typ), &r, nil)
 	return r, resp, err
 }
 
-func (s *DomainService) UpsertRecord(workspaceDomain string, domain string, typ string, ops *RecordUpsertOps) (*Record, *http.Response, error) {
+func (s *DomainService) UpsertRecord(workspaceDomain string, domainId string, subdomain string, typ string, ops *RecordUpsertOps) (*Record, *http.Response, error) {
 	var r *Record
-	resp, err := s.client.Patch(s.client.NewUrlPath("/workspaces/%s/domains/%s/records/%s", workspaceDomain, domain, typ), &ops, nil, &r)
+	resp, err := s.client.Patch(s.client.NewUrlPath("/workspaces/%s/domains/%s/records/%s/%s", workspaceDomain, domainId, subdomain, typ), &ops, nil, &r)
 	return r, resp, err
 }
 
-func (s *DomainService) DeleteRecord(workspaceDomain string, domain string, typ string) (*http.Response, error) {
-	return s.client.Delete(s.client.NewUrlPath("/workspaces/%s/domains/%s/records/%s", workspaceDomain, domain, typ), nil, nil)
+func (s *DomainService) DeleteRecord(workspaceDomain string, domainId string, subdomain string, typ string) (*http.Response, error) {
+	return s.client.Delete(s.client.NewUrlPath("/workspaces/%s/domains/%s/records/%s/%s", workspaceDomain, domainId, subdomain, typ), nil, nil)
 }
