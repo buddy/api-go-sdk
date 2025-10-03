@@ -1,3 +1,6 @@
+# Release v1.34.0 (2025-10-03)
+* [Breaking] Changes to domain API
+
 # Release v1.33.0 (2025-09-17)
 * Adds new event in pipeline - WEBHOOK
 

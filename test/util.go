@@ -369,12 +369,23 @@ func CheckProjectMember(projectMember *buddy.ProjectMember, member *buddy.Member
 	return nil
 }
 
-func CheckDomain(domain *buddy.Domain, name string) error {
+func CheckDomain(domain *buddy.Domain, name string, short bool) error {
 	if err := CheckFieldEqualAndSet("Domain.Name", domain.Name, name); err != nil {
 		return err
 	}
 	if err := CheckFieldSet("Domain.Id", domain.Id); err != nil {
 		return err
+	}
+	if err := CheckFieldSet("Domain.Url", domain.Url); err != nil {
+		return err
+	}
+	if err := CheckFieldSet("Domain.HtmlUrl", domain.HtmlUrl); err != nil {
+		return err
+	}
+	if !short {
+		if err := CheckFieldEqualAndSet("Domain.Type", domain.Type, buddy.DomainTypePointed); err != nil {
+			return err
+		}
 	}
 	return nil
 }
@@ -387,6 +398,12 @@ func CheckRecords(list *buddy.Records, count int) error {
 }
 
 func CheckRecord(record *buddy.Record, name string, typ string, ttl int, routing string, val string, continentName string, continentValue string, countryName string, countryValue string) error {
+	if err := CheckFieldSet("Record.Url", record.Url); err != nil {
+		return err
+	}
+	if err := CheckFieldSet("Record.HtmlUrl", record.HtmlUrl); err != nil {
+		return err
+	}
 	if err := CheckFieldEqualAndSet("Record.Name", record.Name, name); err != nil {
 		return err
 	}
@@ -497,7 +514,7 @@ func CheckDomains(domains *buddy.Domains, domain *buddy.Domain) error {
 	if err := CheckIntFieldEqual("len(Domains)", len(domains.Domains), 1); err != nil {
 		return err
 	}
-	return CheckDomain(domains.Domains[0], domain.Name)
+	return CheckDomain(domains.Domains[0], domain.Name, true)
 }
 
 func CheckMembers(members *buddy.Members, count int) error {
