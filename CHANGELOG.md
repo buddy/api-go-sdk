@@ -1,3 +1,6 @@
+# Release v1.35.0 (2025-10-14)
+* [Breaking] Changes to sandbox API
+
 # Release v1.34.0 (2025-10-03)
 * [Breaking] Changes to domain API
 
