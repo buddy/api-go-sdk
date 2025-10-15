@@ -40,9 +40,9 @@ const (
 	SandboxStatusStopped   = "STOPPED"
 	SandboxStatusRestoring = "RESTORING"
 
-	SandboxSetupStatusConfiguring = "CONFIGURING"
-	SandboxSetupStatusDone        = "DONE"
-	SandboxSetupStatusFailed      = "FAILED"
+	SandboxSetupStatusInProgress = "INPROGRESS"
+	SandboxSetupStatusSuccess    = "SUCCESS"
+	SandboxSetupStatusFailed     = "FAILED"
 
 	SandboxAppStatusNone    = "NONE"
 	SandboxAppStatusEnded   = "ENDED"

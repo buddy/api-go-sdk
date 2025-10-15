@@ -21,11 +21,11 @@ func testSandboxWaitForRunning(client *buddy.Client, workspace *buddy.Workspace,
 
 func testSandboxWaitForSetupDone(client *buddy.Client, workspace *buddy.Workspace, sandbox *buddy.Sandbox, out *buddy.Sandbox) func(t *testing.T) {
 	return func(t *testing.T) {
-		sb, err := client.SandboxService.WaitForSetupStatuses(workspace.Domain, sandbox.Id, 60, []string{buddy.SandboxSetupStatusDone})
+		sb, err := client.SandboxService.WaitForSetupStatuses(workspace.Domain, sandbox.Id, 60, []string{buddy.SandboxSetupStatusSuccess})
 		if err != nil {
 			t.Fatal(ErrorFormatted("TestSandbox.WaitForRunning", err))
 		}
-		err = CheckSandbox(sb, sandbox, nil, buddy.SandboxStatusRunning, buddy.SandboxSetupStatusDone, "")
+		err = CheckSandbox(sb, sandbox, nil, buddy.SandboxStatusRunning, buddy.SandboxSetupStatusSuccess, "")
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -39,7 +39,7 @@ func testSandboxWaitForAppRunning(client *buddy.Client, workspace *buddy.Workspa
 		if err != nil {
 			t.Fatal(ErrorFormatted("TestSandbox.WaitForRunning", err))
 		}
-		err = CheckSandbox(sb, sandbox, nil, buddy.SandboxStatusRunning, buddy.SandboxSetupStatusDone, buddy.SandboxAppStatusRunning)
+		err = CheckSandbox(sb, sandbox, nil, buddy.SandboxStatusRunning, buddy.SandboxSetupStatusSuccess, buddy.SandboxAppStatusRunning)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -53,7 +53,7 @@ func testSandboxCreate(client *buddy.Client, workspace *buddy.Workspace, project
 		if err != nil {
 			t.Fatal(ErrorFormatted("TestSandbox.Create", err))
 		}
-		err = CheckSandbox(sb, out, ops, buddy.SandboxStatusStarting, buddy.SandboxSetupStatusConfiguring, buddy.SandboxAppStatusNone)
+		err = CheckSandbox(sb, out, ops, buddy.SandboxStatusStarting, buddy.SandboxSetupStatusInProgress, buddy.SandboxAppStatusNone)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -67,7 +67,7 @@ func testSandboxEdit(client *buddy.Client, workspace *buddy.Workspace, ops *budd
 		if err != nil {
 			t.Fatal(ErrorFormatted("TestSandbox.Update", err))
 		}
-		err = CheckSandbox(sb, out, ops, buddy.SandboxStatusRunning, buddy.SandboxSetupStatusDone, buddy.SandboxAppStatusRunning)
+		err = CheckSandbox(sb, out, ops, buddy.SandboxStatusRunning, buddy.SandboxSetupStatusSuccess, buddy.SandboxAppStatusRunning)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -81,7 +81,7 @@ func testSandboxGet(client *buddy.Client, workspace *buddy.Workspace, out *buddy
 		if err != nil {
 			t.Fatal(ErrorFormatted("TestSandbox.Get", err))
 		}
-		err = CheckSandbox(sb, out, nil, buddy.SandboxStatusRunning, buddy.SandboxSetupStatusDone, buddy.SandboxAppStatusRunning)
+		err = CheckSandbox(sb, out, nil, buddy.SandboxStatusRunning, buddy.SandboxSetupStatusSuccess, buddy.SandboxAppStatusRunning)
 		if err != nil {
 			t.Fatal(err)
 		}
