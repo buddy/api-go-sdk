@@ -12,6 +12,7 @@ const (
 	PipelineEventTypeDeleteRef   = "DELETE_REF"
 	PipelineEventTypePullRequest = "PULL_REQUEST"
 	PipelineEventTypeWebhook     = "WEBHOOK"
+	PipelineEventTypeEmail       = "EMAIL"
 
 	PipelinePullRequestEventAssigned             = "assigned"
 	PipelinePullRequestEventUnassigned           = "unassigned"
@@ -142,6 +143,8 @@ type PipelineEvent struct {
 	Delay     int      `json:"delay,omitempty"`
 	Cron      string   `json:"cron,omitempty"`
 	Timezone  string   `json:"timezone,omitempty"`
+	Prefix    string   `json:"prefix,omitempty"`
+	Whitelist []string `json:"whitelist,omitempty"`
 	Totp      bool     `json:"totp"`
 }
 

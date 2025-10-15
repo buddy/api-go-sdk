@@ -1641,8 +1641,15 @@ func CheckPipeline(project *buddy.Project, pipeline *buddy.Pipeline, expected *b
 			if err := CheckFieldEqualAndSet("pipeline.Events[0].Branches[0]", pipeline.Events[0].Branches[0], events[0].Branches[0]); err != nil {
 				return err
 			}
+		case buddy.PipelineEventTypeEmail:
+			if err := CheckFieldEqualAndSet("Pipeline.Events[0].Prefix", pipeline.Events[0].Prefix, events[0].Prefix); err != nil {
+				return err
+			}
+			if err := CheckFieldEqualAndSet("Pipeline.Events[0].Whitelist[0]", pipeline.Events[0].Whitelist[0], events[0].Whitelist[0]); err != nil {
+				return err
+			}
 		case buddy.PipelineEventTypeWebhook:
-			if err := CheckBoolFieldEqual("", pipeline.Events[0].Totp, events[0].Totp); err != nil {
+			if err := CheckBoolFieldEqual("Pipeline.Events[0].Totp", pipeline.Events[0].Totp, events[0].Totp); err != nil {
 				return err
 			}
 		default:
