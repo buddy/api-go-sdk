@@ -1,3 +1,6 @@
+# Release v1.36.0 (2025-10-14)
+* Adds new event type - EMAIL - to pipeline
+
 # Release v1.35.1 (2025-10-14)
 * Changes to sandbox API
 
