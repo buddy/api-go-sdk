@@ -39,7 +39,7 @@ type SourceCommit struct {
 }
 
 type SourceContentsGetQuery struct {
-	Revision string `json:"revision,omitempty"`
+	Revision string `url:"revision,omitempty"`
 }
 
 type SourceContents struct {

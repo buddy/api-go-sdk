@@ -1,3 +1,6 @@
+# Release v1.36.1 (2025-10-17)
+* Fix SourceContentsGetQuery url parameter
+
 # Release v1.36.0 (2025-10-14)
 * Adds new event type - EMAIL - to pipeline
 
