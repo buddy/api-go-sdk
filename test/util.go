@@ -1444,6 +1444,7 @@ func CheckPipeline(project *buddy.Project, pipeline *buddy.Pipeline, expected *b
 	filesystemChangeSetBase := expected.FilesystemChangesetBase
 	manageVariablesByYaml := expected.ManageVariablesByYaml
 	managePermissionsByYaml := expected.ManagePermissionsByYaml
+	loop := expected.Loop
 	cpu := expected.Cpu
 	id := expected.Id
 	if ops != nil {
@@ -1560,6 +1561,9 @@ func CheckPipeline(project *buddy.Project, pipeline *buddy.Pipeline, expected *b
 		if ops.ManagePermissionsByYaml != nil {
 			managePermissionsByYaml = *ops.ManagePermissionsByYaml
 		}
+		if ops.Loop != nil {
+			loop = *ops.Loop
+		}
 	}
 	if definitionSource == "" {
 		definitionSource = buddy.PipelineDefinitionSourceLocal
@@ -1578,6 +1582,7 @@ func CheckPipeline(project *buddy.Project, pipeline *buddy.Pipeline, expected *b
 	lenTriggerConditions := len(triggerConditions)
 	lenTags := len(tags)
 	lenRemoteParameters := len(remoteParameters)
+	lenLoop := len(loop)
 	if err := CheckFieldSet("Pipeline.Url", pipeline.Url); err != nil {
 		return err
 	}
@@ -1825,6 +1830,11 @@ func CheckPipeline(project *buddy.Project, pipeline *buddy.Pipeline, expected *b
 	}
 	if lenTags > 0 {
 		if err := CheckFieldEqualAndSet("Pipeline.Tags[0]", pipeline.Tags[0], tags[0]); err != nil {
+			return err
+		}
+	}
+	if lenLoop > 0 {
+		if err := CheckFieldEqualAndSet("Pipeline.Loop[0]", pipeline.Loop[0], loop[0]); err != nil {
 			return err
 		}
 	}
