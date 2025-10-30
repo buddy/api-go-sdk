@@ -657,6 +657,8 @@ func TestPipelineClick(t *testing.T) {
 	executionMessageTemplate := RandString(10)
 	targetSiteUrl := RandString(10)
 	refs := []string{ref}
+	loopVar := UniqueString()
+	loop := []string{loopVar}
 	cloneDepth := 10
 	cpu := buddy.PipelineCpuArm
 	ops := buddy.PipelineOps{
@@ -673,6 +675,7 @@ func TestPipelineClick(t *testing.T) {
 		Cpu:                       &cpu,
 		Refs:                      &refs,
 		CloneDepth:                &cloneDepth,
+		Loop:                      &loop,
 	}
 	newName := RandString(10)
 	newIdentifier := UniqueString()
@@ -682,6 +685,8 @@ func TestPipelineClick(t *testing.T) {
 	newTargetSiteUrl := RandString(10)
 	newCloneDepth := 0
 	newCpu := buddy.PipelineCpuX64
+	newLoopVar := UniqueString()
+	newLoop := []string{newLoopVar}
 	updateOps := buddy.PipelineOps{
 		Name:                     &newName,
 		Identifier:               &newIdentifier,
@@ -690,6 +695,7 @@ func TestPipelineClick(t *testing.T) {
 		TargetSiteUrl:            &newTargetSiteUrl,
 		CloneDepth:               &newCloneDepth,
 		Cpu:                      &newCpu,
+		Loop:                     &newLoop,
 	}
 	var pipeline buddy.Pipeline
 	t.Run("Create", testPipelineCreate(seed.Client, seed.Workspace, seed.Project, &ops, &pipeline))

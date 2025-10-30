@@ -1,6 +1,8 @@
 package buddy
 
-import "net/http"
+import (
+	"net/http"
+)
 
 const (
 	PipelineCpuX64 = "X64"
@@ -121,6 +123,7 @@ type Pipeline struct {
 	DisabledReason            string                      `json:"disabled_reason"`
 	Permissions               *PipelinePermissions        `json:"permissions"`
 	PauseOnRepeatedFailures   int                         `json:"pause_on_repeated_failures"`
+	Loop                      []string                    `json:"loop"`
 }
 
 type Pipelines struct {
@@ -222,6 +225,7 @@ type PipelineOps struct {
 	DisabledReason            *string                      `json:"disabled_reason,omitempty"`
 	PauseOnRepeatedFailures   *int                         `json:"pause_on_repeated_failures,omitempty"`
 	Permissions               *PipelinePermissions         `json:"permissions,omitempty"`
+	Loop                      *[]string                    `json:"loop,omitempty"`
 }
 
 func (s *PipelineService) Create(workspaceDomain string, projectName string, ops *PipelineOps) (*Pipeline, *http.Response, error) {

@@ -1,3 +1,6 @@
+# Release v1.36.2 (2025-10-30)
+* Adds loop property to pipeline
+
 # Release v1.36.1 (2025-10-17)
 * Fix SourceContentsGetQuery url parameter
 
