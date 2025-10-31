@@ -125,7 +125,7 @@ func TestMember(t *testing.T) {
 	t.Run("UpdateAssignToProject", testMemberUpdateAssignToProject(seed.Client, seed.Workspace, seed.Permission, &member))
 	t.Run("UpdateAdmin", testMemberUpdateAdmin(seed.Client, seed.Workspace, &member))
 	t.Run("Get", testMemberGet(seed.Client, seed.Workspace, &member))
-	t.Run("GetList", testMemberGetList(seed.Client, seed.Workspace, 2))
-	t.Run("GetListAll", testMemberGetListAll(seed.Client, seed.Workspace, 2))
+	t.Run("GetList", testMemberGetList(seed.Client, seed.Workspace, 3))
+	t.Run("GetListAll", testMemberGetListAll(seed.Client, seed.Workspace, 3))
 	t.Run("Delete", testMemberDelete(seed.Client, seed.Workspace, &member))
 }
