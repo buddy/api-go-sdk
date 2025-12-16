@@ -1286,7 +1286,7 @@ func CheckEnvironment(environment *buddy.Environment, expected *buddy.Environmen
 		if expected.Project != nil {
 			projectName = expected.Project.Name
 		}
-		if ops != nil {
+		if ops != nil && ops.Project != nil {
 			projectName = ops.Project.Name
 		}
 		if err := CheckFieldEqualAndSet("Environment.Project.Name", environment.Project.Name, projectName); err != nil {

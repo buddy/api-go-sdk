@@ -113,6 +113,7 @@ func TestEnvironmentWorkspace(t *testing.T) {
 		BaseOnly:               &newBaseOnly,
 		AllPipelinesAllowed:    &newAllPipAllowed,
 		AllEnvironmentsAllowed: &newAllEnvsAllowed,
+		Scope:                  &scope,
 	}
 	var environment buddy.Environment
 	t.Run("Create", testEnvironmentCreate(seed.Client, seed.Workspace, &ops, &environment))
@@ -203,6 +204,7 @@ func TestEnvironment(t *testing.T) {
 		Permissions:            &newPerms,
 		AllPipelinesAllowed:    &newAllPipAllowed,
 		AllEnvironmentsAllowed: &newAllEnvsAllowed,
+		Scope:                  &scope,
 	}
 	var environment buddy.Environment
 	t.Run("Create", testEnvironmentCreate(seed.Client, seed.Workspace, &ops, &environment))
