@@ -1,3 +1,6 @@
+# Release v1.37.0 (2025-12-16)
+* [Breaking] Changes to environmental API
+
 # Release v1.36.2 (2025-10-30)
 * Adds loop property to pipeline
 

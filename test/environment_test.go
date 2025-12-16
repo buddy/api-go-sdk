@@ -5,13 +5,13 @@ import (
 	"testing"
 )
 
-func testEnvironmentCreate(client *buddy.Client, workspace *buddy.Workspace, project *buddy.Project, ops *buddy.EnvironmentOps, out *buddy.Environment) func(t *testing.T) {
+func testEnvironmentCreate(client *buddy.Client, workspace *buddy.Workspace, ops *buddy.EnvironmentOps, out *buddy.Environment) func(t *testing.T) {
 	return func(t *testing.T) {
-		environment, _, err := client.EnvironmentService.Create(workspace.Domain, project.Name, ops)
+		environment, _, err := client.EnvironmentService.Create(workspace.Domain, ops)
 		if err != nil {
 			t.Fatal(ErrorFormatted("EnvironmentService.Create", err))
 		}
-		err = CheckEnvironment(project, environment, out, ops)
+		err = CheckEnvironment(environment, out, ops)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -19,13 +19,13 @@ func testEnvironmentCreate(client *buddy.Client, workspace *buddy.Workspace, pro
 	}
 }
 
-func testEnvironmentGet(client *buddy.Client, workspace *buddy.Workspace, project *buddy.Project, out *buddy.Environment) func(t *testing.T) {
+func testEnvironmentGet(client *buddy.Client, workspace *buddy.Workspace, out *buddy.Environment) func(t *testing.T) {
 	return func(t *testing.T) {
-		environment, _, err := client.EnvironmentService.Get(workspace.Domain, project.Name, out.Id)
+		environment, _, err := client.EnvironmentService.Get(workspace.Domain, out.Id)
 		if err != nil {
 			t.Fatal(ErrorFormatted("EnvironmentService.Get", err))
 		}
-		err = CheckEnvironment(project, environment, out, nil)
+		err = CheckEnvironment(environment, out, nil)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -33,9 +33,9 @@ func testEnvironmentGet(client *buddy.Client, workspace *buddy.Workspace, projec
 	}
 }
 
-func testEnvironmentDelete(client *buddy.Client, workspace *buddy.Workspace, project *buddy.Project, out *buddy.Environment) func(t *testing.T) {
+func testEnvironmentDelete(client *buddy.Client, workspace *buddy.Workspace, out *buddy.Environment) func(t *testing.T) {
 	return func(t *testing.T) {
-		_, err := client.EnvironmentService.Delete(workspace.Domain, project.Name, out.Id)
+		_, err := client.EnvironmentService.Delete(workspace.Domain, out.Id)
 		if err != nil {
 			t.Fatal(ErrorFormatted("EnvironmentService.Delete", err))
 		}
@@ -44,7 +44,11 @@ func testEnvironmentDelete(client *buddy.Client, workspace *buddy.Workspace, pro
 
 func testEnvironmentGetList(client *buddy.Client, workspace *buddy.Workspace, project *buddy.Project, count int) func(t *testing.T) {
 	return func(t *testing.T) {
-		environments, _, err := client.EnvironmentService.GetList(workspace.Domain, project.Name)
+		projectName := ""
+		if project != nil {
+			projectName = project.Name
+		}
+		environments, _, err := client.EnvironmentService.GetList(workspace.Domain, projectName)
 		if err != nil {
 			t.Fatal(ErrorFormatted("EnvironmentService.GetList", err))
 		}
@@ -55,18 +59,67 @@ func testEnvironmentGetList(client *buddy.Client, workspace *buddy.Workspace, pr
 	}
 }
 
-func testEnvironmentUpdate(client *buddy.Client, workspace *buddy.Workspace, project *buddy.Project, ops *buddy.EnvironmentOps, out *buddy.Environment) func(t *testing.T) {
+func testEnvironmentUpdate(client *buddy.Client, workspace *buddy.Workspace, ops *buddy.EnvironmentOps, out *buddy.Environment) func(t *testing.T) {
 	return func(t *testing.T) {
-		environment, _, err := client.EnvironmentService.Update(workspace.Domain, project.Name, out.Id, ops)
+		environment, _, err := client.EnvironmentService.Update(workspace.Domain, out.Id, ops)
 		if err != nil {
 			t.Fatal(ErrorFormatted("EnvironmentService.Update", err))
 		}
-		err = CheckEnvironment(project, environment, out, ops)
+		err = CheckEnvironment(environment, out, ops)
 		if err != nil {
 			t.Fatal(err)
 		}
 		*out = *environment
 	}
+}
+
+func TestEnvironmentWorkspace(t *testing.T) {
+	seed, err := SeedInitialData(&SeedOps{
+		workspace: true,
+	})
+	if err != nil {
+		t.Fatal(ErrorFormatted("SeedInitialData", err))
+	}
+	name := RandString(10)
+	newName := RandString(10)
+	identifier := UniqueString()
+	newIdentifier := UniqueString()
+	publicUrl := "https://google.com"
+	newPublicUrl := "https://bing.com"
+	tags := []string{"aaa"}
+	newTags := []string{} // must be like that to proper json encode
+	allPipAllowed := true
+	newAllPipAllowed := false
+	allEnvsAllowed := false
+	newAllEnvsAllowed := true
+	baseOnly := true
+	newBaseOnly := false
+	scope := buddy.EnvironmentScopeWorkspace
+	ops := buddy.EnvironmentOps{
+		Name:                   &name,
+		Identifier:             &identifier,
+		PublicUrl:              &publicUrl,
+		Tags:                   &tags,
+		AllPipelinesAllowed:    &allPipAllowed,
+		AllEnvironmentsAllowed: &allEnvsAllowed,
+		BaseOnly:               &baseOnly,
+		Scope:                  &scope,
+	}
+	updOps := buddy.EnvironmentOps{
+		Name:                   &newName,
+		Identifier:             &newIdentifier,
+		PublicUrl:              &newPublicUrl,
+		Tags:                   &newTags,
+		BaseOnly:               &newBaseOnly,
+		AllPipelinesAllowed:    &newAllPipAllowed,
+		AllEnvironmentsAllowed: &newAllEnvsAllowed,
+	}
+	var environment buddy.Environment
+	t.Run("Create", testEnvironmentCreate(seed.Client, seed.Workspace, &ops, &environment))
+	t.Run("Update", testEnvironmentUpdate(seed.Client, seed.Workspace, &updOps, &environment))
+	t.Run("Get", testEnvironmentGet(seed.Client, seed.Workspace, &environment))
+	t.Run("GetList", testEnvironmentGetList(seed.Client, seed.Workspace, seed.Project, 1))
+	t.Run("Delete", testEnvironmentDelete(seed.Client, seed.Workspace, &environment))
 }
 
 func TestEnvironment(t *testing.T) {
@@ -99,20 +152,13 @@ func TestEnvironment(t *testing.T) {
 	name := RandString(10)
 	newName := RandString(10)
 	identifier := UniqueString()
+	icon := RandString(10)
+	newIcon := RandString(10)
 	newIdentifier := UniqueString()
 	publicUrl := "https://google.com"
 	newPublicUrl := "https://bing.com"
 	tags := []string{"aaa", "bbb"}
 	newTags := []string{"ccc"}
-	v := buddy.Variable{
-		Key:       RandString(10),
-		Value:     RandString(10),
-		Type:      buddy.VariableTypeVar,
-		FilePlace: buddy.VariableSshKeyFilePlaceNone,
-	}
-	vars := []*buddy.Variable{&v}
-	// musi byc istniejaca tablica bo inaczej jest null
-	newVars := []*buddy.Variable{}
 	user := buddy.EnvironmentResourcePermissions{
 		Id:          seed.Member.Id,
 		AccessLevel: buddy.EnvironmentPermissionAccessLevelDenied,
@@ -131,28 +177,37 @@ func TestEnvironment(t *testing.T) {
 	}
 	allPipAllowed := true
 	newAllPipAllowed := false
+	allEnvsAllowed := true
+	newAllEnvsAllowed := false
+	scope := buddy.EnvironmentScopeProject
 	ops := buddy.EnvironmentOps{
-		Name:                &name,
-		Identifier:          &identifier,
-		PublicUrl:           &publicUrl,
-		Tags:                &tags,
-		Variables:           &vars,
-		Permissions:         &perms,
-		AllPipelinesAllowed: &allPipAllowed,
+		Name:                   &name,
+		Identifier:             &identifier,
+		PublicUrl:              &publicUrl,
+		Icon:                   &icon,
+		Tags:                   &tags,
+		Permissions:            &perms,
+		AllPipelinesAllowed:    &allPipAllowed,
+		AllEnvironmentsAllowed: &allEnvsAllowed,
+		Project: &buddy.ProjectSimple{
+			Name: seed.Project.Name,
+		},
+		Scope: &scope,
 	}
 	updOps := buddy.EnvironmentOps{
-		Name:                &newName,
-		Identifier:          &newIdentifier,
-		PublicUrl:           &newPublicUrl,
-		Tags:                &newTags,
-		Variables:           &newVars,
-		Permissions:         &newPerms,
-		AllPipelinesAllowed: &newAllPipAllowed,
+		Name:                   &newName,
+		Identifier:             &newIdentifier,
+		PublicUrl:              &newPublicUrl,
+		Icon:                   &newIcon,
+		Tags:                   &newTags,
+		Permissions:            &newPerms,
+		AllPipelinesAllowed:    &newAllPipAllowed,
+		AllEnvironmentsAllowed: &newAllEnvsAllowed,
 	}
 	var environment buddy.Environment
-	t.Run("Create", testEnvironmentCreate(seed.Client, seed.Workspace, seed.Project, &ops, &environment))
-	t.Run("Update", testEnvironmentUpdate(seed.Client, seed.Workspace, seed.Project, &updOps, &environment))
-	t.Run("Get", testEnvironmentGet(seed.Client, seed.Workspace, seed.Project, &environment))
+	t.Run("Create", testEnvironmentCreate(seed.Client, seed.Workspace, &ops, &environment))
+	t.Run("Update", testEnvironmentUpdate(seed.Client, seed.Workspace, &updOps, &environment))
+	t.Run("Get", testEnvironmentGet(seed.Client, seed.Workspace, &environment))
 	t.Run("GetList", testEnvironmentGetList(seed.Client, seed.Workspace, seed.Project, 1))
-	t.Run("Delete", testEnvironmentDelete(seed.Client, seed.Workspace, seed.Project, &environment))
+	t.Run("Delete", testEnvironmentDelete(seed.Client, seed.Workspace, &environment))
 }

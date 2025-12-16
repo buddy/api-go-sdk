@@ -35,6 +35,10 @@ type Project struct {
 	WithoutRepository               bool    `json:"without_repository,omitempty"`
 }
 
+type ProjectSimple struct {
+	Name string `json:"name"`
+}
+
 type Projects struct {
 	Url      string     `json:"url"`
 	HtmlUrl  string     `json:"html_url"`
