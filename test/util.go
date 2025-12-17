@@ -745,7 +745,7 @@ func CheckWorkspace(workspace *buddy.Workspace, name string, domain string, id i
 	return nil
 }
 
-func CheckVariable(variable *buddy.Variable, key string, val string, typ string, desc string, set bool, enc bool, filePath string, fileChmod string, filePlace string, id int, project *buddy.Project) error {
+func CheckVariable(variable *buddy.Variable, key string, val string, typ string, desc string, set bool, enc bool, filePath string, fileChmod string, filePlace string, id int, project *buddy.Project, env *buddy.Environment) error {
 	if id != 0 {
 		if err := CheckIntFieldEqualAndSet("Variable.Id", variable.Id, id); err != nil {
 			return err
@@ -772,6 +772,11 @@ func CheckVariable(variable *buddy.Variable, key string, val string, typ string,
 	}
 	if project != nil {
 		if err := CheckFieldEqualAndSet("Variable.Project.Name", variable.Project.Name, project.Name); err != nil {
+			return err
+		}
+	}
+	if env != nil {
+		if err := CheckFieldEqualAndSet("Variable.Environment.Id", variable.Environment.Id, env.Id); err != nil {
 			return err
 		}
 	}
@@ -1134,13 +1139,17 @@ func CheckEnvironments(environments *buddy.Environments, count int) error {
 	return nil
 }
 
-func CheckEnvironment(project *buddy.Project, environment *buddy.Environment, expected *buddy.Environment, ops *buddy.EnvironmentOps) error {
+func CheckEnvironment(environment *buddy.Environment, expected *buddy.Environment, ops *buddy.EnvironmentOps) error {
 	name := expected.Name
 	id := expected.Id
 	identifier := expected.Identifier
 	tags := expected.Tags
+	icon := expected.Icon
 	publicUrl := expected.PublicUrl
 	allPipelineAllowed := expected.AllPipelinesAllowed
+	allEnvsAllowed := expected.AllEnvironmentsAllowed
+	baseOnly := expected.BaseOnly
+	scope := expected.Scope
 	vars := expected.Variables
 	perms := expected.Permissions
 	if ops != nil {
@@ -1149,6 +1158,9 @@ func CheckEnvironment(project *buddy.Project, environment *buddy.Environment, ex
 		}
 		if ops.Identifier != nil {
 			identifier = *ops.Identifier
+		}
+		if ops.Icon != nil {
+			icon = *ops.Icon
 		}
 		if ops.Tags != nil {
 			tags = *ops.Tags
@@ -1159,8 +1171,14 @@ func CheckEnvironment(project *buddy.Project, environment *buddy.Environment, ex
 		if ops.AllPipelinesAllowed != nil {
 			allPipelineAllowed = *ops.AllPipelinesAllowed
 		}
-		if ops.Variables != nil {
-			vars = *ops.Variables
+		if ops.AllEnvironmentsAllowed != nil {
+			allEnvsAllowed = *ops.AllEnvironmentsAllowed
+		}
+		if ops.BaseOnly != nil {
+			baseOnly = *ops.BaseOnly
+		}
+		if ops.Scope != nil {
+			scope = *ops.Scope
 		}
 		if ops.Permissions != nil {
 			perms = ops.Permissions
@@ -1172,6 +1190,9 @@ func CheckEnvironment(project *buddy.Project, environment *buddy.Environment, ex
 		return err
 	}
 	if err := CheckFieldSet("Environment.HtmlUrl", environment.HtmlUrl); err != nil {
+		return err
+	}
+	if err := CheckFieldSet("Environment.CreateDate", environment.CreateDate); err != nil {
 		return err
 	}
 	if id != "" {
@@ -1186,6 +1207,9 @@ func CheckEnvironment(project *buddy.Project, environment *buddy.Environment, ex
 	if err := CheckFieldEqualAndSet("Environment.Name", environment.Name, name); err != nil {
 		return err
 	}
+	if err := CheckFieldEqual("Environment.Icon", environment.Icon, icon); err != nil {
+		return err
+	}
 	if err := CheckFieldEqualAndSet("Environment.Identifier", environment.Identifier, identifier); err != nil {
 		return err
 	}
@@ -1193,6 +1217,15 @@ func CheckEnvironment(project *buddy.Project, environment *buddy.Environment, ex
 		return err
 	}
 	if err := CheckBoolFieldEqual("Environment.AllPipelinesAllowed", environment.AllPipelinesAllowed, allPipelineAllowed); err != nil {
+		return err
+	}
+	if err := CheckBoolFieldEqual("Environment.AllEnvironmentsAllowed", environment.AllEnvironmentsAllowed, allEnvsAllowed); err != nil {
+		return err
+	}
+	if err := CheckBoolFieldEqual("Environment.BaseOnly", environment.BaseOnly, baseOnly); err != nil {
+		return err
+	}
+	if err := CheckFieldEqualAndSet("Environment.Scope", environment.Scope, scope); err != nil {
 		return err
 	}
 	if lenTags > 0 {
@@ -1245,11 +1278,25 @@ func CheckEnvironment(project *buddy.Project, environment *buddy.Environment, ex
 			}
 		}
 	}
-	if environment.Project == nil {
-		return errors.New("Environment.Project must be set")
+	if scope == buddy.EnvironmentScopeProject {
+		if environment.Project == nil {
+			return errors.New("Environment.Project must be set")
+		}
+		projectName := ""
+		if expected.Project != nil {
+			projectName = expected.Project.Name
+		}
+		if ops != nil && ops.Project != nil {
+			projectName = ops.Project.Name
+		}
+		if err := CheckFieldEqualAndSet("Environment.Project.Name", environment.Project.Name, projectName); err != nil {
+			return err
+		}
 	}
-	if err := CheckProject(environment.Project, project.Name, project.DisplayName, true, false, false, false, "", buddy.ProjectAccessPrivate, false); err != nil {
-		return err
+	if scope == buddy.EnvironmentScopeWorkspace {
+		if environment.Project != nil {
+			return errors.New("Environment.Project must be nil")
+		}
 	}
 	return nil
 }

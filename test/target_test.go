@@ -553,8 +553,11 @@ func testTargetSshAsset(client *buddy.Client, workspaceDomain string, projectNam
 		envOps := buddy.EnvironmentOps{
 			Name:       &envName,
 			Identifier: &envId,
+			Project: &buddy.ProjectSimple{
+				Name: projectName,
+			},
 		}
-		env, _, err := client.EnvironmentService.Create(workspaceDomain, projectName, &envOps)
+		env, _, err := client.EnvironmentService.Create(workspaceDomain, &envOps)
 		if err != nil {
 			t.Fatal(err)
 		}
