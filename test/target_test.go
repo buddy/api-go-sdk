@@ -35,6 +35,22 @@ func CheckTarget(target *buddy.Target, want *buddy.TargetOps) error {
 			return err
 		}
 	}
+	if want.AllPipelinesAllowed != nil {
+		if err := CheckBoolFieldEqual("AllPipelinesAllowed", target.AllPipelinesAllowed, *want.AllPipelinesAllowed); err != nil {
+			return err
+		}
+	}
+	if want.AllowedPipelines != nil {
+		if err := CheckIntFieldEqualAndSet("AllowedPipelines", len(target.AllowedPipelines), len(*want.AllowedPipelines)); err != nil {
+			return err
+		}
+		if err := CheckFieldEqualAndSet("AllowedPipelines[0].Project", target.AllowedPipelines[0].Project, (*want.AllowedPipelines)[0].Project); err != nil {
+			return err
+		}
+		if err := CheckFieldEqualAndSet("AllowedPipelines[0].Pipeline", target.AllowedPipelines[0].Pipeline, (*want.AllowedPipelines)[0].Pipeline); err != nil {
+			return err
+		}
+	}
 	if want.Tags != nil {
 		if err := CheckIntFieldEqualAndSet("len(Tags)", len(target.Tags), len(*want.Tags)); err != nil {
 			return err
@@ -151,6 +167,7 @@ func testTargetFtps(client *buddy.Client, workspaceDomain string) func(t *testin
 		port := "33"
 		secure := true
 		disabled := true
+		allPipelines := true
 		username := RandString(10)
 		password := RandString(10)
 		auth := buddy.TargetAuth{
@@ -158,14 +175,15 @@ func testTargetFtps(client *buddy.Client, workspaceDomain string) func(t *testin
 			Password: password,
 		}
 		ops := buddy.TargetOps{
-			Name:       &name,
-			Identifier: &identifier,
-			Type:       &typ,
-			Host:       &host,
-			Port:       &port,
-			Secure:     &secure,
-			Auth:       &auth,
-			Disabled:   &disabled,
+			Name:                &name,
+			Identifier:          &identifier,
+			Type:                &typ,
+			Host:                &host,
+			Port:                &port,
+			Secure:              &secure,
+			Auth:                &auth,
+			Disabled:            &disabled,
+			AllPipelinesAllowed: &allPipelines,
 		}
 		target, _, err := client.TargetService.Create(workspaceDomain, &ops)
 		if err != nil {
@@ -360,7 +378,7 @@ func testTargetSshKey(client *buddy.Client, workspaceDomain string, projectName 
 	}
 }
 
-func testTargetSshProxyCredentials(client *buddy.Client, workspaceDomain string, pipelineId int) func(t *testing.T) {
+func testTargetSshProxyCredentials(client *buddy.Client, workspaceDomain string, project *buddy.Project, pipeline *buddy.Pipeline) func(t *testing.T) {
 	return func(t *testing.T) {
 		name := UniqueString()
 		identifier := UniqueString()
@@ -368,6 +386,11 @@ func testTargetSshProxyCredentials(client *buddy.Client, workspaceDomain string,
 		host := "1.1.1.1"
 		port := "44"
 		path := RandString(10)
+		allPipelines := false
+		allowedPipeline := buddy.TargetAllowedPipeline{
+			Project:  project.Name,
+			Pipeline: pipeline.Identifier,
+		}
 		auth := buddy.TargetAuth{
 			Method: buddy.TargetAuthMethodProxyCredentials,
 		}
@@ -392,8 +415,10 @@ func testTargetSshProxyCredentials(client *buddy.Client, workspaceDomain string,
 			Path:       &path,
 			Proxy:      &proxy,
 			Pipeline: &buddy.TargetPipeline{
-				Id: pipelineId,
+				Id: pipeline.Id,
 			},
+			AllPipelinesAllowed: &allPipelines,
+			AllowedPipelines:    &[]*buddy.TargetAllowedPipeline{&allowedPipeline},
 		}
 		target, _, err := client.TargetService.Create(workspaceDomain, &ops)
 		if err != nil {
@@ -636,6 +661,7 @@ func testTargetGitHttp(client *buddy.Client, workspaceDomain string) func(t *tes
 		identifier := UniqueString()
 		repository := "https://a" + UniqueString() + ".com"
 		typ := buddy.TargetTypeGit
+		allPipelines := false
 		auth := buddy.TargetAuth{
 			Method:   buddy.TargetAuthMethodHttp,
 			Username: RandString(10),
@@ -643,12 +669,13 @@ func testTargetGitHttp(client *buddy.Client, workspaceDomain string) func(t *tes
 		}
 		tags := []string{"a", "b"}
 		ops := buddy.TargetOps{
-			Name:       &name,
-			Identifier: &identifier,
-			Repository: &repository,
-			Tags:       &tags,
-			Type:       &typ,
-			Auth:       &auth,
+			Name:                &name,
+			Identifier:          &identifier,
+			Repository:          &repository,
+			Tags:                &tags,
+			Type:                &typ,
+			Auth:                &auth,
+			AllPipelinesAllowed: &allPipelines,
 		}
 		target, _, err := client.TargetService.Create(workspaceDomain, &ops)
 		if err != nil {
@@ -729,6 +756,7 @@ func TestTarget(t *testing.T) {
 		t.Fatal(ErrorFormatted("SeedInitialData", err))
 	}
 	var target buddy.Target
+	t.Run("CreateSshProxyCredentials", testTargetSshProxyCredentials(seed.Client, seed.Workspace.Domain, seed.Project, seed.Pipeline))
 	t.Run("CreateFtps", testTargetFtps(seed.Client, seed.Workspace.Domain))
 	t.Run("CreateGitHttp", testTargetGitHttp(seed.Client, seed.Workspace.Domain))
 	t.Run("CreateGitSshKey", testTargetGitSshKey(seed.Client, seed.Workspace.Domain))
@@ -736,7 +764,6 @@ func TestTarget(t *testing.T) {
 	t.Run("CreateSshPassword", testTargetSshPassword(seed.Client, seed.Workspace.Domain))
 	t.Run("CreateSshKey", testTargetSshKey(seed.Client, seed.Workspace.Domain, seed.Project.Name))
 	t.Run("CreateSshAsset", testTargetSshAsset(seed.Client, seed.Workspace.Domain, seed.Project.Name))
-	t.Run("CreateSshProxyCredentials", testTargetSshProxyCredentials(seed.Client, seed.Workspace.Domain, seed.Pipeline.Id))
 	t.Run("CreateUpcloud", testTargetUpcloud(seed.Client, seed.Workspace.Domain))
 	t.Run("CreateVultr", testTargetVultr(seed.Client, seed.Workspace.Domain))
 	t.Run("CreateDigitalOcean", testTargetDigitalOcean(seed.Client, seed.Workspace.Domain))

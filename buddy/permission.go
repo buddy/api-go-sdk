@@ -10,6 +10,7 @@ const (
 	PermissionAccessLevelReadWrite = "READ_WRITE"
 	PermissionAccessLevelManage    = "MANAGE"
 	PermissionAccessLevelRunOnly   = "RUN_ONLY"
+	PermissionAccessLevelUseOnly   = "USE_ONLY"
 
 	PermissionTypeDeveloper      = "DEVELOPER"
 	PermissionTypeReadOnly       = "READ_ONLY"
@@ -28,6 +29,8 @@ type Permission struct {
 	PipelineAccessLevel    string `json:"pipeline_access_level"`
 	SandboxAccessLevel     string `json:"sandbox_access_level"`
 	ProjectTeamAccessLevel string `json:"project_team_access_level"`
+	EnvironmentAccessLevel string `json:"environment_access_level"`
+	TargetAccessLevel      string `json:"target_access_level"`
 }
 
 type Permissions struct {
@@ -43,6 +46,8 @@ type PermissionOps struct {
 	ProjectTeamAccessLevel *string `json:"project_team_access_level"`
 	RepositoryAccessLevel  *string `json:"repository_access_level"`
 	SandboxAccessLevel     *string `json:"sandbox_access_level"`
+	EnvironmentAccessLevel *string `json:"environment_access_level,omitempty"`
+	TargetAccessLevel      *string `json:"target_access_level,omitempty"`
 }
 
 type PermissionService struct {
