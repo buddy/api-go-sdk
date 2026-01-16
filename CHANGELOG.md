@@ -1,3 +1,9 @@
+# Release v1.38.0 (2025-01-16)
+* Permission: Added EnvironmentAccessLevel and TargetAccessLevel fields, plus new USE_ONLY access level constant
+* Target: Added AllowedPipelines (with new TargetAllowedPipeline struct) and AllPipelinesAllowed fields
+* Tests: Updated to cover the new fields
+
+
 # Release v1.37.0 (2025-12-16)
 * [Breaking] Changes to environmental API
 
