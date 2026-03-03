@@ -562,6 +562,7 @@ func TestPipelineRemote(t *testing.T) {
 	t.Run("Create", testPipelineCreate(seed.Client, seed.Workspace, seed.Project, &ops, &pipeline))
 	updateOps := buddy.PipelineOps{
 		Name:              &newName,
+		Identifier:        &newName,
 		GitConfigRef:      &gitConfigRef2,
 		GitConfig:         gitConfig2,
 		RemoteRef:         &remoteBranch,
