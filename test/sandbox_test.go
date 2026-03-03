@@ -128,30 +128,38 @@ func TestSandbox(t *testing.T) {
 	os := buddy.SandboxOsUbuntu2204
 	resources := buddy.SandboxResource2X4
 	installCommands := "pwd"
-	runCommands := "while :; do foo; sleep 2; done"
+	app := "while :; do foo; sleep 2; done"
 	appDir := "/etc"
-	appType := buddy.SandboxAppTypeCmd
 	tags := []string{"a"}
 	newTags := []string{"b"}
 	endpointName := RandString(10)
 	endpointPort := "22"
 	endpointType := buddy.SandboxEndpointTypeTcp
-	endpoints := []buddy.SandboxEndpoint{{
+	timeout := 300
+	variableKey := RandString(10)
+	variableVal := RandString(10)
+	endpoints := []*buddy.SandboxEndpoint{{
 		Name:     &endpointName,
 		Endpoint: &endpointPort,
 		Type:     &endpointType,
 	}}
+	variables := []*buddy.VariableOps{{
+		Key:   &variableKey,
+		Value: &variableVal,
+	}}
+	apps := []string{app}
 	createOps := buddy.SandboxOps{
-		Name:            &name,
-		Identifier:      &identifier,
-		Os:              &os,
-		Resources:       &resources,
-		InstallCommands: &installCommands,
-		RunCommand:      &runCommands,
-		AppDir:          &appDir,
-		AppType:         &appType,
-		Tags:            &tags,
-		Endpoints:       &endpoints,
+		Name:              &name,
+		Identifier:        &identifier,
+		Os:                &os,
+		Resources:         &resources,
+		FirstBootCommands: &installCommands,
+		AppDir:            &appDir,
+		Apps:              &apps,
+		Tags:              &tags,
+		Timeout:           &timeout,
+		Endpoints:         &endpoints,
+		Variables:         &variables,
 	}
 	updateOps := buddy.SandboxOps{
 		Name:       &newName,
