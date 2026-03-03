@@ -1338,13 +1338,25 @@ func CheckSandbox(sandbox *buddy.Sandbox, expected *buddy.Sandbox, ops *buddy.Sa
 	identifier := expected.Identifier
 	sos := expected.Os
 	resources := expected.Resources
-	installCommands := expected.InstallCommands
-	runCommand := expected.RunCommand
+	installCommands := expected.FirstBootCommands
 	appDir := expected.AppDir
-	appType := expected.AppType
+	timeout := expected.Timeout
+	var app string
+	var varKey string
+	var varVal string
+	if len(expected.Apps) > 0 {
+		app = expected.Apps[0].Command
+	}
+	if len(expected.Variables) > 0 {
+		varKey = expected.Variables[0].Key
+		varVal = expected.Variables[0].Value
+	}
 	tags := expected.Tags
 	endpoints := expected.Endpoints
 	if ops != nil {
+		if ops.Timeout != nil {
+			timeout = *ops.Timeout
+		}
 		if ops.Endpoints != nil {
 			endpoints = *ops.Endpoints
 		}
@@ -1354,14 +1366,19 @@ func CheckSandbox(sandbox *buddy.Sandbox, expected *buddy.Sandbox, ops *buddy.Sa
 		if ops.Tags != nil {
 			tags = *ops.Tags
 		}
-		if ops.RunCommand != nil {
-			runCommand = *ops.RunCommand
-		}
 		if ops.Os != nil {
 			sos = *ops.Os
 		}
-		if ops.InstallCommands != nil {
-			installCommands = *ops.InstallCommands
+		if ops.FirstBootCommands != nil {
+			installCommands = *ops.FirstBootCommands
+		}
+		if ops.Apps != nil {
+			app = (*ops.Apps)[0]
+		}
+		if ops.Variables != nil {
+			v := (*ops.Variables)[0]
+			varKey = *v.Key
+			varVal = *v.Value
 		}
 		if ops.Endpoints != nil {
 			endpoints = *ops.Endpoints
@@ -1374,9 +1391,6 @@ func CheckSandbox(sandbox *buddy.Sandbox, expected *buddy.Sandbox, ops *buddy.Sa
 		}
 		if ops.Name != nil {
 			name = *ops.Name
-		}
-		if ops.AppType != nil {
-			appType = *ops.AppType
 		}
 	}
 	lenEndpoints := len(endpoints)
@@ -1418,20 +1432,30 @@ func CheckSandbox(sandbox *buddy.Sandbox, expected *buddy.Sandbox, ops *buddy.Sa
 	if err := CheckFieldEqualAndSet("Sandbox.Resources", sandbox.Resources, resources); err != nil {
 		return err
 	}
-	if err := CheckFieldEqualAndSet("Sandbox.InstallCommands", sandbox.InstallCommands, installCommands); err != nil {
-		return err
-	}
-	if err := CheckFieldEqualAndSet("Sandbox.RunCommand", sandbox.RunCommand, runCommand); err != nil {
+	if err := CheckFieldEqualAndSet("Sandbox.FirstBootCommands", sandbox.FirstBootCommands, installCommands); err != nil {
 		return err
 	}
 	if err := CheckFieldEqualAndSet("Sandbox.AppDir", sandbox.AppDir, appDir); err != nil {
 		return err
 	}
-	if err := CheckFieldEqualAndSet("Sandbox.AppType", sandbox.AppType, appType); err != nil {
+	if err := CheckIntFieldEqualAndSet("Sandbox.Timeout", sandbox.Timeout, timeout); err != nil {
 		return err
 	}
+	if app != "" {
+		if err := CheckFieldEqualAndSet("Sandbox.Apps[0].Command", sandbox.Apps[0].Command, app); err != nil {
+			return err
+		}
+	}
+	if varKey != "" && varVal != "" {
+		if err := CheckFieldEqualAndSet("Sandbox.Variables[0].Key", sandbox.Variables[0].Key, varKey); err != nil {
+			return err
+		}
+		if err := CheckFieldEqualAndSet("Sandbox.Variables[0].Value", sandbox.Variables[0].Value, varVal); err != nil {
+			return err
+		}
+	}
 	if expectedAppStatus != "" {
-		if err := CheckFieldEqualAndSet("Sandbox.AppStatus", sandbox.AppStatus, expectedAppStatus); err != nil {
+		if err := CheckFieldEqualAndSet("Sandbox.AppStatus", sandbox.Apps[0].AppStatus, expectedAppStatus); err != nil {
 			return err
 		}
 	}
@@ -1452,7 +1476,7 @@ func CheckSandbox(sandbox *buddy.Sandbox, expected *buddy.Sandbox, ops *buddy.Sa
 		return err
 	}
 	if lenEndpoints > 0 {
-		if err := CheckSandboxEndpoint(&sandbox.Endpoints[0], &endpoints[0]); err != nil {
+		if err := CheckSandboxEndpoint(sandbox.Endpoints[0], endpoints[0]); err != nil {
 			return err
 		}
 	}

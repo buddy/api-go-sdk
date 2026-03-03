@@ -1,3 +1,6 @@
+# Release v1.39.0 (2025-01-16)
+* [Breaking] Changes to sandbox API
+
 # Release v1.38.0 (2025-01-16)
 * Permission: Added EnvironmentAccessLevel and TargetAccessLevel fields, plus new USE_ONLY access level constant
 * Target: Added AllowedPipelines (with new TargetAllowedPipeline struct) and AllPipelinesAllowed fields

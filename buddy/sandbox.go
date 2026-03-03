@@ -86,14 +86,21 @@ type SandboxEndpointTls struct {
 }
 
 type SandboxEndpoint struct {
-	Name      *string              `json:"name,omitempty"`
-	Endpoint  *string              `json:"endpoint,omitempty"`
-	Type      *string              `json:"type,omitempty"`
-	Region    *string              `json:"region,omitempty"`
-	Whitelist *[]string            `json:"whitelist,omitempty"`
-	Timeout   *int                 `json:"timeout,omitempty"`
-	Http      *SandboxEndpointHttp `json:"http,omitempty"`
-	Tls       *SandboxEndpointTls  `json:"tls,omitempty"`
+	Name        *string              `json:"name,omitempty"`
+	Endpoint    *string              `json:"endpoint,omitempty"`
+	Type        *string              `json:"type,omitempty"`
+	Region      *string              `json:"region,omitempty"`
+	Whitelist   *[]string            `json:"whitelist,omitempty"`
+	Timeout     *int                 `json:"timeout,omitempty"`
+	EndpointUrl *string              `json:"endpoint_url,omitempty"`
+	Http        *SandboxEndpointHttp `json:"http,omitempty"`
+	Tls         *SandboxEndpointTls  `json:"tls,omitempty"`
+}
+
+type SandboxApp struct {
+	Id        string `json:"id"`
+	Command   string `json:"command"`
+	AppStatus string `json:"app_status"`
 }
 
 type Sandboxes struct {
@@ -103,39 +110,41 @@ type Sandboxes struct {
 }
 
 type Sandbox struct {
-	Url             string            `json:"url"`
-	HtmlUrl         string            `json:"html_url"`
-	Id              string            `json:"id"`
-	Identifier      string            `json:"identifier"`
-	Name            string            `json:"name"`
-	Project         *Project          `json:"project"`
-	Status          string            `json:"status"`
-	Os              string            `json:"os"`
-	Resources       string            `json:"resources"`
-	InstallCommands string            `json:"install_commands"`
-	RunCommand      string            `json:"run_command"`
-	AppDir          string            `json:"app_dir"`
-	AppType         string            `json:"app_type"`
-	AppStatus       string            `json:"app_status"`
-	SetupStatus     string            `json:"setup_status"`
-	Tags            []string          `json:"tags"`
-	Endpoints       []SandboxEndpoint `json:"endpoints"`
+	Url               string             `json:"url"`
+	HtmlUrl           string             `json:"html_url"`
+	Id                string             `json:"id"`
+	Identifier        string             `json:"identifier"`
+	Name              string             `json:"name"`
+	Project           *Project           `json:"project"`
+	Status            string             `json:"status"`
+	Os                string             `json:"os"`
+	Resources         string             `json:"resources"`
+	FirstBootCommands string             `json:"first_boot_commands"`
+	BootLogs          []string           `json:"boot_logs"`
+	AppDir            string             `json:"app_dir"`
+	Timeout           int                `json:"timeout"`
+	Apps              []*SandboxApp      `json:"apps"`
+	SetupStatus       string             `json:"setup_status"`
+	Tags              []string           `json:"tags"`
+	Endpoints         []*SandboxEndpoint `json:"endpoints"`
+	Variables         []*Variable        `json:"variables"`
 }
 
 type SandboxStatusOps struct {
 }
 
 type SandboxOps struct {
-	Name            *string            `json:"name,omitempty"`
-	Identifier      *string            `json:"identifier,omitempty"`
-	Os              *string            `json:"os,omitempty"`
-	Resources       *string            `json:"resources,omitempty"`
-	InstallCommands *string            `json:"install_commands,omitempty"`
-	RunCommand      *string            `json:"run_command,omitempty"`
-	AppDir          *string            `json:"app_dir,omitempty"`
-	AppType         *string            `json:"app_type,omitempty"`
-	Tags            *[]string          `json:"tags,omitempty"`
-	Endpoints       *[]SandboxEndpoint `json:"endpoints,omitempty"`
+	Name              *string             `json:"name,omitempty"`
+	Identifier        *string             `json:"identifier,omitempty"`
+	Os                *string             `json:"os,omitempty"`
+	Resources         *string             `json:"resources,omitempty"`
+	FirstBootCommands *string             `json:"first_boot_commands,omitempty"`
+	AppDir            *string             `json:"app_dir,omitempty"`
+	Apps              *[]string           `json:"apps,omitempty"`
+	Tags              *[]string           `json:"tags,omitempty"`
+	Timeout           *int                `json:"timeout,omitempty"`
+	Variables         *[]*VariableOps     `json:"variables,omitempty"`
+	Endpoints         *[]*SandboxEndpoint `json:"endpoints,omitempty"`
 }
 
 func (s *SandboxService) Create(workspaceDomain string, projectName string, ops *SandboxOps) (*Sandbox, *http.Response, error) {
@@ -231,11 +240,18 @@ func (s *SandboxService) WaitForAppStatuses(workspaceDomain string, sandboxId st
 		if sb == nil {
 			return false
 		}
-		for _, status := range statuses {
-			if sb.AppStatus == status {
-				return true
+		for _, app := range sb.Apps {
+			hasStatus := false
+			for _, status := range statuses {
+				if app.AppStatus == status {
+					hasStatus = true
+					break
+				}
+			}
+			if !hasStatus {
+				return false
 			}
 		}
-		return false
+		return true
 	})
 }
