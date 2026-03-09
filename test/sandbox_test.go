@@ -115,8 +115,11 @@ func testSandboxDelete(client *buddy.Client, workspace *buddy.Workspace, out *bu
 
 func TestSandbox(t *testing.T) {
 	seed, err := SeedInitialData(&SeedOps{
-		workspace: true,
-		project:   true,
+		workspace:     true,
+		project:       true,
+		member:        true,
+		permission:    true,
+		projectMember: true,
 	})
 	if err != nil {
 		t.Fatal(ErrorFormatted("SeedInitialData", err))
@@ -147,6 +150,15 @@ func TestSandbox(t *testing.T) {
 		Key:   &variableKey,
 		Value: &variableVal,
 	}}
+	perms := buddy.SandboxPermissions{
+		Others: buddy.SandboxPermissionReadOnly,
+		Users: []*buddy.SandboxResourcePermission{
+			{
+				Id:          seed.Member.Id,
+				AccessLevel: buddy.SandboxPermissionManage,
+			},
+		},
+	}
 	apps := []string{app}
 	createOps := buddy.SandboxOps{
 		Name:              &name,
@@ -160,11 +172,22 @@ func TestSandbox(t *testing.T) {
 		Timeout:           &timeout,
 		Endpoints:         &endpoints,
 		Variables:         &variables,
+		Permissions:       &perms,
+	}
+	newPerms := buddy.SandboxPermissions{
+		Others: buddy.SandboxPermissionDenied,
+		Users: []*buddy.SandboxResourcePermission{
+			{
+				Id:          seed.Member.Id,
+				AccessLevel: buddy.SandboxPermissionReadOnly,
+			},
+		},
 	}
 	updateOps := buddy.SandboxOps{
-		Name:       &newName,
-		Identifier: &newIdentifier,
-		Tags:       &newTags,
+		Name:        &newName,
+		Identifier:  &newIdentifier,
+		Tags:        &newTags,
+		Permissions: &newPerms,
 	}
 	var sandbox buddy.Sandbox
 	t.Run("Create", testSandboxCreate(seed.Client, seed.Workspace, seed.Project, &createOps, &sandbox))

@@ -1,4 +1,7 @@
-# Release v1.39.0 (2025-01-16)
+# Release v1.40.0 (2025-03-10)
+* Adds permissions to sandboxes
+
+# Release v1.39.0 (2025-03-10)
 * [Breaking] Changes to sandbox API
 
 # Release v1.38.0 (2025-01-16)
