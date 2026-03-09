@@ -23,15 +23,17 @@ const (
 	SandboxResource11X22 = "11x22"
 	SandboxResource12X24 = "12x24"
 
-	SandboxAppTypeCmd     = "CMD"
-	SandboxAppTypeService = "SERVICE"
-
 	SandboxEndpointTypeHttp = "HTTP"
 	SandboxEndpointTypeTls  = "TLS"
 	SandboxEndpointTypeTcp  = "TCP"
 
 	SandboxEndpointRegionEu = "EU"
 	SandboxEndpointRegionUs = "US"
+
+	SandboxPermissionDefault  = "DEFAULT"
+	SandboxPermissionManage   = "READ_WRITE"
+	SandboxPermissionReadOnly = "READ_ONLY"
+	SandboxPermissionDenied   = "DENIED"
 
 	SandboxStatusStarting  = "STARTING"
 	SandboxStatusStopping  = "STOPPING"
@@ -109,25 +111,37 @@ type Sandboxes struct {
 	Sandboxes []*Sandbox `json:"sandboxes"`
 }
 
+type SandboxResourcePermission struct {
+	Id          int    `json:"id"`
+	AccessLevel string `json:"access_level"`
+}
+
+type SandboxPermissions struct {
+	Others string                       `json:"others"`
+	Users  []*SandboxResourcePermission `json:"users"`
+	Groups []*SandboxResourcePermission `json:"groups"`
+}
+
 type Sandbox struct {
-	Url               string             `json:"url"`
-	HtmlUrl           string             `json:"html_url"`
-	Id                string             `json:"id"`
-	Identifier        string             `json:"identifier"`
-	Name              string             `json:"name"`
-	Project           *Project           `json:"project"`
-	Status            string             `json:"status"`
-	Os                string             `json:"os"`
-	Resources         string             `json:"resources"`
-	FirstBootCommands string             `json:"first_boot_commands"`
-	BootLogs          []string           `json:"boot_logs"`
-	AppDir            string             `json:"app_dir"`
-	Timeout           int                `json:"timeout"`
-	Apps              []*SandboxApp      `json:"apps"`
-	SetupStatus       string             `json:"setup_status"`
-	Tags              []string           `json:"tags"`
-	Endpoints         []*SandboxEndpoint `json:"endpoints"`
-	Variables         []*Variable        `json:"variables"`
+	Url               string              `json:"url"`
+	HtmlUrl           string              `json:"html_url"`
+	Id                string              `json:"id"`
+	Identifier        string              `json:"identifier"`
+	Name              string              `json:"name"`
+	Project           *Project            `json:"project"`
+	Status            string              `json:"status"`
+	Os                string              `json:"os"`
+	Resources         string              `json:"resources"`
+	FirstBootCommands string              `json:"first_boot_commands"`
+	BootLogs          []string            `json:"boot_logs"`
+	AppDir            string              `json:"app_dir"`
+	Timeout           int                 `json:"timeout"`
+	Apps              []*SandboxApp       `json:"apps"`
+	SetupStatus       string              `json:"setup_status"`
+	Tags              []string            `json:"tags"`
+	Endpoints         []*SandboxEndpoint  `json:"endpoints"`
+	Variables         []*Variable         `json:"variables"`
+	Permissions       *SandboxPermissions `json:"permissions"`
 }
 
 type SandboxStatusOps struct {
@@ -145,6 +159,7 @@ type SandboxOps struct {
 	Timeout           *int                `json:"timeout,omitempty"`
 	Variables         *[]*VariableOps     `json:"variables,omitempty"`
 	Endpoints         *[]*SandboxEndpoint `json:"endpoints,omitempty"`
+	Permissions       *SandboxPermissions `json:"permissions"`
 }
 
 func (s *SandboxService) Create(workspaceDomain string, projectName string, ops *SandboxOps) (*Sandbox, *http.Response, error) {

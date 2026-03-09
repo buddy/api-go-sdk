@@ -139,6 +139,7 @@ type SeedOps struct {
 	project        bool
 	group          bool
 	member         bool
+	projectMember  bool
 	permission     bool
 	pipeline       bool
 	gitIntegration bool
@@ -267,6 +268,17 @@ func SeedInitialData(ops *SeedOps) (*Seed, error) {
 				return nil, err
 			}
 			seed.Permission2 = permission
+		}
+		if ops.project && ops.member && ops.projectMember && ops.permission {
+			_, _, err := client.ProjectMemberService.CreateProjectMember(domain, seed.Project.Name, &buddy.ProjectMemberOps{
+				Id: &seed.Member.Id,
+				PermissionSet: &buddy.ProjectMemberOps{
+					Id: &seed.Permission.Id,
+				},
+			})
+			if err != nil {
+				return nil, err
+			}
 		}
 	}
 	return &seed, nil
@@ -1341,6 +1353,7 @@ func CheckSandbox(sandbox *buddy.Sandbox, expected *buddy.Sandbox, ops *buddy.Sa
 	installCommands := expected.FirstBootCommands
 	appDir := expected.AppDir
 	timeout := expected.Timeout
+	perms := expected.Permissions
 	var app string
 	var varKey string
 	var varVal string
@@ -1391,6 +1404,9 @@ func CheckSandbox(sandbox *buddy.Sandbox, expected *buddy.Sandbox, ops *buddy.Sa
 		}
 		if ops.Name != nil {
 			name = *ops.Name
+		}
+		if ops.Permissions != nil {
+			perms = ops.Permissions
 		}
 	}
 	lenEndpoints := len(endpoints)
@@ -1477,6 +1493,17 @@ func CheckSandbox(sandbox *buddy.Sandbox, expected *buddy.Sandbox, ops *buddy.Sa
 	}
 	if lenEndpoints > 0 {
 		if err := CheckSandboxEndpoint(sandbox.Endpoints[0], endpoints[0]); err != nil {
+			return err
+		}
+	}
+	if perms != nil {
+		if err := CheckFieldEqualAndSet("Sandbox.Permissions.Others", sandbox.Permissions.Others, perms.Others); err != nil {
+			return err
+		}
+		if err := CheckIntFieldEqualAndSet("Sandbox.Permissions.Users", len(sandbox.Permissions.Users), len(perms.Users)); err != nil {
+			return err
+		}
+		if err := CheckFieldEqualAndSet("Sandbox.Permissions.Users[0].AccessLevel", sandbox.Permissions.Users[0].AccessLevel, perms.Users[0].AccessLevel); err != nil {
 			return err
 		}
 	}
