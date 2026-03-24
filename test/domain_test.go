@@ -9,8 +9,10 @@ import (
 func testDomainCreate(client *buddy.Client, workspace *buddy.Workspace, out *buddy.Domain) func(t *testing.T) {
 	return func(t *testing.T) {
 		name := RandDomain()
+		typ := buddy.DomainTypePointed
 		ops := buddy.DomainCreateOps{
 			Name: &name,
+			Type: &typ,
 		}
 		domain, _, err := client.DomainService.Create(workspace.Domain, &ops)
 		if err != nil {

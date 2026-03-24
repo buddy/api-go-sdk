@@ -251,6 +251,7 @@ type Domain struct {
 
 type DomainCreateOps struct {
 	Name *string `json:"name"`
+	Type *string `json:"type"`
 }
 
 type RecordUpsertOps struct {
@@ -277,7 +278,7 @@ func (s *DomainService) GetList(workspaceDomain string) (*Domains, *http.Respons
 
 func (s *DomainService) Create(workspaceDomain string, ops *DomainCreateOps) (*Domain, *http.Response, error) {
 	var d *Domain
-	resp, err := s.client.Create(s.client.NewUrlPath("/workspaces/%s/domains/point", workspaceDomain), &ops, nil, &d)
+	resp, err := s.client.Create(s.client.NewUrlPath("/workspaces/%s/domains", workspaceDomain), &ops, nil, &d)
 	return d, resp, err
 }
 
