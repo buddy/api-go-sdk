@@ -27,6 +27,15 @@ const (
 
 	TargetPermissionManage  = "MANAGE"
 	TargetPermissionUseOnly = "USE_ONLY"
+
+	TargetPipelineAccessLevelDenied    = "DENIED"
+	TargetPipelineAccessLevelReadOnly  = "READ_ONLY"
+	TargetPipelineAccessLevelReadWrite = "READ_WRITE"
+	TargetPipelineAccessLevelUseOnly   = "USE_ONLY"
+
+	TargetSandboxAccessLevelDenied    = "DENIED"
+	TargetSandboxAccessLevelReadOnly  = "READ_ONLY"
+	TargetSandboxAccessLevelReadWrite = "READ_WRITE"
 )
 
 type TargetService struct {
@@ -78,54 +87,65 @@ type TargetPermissions struct {
 }
 
 type TargetAllowedPipeline struct {
-	Project  string `json:"project"`
-	Pipeline string `json:"pipeline"`
+	Project     string `json:"project"`
+	Pipeline    string `json:"pipeline"`
+	AccessLevel string `json:"access_level"`
+}
+
+type TargetAllowedSandbox struct {
+	Project     string `json:"project"`
+	Sandbox     string `json:"sandbox"`
+	AccessLevel string `json:"access_level"`
 }
 
 type Target struct {
-	Url                 string                   `json:"url"`
-	HtmlUrl             string                   `json:"html_url"`
-	Id                  string                   `json:"id"`
-	Identifier          string                   `json:"identifier"`
-	Tags                []string                 `json:"tags"`
-	Name                string                   `json:"name"`
-	Type                string                   `json:"type"`
-	Host                string                   `json:"host"`
-	Scope               string                   `json:"scope"`
-	Repository          string                   `json:"repository"`
-	Port                string                   `json:"port"`
-	Path                string                   `json:"path"`
-	Secure              bool                     `json:"secure"`
-	Integration         string                   `json:"integration"`
-	Disabled            bool                     `json:"disabled"`
-	Auth                *TargetAuth              `json:"auth"`
-	Proxy               *TargetProxy             `json:"proxy"`
-	Permissions         *TargetPermissions       `json:"permissions"`
-	AllowedPipelines    []*TargetAllowedPipeline `json:"allowed_pipelines"`
-	AllPipelinesAllowed bool                     `json:"all_pipelines_allowed"`
+	Url                  string                   `json:"url"`
+	HtmlUrl              string                   `json:"html_url"`
+	Id                   string                   `json:"id"`
+	Identifier           string                   `json:"identifier"`
+	Tags                 []string                 `json:"tags"`
+	Name                 string                   `json:"name"`
+	Type                 string                   `json:"type"`
+	Host                 string                   `json:"host"`
+	Scope                string                   `json:"scope"`
+	Repository           string                   `json:"repository"`
+	Port                 string                   `json:"port"`
+	Path                 string                   `json:"path"`
+	Secure               bool                     `json:"secure"`
+	Integration          string                   `json:"integration"`
+	Disabled             bool                     `json:"disabled"`
+	Auth                 *TargetAuth              `json:"auth"`
+	Proxy                *TargetProxy             `json:"proxy"`
+	Permissions          *TargetPermissions       `json:"permissions"`
+	AllowedPipelines     []*TargetAllowedPipeline `json:"allowed_pipelines"`
+	AllowedSandboxes     []*TargetAllowedSandbox  `json:"allowed_sandboxes"`
+	SandboxesAccessLevel string                   `json:"sandboxes_access_level"`
+	PipelinesAccessLevel string                   `json:"pipelines_access_level"`
 }
 
 type TargetOps struct {
-	Identifier          *string                   `json:"identifier,omitempty"`
-	Name                *string                   `json:"name,omitempty"`
-	Tags                *[]string                 `json:"tags,omitempty"`
-	Type                *string                   `json:"type,omitempty"`
-	Host                *string                   `json:"host,omitempty"`
-	Scope               *string                   `json:"scope,omitempty"`
-	Repository          *string                   `json:"repository,omitempty"`
-	Port                *string                   `json:"port,omitempty"`
-	Path                *string                   `json:"path,omitempty"`
-	Secure              *bool                     `json:"secure,omitempty"`
-	Integration         *string                   `json:"integration,omitempty"`
-	Disabled            *bool                     `json:"disabled,omitempty"`
-	Auth                *TargetAuth               `json:"auth,omitempty"`
-	Project             *TargetProject            `json:"project,omitempty"`
-	Pipeline            *TargetPipeline           `json:"pipeline,omitempty"`
-	Environment         *TargetEnvironment        `json:"environment,omitempty"`
-	Proxy               *TargetProxy              `json:"proxy,omitempty"`
-	Permissions         *TargetPermissions        `json:"permissions,omitempty"`
-	AllPipelinesAllowed *bool                     `json:"all_pipelines_allowed,omitempty"`
-	AllowedPipelines    *[]*TargetAllowedPipeline `json:"allowed_pipelines,omitempty"`
+	Identifier           *string                   `json:"identifier,omitempty"`
+	Name                 *string                   `json:"name,omitempty"`
+	Tags                 *[]string                 `json:"tags,omitempty"`
+	Type                 *string                   `json:"type,omitempty"`
+	Host                 *string                   `json:"host,omitempty"`
+	Scope                *string                   `json:"scope,omitempty"`
+	Repository           *string                   `json:"repository,omitempty"`
+	Port                 *string                   `json:"port,omitempty"`
+	Path                 *string                   `json:"path,omitempty"`
+	Secure               *bool                     `json:"secure,omitempty"`
+	Integration          *string                   `json:"integration,omitempty"`
+	Disabled             *bool                     `json:"disabled,omitempty"`
+	Auth                 *TargetAuth               `json:"auth,omitempty"`
+	Project              *TargetProject            `json:"project,omitempty"`
+	Pipeline             *TargetPipeline           `json:"pipeline,omitempty"`
+	Environment          *TargetEnvironment        `json:"environment,omitempty"`
+	Proxy                *TargetProxy              `json:"proxy,omitempty"`
+	Permissions          *TargetPermissions        `json:"permissions,omitempty"`
+	PipelinesAccessLevel *string                   `json:"pipelines_access_level,omitempty"`
+	AllowedPipelines     *[]*TargetAllowedPipeline `json:"allowed_pipelines,omitempty"`
+	SandboxesAccessLevel *string                   `json:"sandboxes_access_level,omitempty"`
+	AllowedSandboxes     *[]*TargetAllowedSandbox  `json:"allowed_sandboxes,omitempty"`
 }
 
 type TargetGetListQuery struct {

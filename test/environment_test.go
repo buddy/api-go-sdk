@@ -88,32 +88,32 @@ func TestEnvironmentWorkspace(t *testing.T) {
 	newPublicUrl := "https://bing.com"
 	tags := []string{"aaa"}
 	newTags := []string{} // must be like that to proper json encode
-	allPipAllowed := true
-	newAllPipAllowed := false
-	allEnvsAllowed := false
-	newAllEnvsAllowed := true
+	allPipAllowed := buddy.EnvironmentAccessLevelUseOnly
+	newAllPipAllowed := buddy.EnvironmentAccessLevelDenied
+	allEnvsAllowed := buddy.EnvironmentAccessLevelUseOnly
+	newAllEnvsAllowed := buddy.EnvironmentAccessLevelDenied
 	baseOnly := true
 	newBaseOnly := false
 	scope := buddy.EnvironmentScopeWorkspace
 	ops := buddy.EnvironmentOps{
-		Name:                   &name,
-		Identifier:             &identifier,
-		PublicUrl:              &publicUrl,
-		Tags:                   &tags,
-		AllPipelinesAllowed:    &allPipAllowed,
-		AllEnvironmentsAllowed: &allEnvsAllowed,
-		BaseOnly:               &baseOnly,
-		Scope:                  &scope,
+		Name:                    &name,
+		Identifier:              &identifier,
+		PublicUrl:               &publicUrl,
+		Tags:                    &tags,
+		PipelinesAccessLevel:    &allPipAllowed,
+		EnvironmentsAccessLevel: &allEnvsAllowed,
+		BaseOnly:                &baseOnly,
+		Scope:                   &scope,
 	}
 	updOps := buddy.EnvironmentOps{
-		Name:                   &newName,
-		Identifier:             &newIdentifier,
-		PublicUrl:              &newPublicUrl,
-		Tags:                   &newTags,
-		BaseOnly:               &newBaseOnly,
-		AllPipelinesAllowed:    &newAllPipAllowed,
-		AllEnvironmentsAllowed: &newAllEnvsAllowed,
-		Scope:                  &scope,
+		Name:                    &newName,
+		Identifier:              &newIdentifier,
+		PublicUrl:               &newPublicUrl,
+		Tags:                    &newTags,
+		BaseOnly:                &newBaseOnly,
+		PipelinesAccessLevel:    &newAllPipAllowed,
+		EnvironmentsAccessLevel: &newAllEnvsAllowed,
+		Scope:                   &scope,
 	}
 	var environment buddy.Environment
 	t.Run("Create", testEnvironmentCreate(seed.Client, seed.Workspace, &ops, &environment))
@@ -176,35 +176,35 @@ func TestEnvironment(t *testing.T) {
 	newPerms := buddy.EnvironmentPermissions{
 		Others: buddy.EnvironmentPermissionAccessLevelManage,
 	}
-	allPipAllowed := true
-	newAllPipAllowed := false
-	allEnvsAllowed := true
-	newAllEnvsAllowed := false
+	allPipAllowed := buddy.EnvironmentAccessLevelDenied
+	newAllPipAllowed := buddy.EnvironmentAccessLevelUseOnly
+	allEnvsAllowed := buddy.EnvironmentAccessLevelUseOnly
+	newAllEnvsAllowed := buddy.EnvironmentAccessLevelDenied
 	scope := buddy.EnvironmentScopeProject
 	ops := buddy.EnvironmentOps{
-		Name:                   &name,
-		Identifier:             &identifier,
-		PublicUrl:              &publicUrl,
-		Icon:                   &icon,
-		Tags:                   &tags,
-		Permissions:            &perms,
-		AllPipelinesAllowed:    &allPipAllowed,
-		AllEnvironmentsAllowed: &allEnvsAllowed,
+		Name:                    &name,
+		Identifier:              &identifier,
+		PublicUrl:               &publicUrl,
+		Icon:                    &icon,
+		Tags:                    &tags,
+		Permissions:             &perms,
+		PipelinesAccessLevel:    &allPipAllowed,
+		EnvironmentsAccessLevel: &allEnvsAllowed,
 		Project: &buddy.ProjectSimple{
 			Name: seed.Project.Name,
 		},
 		Scope: &scope,
 	}
 	updOps := buddy.EnvironmentOps{
-		Name:                   &newName,
-		Identifier:             &newIdentifier,
-		PublicUrl:              &newPublicUrl,
-		Icon:                   &newIcon,
-		Tags:                   &newTags,
-		Permissions:            &newPerms,
-		AllPipelinesAllowed:    &newAllPipAllowed,
-		AllEnvironmentsAllowed: &newAllEnvsAllowed,
-		Scope:                  &scope,
+		Name:                    &newName,
+		Identifier:              &newIdentifier,
+		PublicUrl:               &newPublicUrl,
+		Icon:                    &newIcon,
+		Tags:                    &newTags,
+		Permissions:             &newPerms,
+		PipelinesAccessLevel:    &newAllPipAllowed,
+		EnvironmentsAccessLevel: &newAllEnvsAllowed,
+		Scope:                   &scope,
 	}
 	var environment buddy.Environment
 	t.Run("Create", testEnvironmentCreate(seed.Client, seed.Workspace, &ops, &environment))

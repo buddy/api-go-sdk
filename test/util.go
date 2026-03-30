@@ -1164,8 +1164,8 @@ func CheckEnvironment(environment *buddy.Environment, expected *buddy.Environmen
 	tags := expected.Tags
 	icon := expected.Icon
 	publicUrl := expected.PublicUrl
-	allPipelineAllowed := expected.AllPipelinesAllowed
-	allEnvsAllowed := expected.AllEnvironmentsAllowed
+	pipAccessLevel := expected.PipelinesAccessLevel
+	envAccessLevel := expected.EnvironmentsAccessLevel
 	baseOnly := expected.BaseOnly
 	scope := expected.Scope
 	vars := expected.Variables
@@ -1186,11 +1186,11 @@ func CheckEnvironment(environment *buddy.Environment, expected *buddy.Environmen
 		if ops.PublicUrl != nil {
 			publicUrl = *ops.PublicUrl
 		}
-		if ops.AllPipelinesAllowed != nil {
-			allPipelineAllowed = *ops.AllPipelinesAllowed
+		if ops.PipelinesAccessLevel != nil {
+			pipAccessLevel = *ops.PipelinesAccessLevel
 		}
-		if ops.AllEnvironmentsAllowed != nil {
-			allEnvsAllowed = *ops.AllEnvironmentsAllowed
+		if ops.EnvironmentsAccessLevel != nil {
+			envAccessLevel = *ops.EnvironmentsAccessLevel
 		}
 		if ops.BaseOnly != nil {
 			baseOnly = *ops.BaseOnly
@@ -1234,10 +1234,10 @@ func CheckEnvironment(environment *buddy.Environment, expected *buddy.Environmen
 	if err := CheckFieldEqual("Environment.PublicUrl", environment.PublicUrl, publicUrl); err != nil {
 		return err
 	}
-	if err := CheckBoolFieldEqual("Environment.AllPipelinesAllowed", environment.AllPipelinesAllowed, allPipelineAllowed); err != nil {
+	if err := CheckFieldEqualAndSet("Environment.PipelinesAccessLevel", environment.PipelinesAccessLevel, pipAccessLevel); err != nil {
 		return err
 	}
-	if err := CheckBoolFieldEqual("Environment.AllEnvironmentsAllowed", environment.AllEnvironmentsAllowed, allEnvsAllowed); err != nil {
+	if err := CheckFieldEqualAndSet("Environment.EnvironmentsAccessLevel", environment.EnvironmentsAccessLevel, envAccessLevel); err != nil {
 		return err
 	}
 	if err := CheckBoolFieldEqual("Environment.BaseOnly", environment.BaseOnly, baseOnly); err != nil {
