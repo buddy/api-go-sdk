@@ -35,8 +35,8 @@ func CheckTarget(target *buddy.Target, want *buddy.TargetOps) error {
 			return err
 		}
 	}
-	if want.AllPipelinesAllowed != nil {
-		if err := CheckBoolFieldEqual("AllPipelinesAllowed", target.AllPipelinesAllowed, *want.AllPipelinesAllowed); err != nil {
+	if want.PipelinesAccessLevel != nil {
+		if err := CheckFieldEqualAndSet("PipelinesAccessLevel", target.PipelinesAccessLevel, *want.PipelinesAccessLevel); err != nil {
 			return err
 		}
 	}
@@ -48,6 +48,9 @@ func CheckTarget(target *buddy.Target, want *buddy.TargetOps) error {
 			return err
 		}
 		if err := CheckFieldEqualAndSet("AllowedPipelines[0].Pipeline", target.AllowedPipelines[0].Pipeline, (*want.AllowedPipelines)[0].Pipeline); err != nil {
+			return err
+		}
+		if err := CheckFieldEqualAndSet("AllowedPipelines[0].AccessLevel", target.AllowedPipelines[0].AccessLevel, (*want.AllowedPipelines)[0].AccessLevel); err != nil {
 			return err
 		}
 	}
@@ -167,7 +170,7 @@ func testTargetFtps(client *buddy.Client, workspaceDomain string) func(t *testin
 		port := "33"
 		secure := true
 		disabled := true
-		allPipelines := true
+		allPipelines := buddy.TargetPipelineAccessLevelDenied
 		username := RandString(10)
 		password := RandString(10)
 		auth := buddy.TargetAuth{
@@ -175,15 +178,15 @@ func testTargetFtps(client *buddy.Client, workspaceDomain string) func(t *testin
 			Password: password,
 		}
 		ops := buddy.TargetOps{
-			Name:                &name,
-			Identifier:          &identifier,
-			Type:                &typ,
-			Host:                &host,
-			Port:                &port,
-			Secure:              &secure,
-			Auth:                &auth,
-			Disabled:            &disabled,
-			AllPipelinesAllowed: &allPipelines,
+			Name:                 &name,
+			Identifier:           &identifier,
+			Type:                 &typ,
+			Host:                 &host,
+			Port:                 &port,
+			Secure:               &secure,
+			Auth:                 &auth,
+			Disabled:             &disabled,
+			PipelinesAccessLevel: &allPipelines,
 		}
 		target, _, err := client.TargetService.Create(workspaceDomain, &ops)
 		if err != nil {
@@ -386,10 +389,11 @@ func testTargetSshProxyCredentials(client *buddy.Client, workspaceDomain string,
 		host := "1.1.1.1"
 		port := "44"
 		path := RandString(10)
-		allPipelines := false
+		allPipelines := buddy.TargetPipelineAccessLevelUseOnly
 		allowedPipeline := buddy.TargetAllowedPipeline{
-			Project:  project.Name,
-			Pipeline: pipeline.Identifier,
+			Project:     project.Name,
+			Pipeline:    pipeline.Identifier,
+			AccessLevel: buddy.TargetPipelineAccessLevelDenied,
 		}
 		auth := buddy.TargetAuth{
 			Method: buddy.TargetAuthMethodProxyCredentials,
@@ -417,8 +421,8 @@ func testTargetSshProxyCredentials(client *buddy.Client, workspaceDomain string,
 			Pipeline: &buddy.TargetPipeline{
 				Id: pipeline.Id,
 			},
-			AllPipelinesAllowed: &allPipelines,
-			AllowedPipelines:    &[]*buddy.TargetAllowedPipeline{&allowedPipeline},
+			PipelinesAccessLevel: &allPipelines,
+			AllowedPipelines:     &[]*buddy.TargetAllowedPipeline{&allowedPipeline},
 		}
 		target, _, err := client.TargetService.Create(workspaceDomain, &ops)
 		if err != nil {
@@ -661,7 +665,7 @@ func testTargetGitHttp(client *buddy.Client, workspaceDomain string) func(t *tes
 		identifier := UniqueString()
 		repository := "https://a" + UniqueString() + ".com"
 		typ := buddy.TargetTypeGit
-		allPipelines := false
+		allPipelines := buddy.TargetPipelineAccessLevelDenied
 		auth := buddy.TargetAuth{
 			Method:   buddy.TargetAuthMethodHttp,
 			Username: RandString(10),
@@ -669,13 +673,13 @@ func testTargetGitHttp(client *buddy.Client, workspaceDomain string) func(t *tes
 		}
 		tags := []string{"a", "b"}
 		ops := buddy.TargetOps{
-			Name:                &name,
-			Identifier:          &identifier,
-			Repository:          &repository,
-			Tags:                &tags,
-			Type:                &typ,
-			Auth:                &auth,
-			AllPipelinesAllowed: &allPipelines,
+			Name:                 &name,
+			Identifier:           &identifier,
+			Repository:           &repository,
+			Tags:                 &tags,
+			Type:                 &typ,
+			Auth:                 &auth,
+			PipelinesAccessLevel: &allPipelines,
 		}
 		target, _, err := client.TargetService.Create(workspaceDomain, &ops)
 		if err != nil {

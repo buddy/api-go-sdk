@@ -1,16 +1,20 @@
-# Release v1.40.2 (2025-03-24)
+# Release v1.41.0 (2026-03-30)
+* [Breaking] Targets, environments changes to allowed pipelines/environments/sandboxes
+* AllPipelinesAllowed -> PipelinesAccessLevel
+
+# Release v1.40.2 (2026-03-24)
 * Changes to domains API
 
-# Release v1.40.1 (2025-03-16)
+# Release v1.40.1 (2026-03-16)
 * Changes to sandbox API
  
-# Release v1.40.0 (2025-03-10)
+# Release v1.40.0 (2026-03-10)
 * Adds permissions to sandboxes
 
-# Release v1.39.0 (2025-03-10)
+# Release v1.39.0 (2026-03-10)
 * [Breaking] Changes to sandbox API
 
-# Release v1.38.0 (2025-01-16)
+# Release v1.38.0 (2026-01-16)
 * Permission: Added EnvironmentAccessLevel and TargetAccessLevel fields, plus new USE_ONLY access level constant
 * Target: Added AllowedPipelines (with new TargetAllowedPipeline struct) and AllPipelinesAllowed fields
 * Tests: Updated to cover the new fields
