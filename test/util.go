@@ -146,15 +146,14 @@ type SeedOps struct {
 }
 
 type Seed struct {
-	Client         *buddy.Client
-	Workspace      *buddy.Workspace
-	Project        *buddy.Project
-	Group          *buddy.Group
-	Member         *buddy.Member
-	Permission     *buddy.Permission
-	Permission2    *buddy.Permission
-	Pipeline       *buddy.Pipeline
-	GitIntegration *buddy.Integration
+	Client      *buddy.Client
+	Workspace   *buddy.Workspace
+	Project     *buddy.Project
+	Group       *buddy.Group
+	Member      *buddy.Member
+	Permission  *buddy.Permission
+	Permission2 *buddy.Permission
+	Pipeline    *buddy.Pipeline
 }
 
 func SeedInitialData(ops *SeedOps) (*Seed, error) {
@@ -174,23 +173,6 @@ func SeedInitialData(ops *SeedOps) (*Seed, error) {
 			return nil, err
 		}
 		seed.Workspace = workspace
-		if ops.gitIntegration {
-			in := UniqueString()
-			it := buddy.IntegrationTypeGitHub
-			is := buddy.IntegrationScopeWorkspace
-			io := os.Getenv("BUDDY_GH_TOKEN")
-			i := buddy.IntegrationOps{
-				Name:  &in,
-				Type:  &it,
-				Scope: &is,
-				Token: &io,
-			}
-			integration, _, err := client.IntegrationService.Create(domain, &i)
-			if err != nil {
-				return nil, err
-			}
-			seed.GitIntegration = integration
-		}
 		if ops.project {
 			projectDisplayName := UniqueString()
 			p := buddy.ProjectCreateOps{
