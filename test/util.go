@@ -135,14 +135,13 @@ func ErrorFieldSet(field string) error {
 }
 
 type SeedOps struct {
-	workspace      bool
-	project        bool
-	group          bool
-	member         bool
-	projectMember  bool
-	permission     bool
-	pipeline       bool
-	gitIntegration bool
+	workspace     bool
+	project       bool
+	group         bool
+	member        bool
+	projectMember bool
+	permission    bool
+	pipeline      bool
 }
 
 type Seed struct {

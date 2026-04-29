@@ -6,6 +6,7 @@ const (
 	DomainTypeRegistered = "REGISTERED"
 	DomainTypePointed    = "POINTED"
 	DomainTypeClaimed    = "CLAIMED"
+	DomainTypePrivate    = "PRIVATE"
 
 	DomainRecordRoutingGeolocation = "Geolocation"
 	DomainRecordRoutingSimple      = "Simple"
