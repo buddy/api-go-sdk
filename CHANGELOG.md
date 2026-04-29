@@ -1,3 +1,6 @@
+# Release v1.41.1 (2026-04-29)
+* Adds PRIVATE domain type
+
 # Release v1.41.0 (2026-03-30)
 * [Breaking] Targets, environments changes to allowed pipelines/environments/sandboxes
 * AllPipelinesAllowed -> PipelinesAccessLevel
