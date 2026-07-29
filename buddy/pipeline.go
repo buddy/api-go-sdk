@@ -82,6 +82,7 @@ type Pipeline struct {
 	Id                        int                         `json:"id"`
 	Identifier                string                      `json:"identifier"`
 	Name                      string                      `json:"name"`
+	Note                      string                      `json:"note"`
 	Refs                      []string                    `json:"refs"`
 	Events                    []*PipelineEvent            `json:"events"`
 	TriggerConditions         []*PipelineTriggerCondition `json:"trigger_conditions"`
@@ -188,6 +189,7 @@ type PipelineService struct {
 
 type PipelineOps struct {
 	Name                      *string                      `json:"name,omitempty"`
+	Note                      *string                      `json:"note,omitempty"`
 	Identifier                *string                      `json:"identifier,omitempty"`
 	Refs                      *[]string                    `json:"refs,omitempty"`
 	Tags                      *[]string                    `json:"tags,omitempty"`

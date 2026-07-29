@@ -8,14 +8,16 @@ import (
 func testMemberCreate(client *buddy.Client, workspace *buddy.Workspace, out *buddy.Member) func(t *testing.T) {
 	return func(t *testing.T) {
 		email := RandEmail()
+		note := RandString(10)
 		ops := buddy.MemberCreateOps{
 			Email: &email,
+			Note:  &note,
 		}
 		member, _, err := client.MemberService.Create(workspace.Domain, &ops)
 		if err != nil {
 			t.Fatal(ErrorFormatted("MemberService.Create", err))
 		}
-		err = CheckMember(member, email, "", false, 0, false, false, 0, "")
+		err = CheckMember(member, email, "", note, false, 0, false, false, 0, "")
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -26,15 +28,17 @@ func testMemberCreate(client *buddy.Client, workspace *buddy.Workspace, out *bud
 func testMemberUpdateAssignToProject(client *buddy.Client, workspace *buddy.Workspace, permission *buddy.Permission, out *buddy.Member) func(t *testing.T) {
 	return func(t *testing.T) {
 		assign := true
+		newNote := RandString(10)
 		ops := buddy.MemberUpdateOps{
 			AutoAssignToNewProjects:   &assign,
 			AutoAssignPermissionSetId: &permission.Id,
+			Note:                      &newNote,
 		}
 		memberUpdated, _, err := client.MemberService.Update(workspace.Domain, out.Id, &ops)
 		if err != nil {
 			t.Fatal(ErrorFormatted("MemberService.Update", err))
 		}
-		err = CheckMember(memberUpdated, out.Email, out.Name, assign, permission.Id, out.Admin, out.WorkspaceOwner, out.Id, "")
+		err = CheckMember(memberUpdated, out.Email, out.Name, newNote, assign, permission.Id, out.Admin, out.WorkspaceOwner, out.Id, "")
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -45,14 +49,16 @@ func testMemberUpdateAssignToProject(client *buddy.Client, workspace *buddy.Work
 func testMemberUpdateAdmin(client *buddy.Client, workspace *buddy.Workspace, out *buddy.Member) func(t *testing.T) {
 	return func(t *testing.T) {
 		admin := true
+		note := ""
 		ops := buddy.MemberUpdateOps{
 			Admin: &admin,
+			Note:  &note,
 		}
 		memberUpdated, _, err := client.MemberService.Update(workspace.Domain, out.Id, &ops)
 		if err != nil {
 			t.Fatal(ErrorFormatted("MemberService.Update", err))
 		}
-		err = CheckMember(memberUpdated, out.Email, out.Name, out.AutoAssignToNewProjects, out.AutoAssignPermissionSetId, admin, out.WorkspaceOwner, out.Id, "")
+		err = CheckMember(memberUpdated, out.Email, out.Name, note, out.AutoAssignToNewProjects, out.AutoAssignPermissionSetId, admin, out.WorkspaceOwner, out.Id, "")
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -66,7 +72,7 @@ func testMemberGet(client *buddy.Client, workspace *buddy.Workspace, out *buddy.
 		if err != nil {
 			t.Fatal(ErrorFormatted("MemberService.Get", err))
 		}
-		err = CheckMember(memberGet, out.Email, out.Name, out.AutoAssignToNewProjects, out.AutoAssignPermissionSetId, out.Admin, out.WorkspaceOwner, out.Id, "")
+		err = CheckMember(memberGet, out.Email, out.Name, out.Note, out.AutoAssignToNewProjects, out.AutoAssignPermissionSetId, out.Admin, out.WorkspaceOwner, out.Id, "")
 		if err != nil {
 			t.Fatal(err)
 		}

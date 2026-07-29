@@ -49,6 +49,7 @@ type Integration struct {
 	HtmlUrl             string                  `json:"html_url"`
 	HashId              string                  `json:"hash_id"`
 	Name                string                  `json:"name"`
+	Note                string                  `json:"note"`
 	Type                string                  `json:"type"`
 	AuthType            string                  `json:"auth_type"`
 	Scope               string                  `json:"scope"`
@@ -69,6 +70,7 @@ type IntegrationOps struct {
 	Type                *string                 `json:"type,omitempty"`
 	Scope               *string                 `json:"scope,omitempty"`
 	ProjectName         *string                 `json:"project_name,omitempty"`
+	Note                *string                 `json:"note,omitempty"`
 	Username            *string                 `json:"username,omitempty"`
 	Shop                *string                 `json:"shop,omitempty"`
 	Token               *string                 `json:"token,omitempty"`

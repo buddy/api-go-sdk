@@ -23,7 +23,7 @@ type Variable struct {
 	Type           string               `json:"type"`
 	Encrypted      bool                 `json:"encrypted"`
 	Settable       bool                 `json:"settable"`
-	Description    string               `json:"description"`
+	Note           string               `json:"note"`
 	FilePath       string               `json:"file_path"`
 	FileChmod      string               `json:"file_chmod"`
 	FilePlace      string               `json:"file_place"`
@@ -46,7 +46,7 @@ type VariableOps struct {
 	Key         *string              `json:"key,omitempty"`
 	Value       *string              `json:"value,omitempty"`
 	Type        *string              `json:"type,omitempty"`
-	Description *string              `json:"description,omitempty"`
+	Note        *string              `json:"note,omitempty"`
 	Settable    *bool                `json:"settable,omitempty"`
 	Encrypted   *bool                `json:"encrypted,omitempty"`
 	Project     *VariableProject     `json:"project,omitempty"`

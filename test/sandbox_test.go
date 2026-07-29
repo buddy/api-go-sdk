@@ -125,7 +125,9 @@ func TestSandbox(t *testing.T) {
 		t.Fatal(ErrorFormatted("SeedInitialData", err))
 	}
 	name := RandString(10)
+	note := RandString(10)
 	newName := RandString(10)
+	newNote := ""
 	identifier := UniqueString()
 	newIdentifier := UniqueString()
 	os := buddy.SandboxOsUbuntu2204
@@ -162,6 +164,7 @@ func TestSandbox(t *testing.T) {
 	apps := []string{app}
 	createOps := buddy.SandboxOps{
 		Name:              &name,
+		Note:              &note,
 		Identifier:        &identifier,
 		Os:                &os,
 		Resources:         &resources,
@@ -185,6 +188,7 @@ func TestSandbox(t *testing.T) {
 	}
 	updateOps := buddy.SandboxOps{
 		Name:        &newName,
+		Note:        &newNote,
 		Identifier:  &newIdentifier,
 		Tags:        &newTags,
 		Permissions: &newPerms,

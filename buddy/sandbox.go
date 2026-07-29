@@ -128,6 +128,7 @@ type Sandbox struct {
 	Id                string              `json:"id"`
 	Identifier        string              `json:"identifier"`
 	Name              string              `json:"name"`
+	Note              string              `json:"note"`
 	Project           *Project            `json:"project"`
 	Status            string              `json:"status"`
 	Os                string              `json:"os"`
@@ -149,6 +150,7 @@ type SandboxStatusOps struct {
 
 type SandboxOps struct {
 	Name              *string             `json:"name,omitempty"`
+	Note              *string             `json:"note,omitempty"`
 	Identifier        *string             `json:"identifier,omitempty"`
 	Os                *string             `json:"os,omitempty"`
 	Resources         *string             `json:"resources,omitempty"`
