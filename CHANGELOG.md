@@ -1,3 +1,6 @@
+# Release v1.42.0 (2026-07-29)
+* Adds note to various resources
+
 # Release v1.41.1 (2026-04-29)
 * Adds PRIVATE domain type
 
