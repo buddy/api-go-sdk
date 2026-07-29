@@ -18,12 +18,12 @@ func testVariableCreate(client *buddy.Client, workspace *buddy.Workspace, projec
 		filePath := ""
 		filePlace := ""
 		ops := buddy.VariableOps{
-			Key:         &key,
-			Value:       &val,
-			Type:        &typ,
-			Description: &desc,
-			Settable:    &set,
-			Encrypted:   &enc,
+			Key:       &key,
+			Value:     &val,
+			Type:      &typ,
+			Note:      &desc,
+			Settable:  &set,
+			Encrypted: &enc,
 		}
 		if typ == buddy.VariableTypeSshKey {
 			val = privateKey
@@ -71,11 +71,11 @@ func testVariableUpdate(client *buddy.Client, workspace *buddy.Workspace, projec
 		filePlace := ""
 		fileChmod := ""
 		ops := buddy.VariableOps{
-			Value:       &val,
-			Description: &desc,
-			Settable:    &set,
-			Encrypted:   &enc,
-			Type:        &out.Type,
+			Value:     &val,
+			Note:      &desc,
+			Settable:  &set,
+			Encrypted: &enc,
+			Type:      &out.Type,
 		}
 		if out.Type == buddy.VariableTypeSshKey {
 			val = privateKey
@@ -105,7 +105,7 @@ func testVariableGet(client *buddy.Client, workspace *buddy.Workspace, project *
 		if err != nil {
 			t.Fatal(ErrorFormatted("VariableService.Get", err))
 		}
-		err = CheckVariable(variable, out.Key, out.Value, out.Type, out.Description, out.Settable, out.Encrypted, out.FilePath, out.FileChmod, out.FilePlace, out.Id, project, env)
+		err = CheckVariable(variable, out.Key, out.Value, out.Type, out.Note, out.Settable, out.Encrypted, out.FilePath, out.FileChmod, out.FilePlace, out.Id, project, env)
 		if err != nil {
 			t.Fatal(err)
 		}

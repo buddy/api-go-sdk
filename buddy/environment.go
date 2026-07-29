@@ -47,6 +47,7 @@ type Environment struct {
 	HtmlUrl                 string                           `json:"html_url"`
 	Id                      string                           `json:"id"`
 	Name                    string                           `json:"name"`
+	Note                    string                           `json:"note"`
 	Identifier              string                           `json:"identifier"`
 	Tags                    []string                         `json:"tags"`
 	Icon                    string                           `json:"icon"`
@@ -73,6 +74,7 @@ type Environments struct {
 
 type EnvironmentOps struct {
 	Name                    *string                           `json:"name,omitempty"`
+	Note                    *string                           `json:"note,omitempty"`
 	Identifier              *string                           `json:"identifier,omitempty"`
 	PublicUrl               *string                           `json:"public_url,omitempty"`
 	Icon                    *string                           `json:"icon,omitempty"`

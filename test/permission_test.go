@@ -17,7 +17,7 @@ func testPermissionCreate(client *buddy.Client, workspace *buddy.Workspace, out 
 		targetAccessLevel := buddy.PermissionAccessLevelManage
 		ops := buddy.PermissionOps{
 			Name:                   &name,
-			Description:            &desc,
+			Note:                   &desc,
 			PipelineAccessLevel:    &pipelineAccessLevel,
 			RepositoryAccessLevel:  &repositoryAccessLevel,
 			SandboxAccessLevel:     &sandboxAccessLevel,
@@ -49,7 +49,7 @@ func testPermissionUpdate(client *buddy.Client, workspace *buddy.Workspace, out 
 		targetAccessLevel := buddy.PermissionAccessLevelManage
 		ops := buddy.PermissionOps{
 			Name:                   &name,
-			Description:            &desc,
+			Note:                   &desc,
 			PipelineAccessLevel:    &pipelineAccessLevel,
 			RepositoryAccessLevel:  &repositoryAccessLevel,
 			SandboxAccessLevel:     &sandboxAccessLevel,
@@ -75,7 +75,7 @@ func testPermissionGet(client *buddy.Client, workspace *buddy.Workspace, permiss
 		if err != nil {
 			t.Fatal(ErrorFormatted("PermissionService.Get", err))
 		}
-		err = CheckPermission(permissionGet, permission.Name, permission.Description, permission.Id, permission.PipelineAccessLevel, permission.RepositoryAccessLevel, permission.SandboxAccessLevel, permission.ProjectTeamAccessLevel, permission.TargetAccessLevel, permission.EnvironmentAccessLevel)
+		err = CheckPermission(permissionGet, permission.Name, permission.Note, permission.Id, permission.PipelineAccessLevel, permission.RepositoryAccessLevel, permission.SandboxAccessLevel, permission.ProjectTeamAccessLevel, permission.TargetAccessLevel, permission.EnvironmentAccessLevel)
 		if err != nil {
 			t.Fatal(err)
 		}

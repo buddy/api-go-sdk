@@ -141,6 +141,11 @@ func CheckTarget(target *buddy.Target, want *buddy.TargetOps) error {
 			return err
 		}
 	}
+	if want.Note != nil {
+		if err := CheckFieldEqual("Note", target.Note, *want.Note); err != nil {
+			return err
+		}
+	}
 	if want.Permissions != nil {
 		if err := CheckFieldEqualAndSet("Permissions.Others", target.Permissions.Others, want.Permissions.Others); err != nil {
 			return err
@@ -270,9 +275,11 @@ func testTargetPermissionsUpdate(client *buddy.Client, workspaceDomain string, m
 			},
 		}
 		newName := UniqueString()
+		newNote := RandString(10)
 		newIdentifier := UniqueString()
 		ops := buddy.TargetOps{
 			Name:        &newName,
+			Note:        &newNote,
 			Identifier:  &newIdentifier,
 			Type:        &target.Type,
 			Permissions: &perms,
@@ -292,6 +299,7 @@ func testTargetPermissionsUpdate(client *buddy.Client, workspaceDomain string, m
 func testTargetPermissions(client *buddy.Client, workspaceDomain string, memberId int, groupId int, target *buddy.Target) func(t *testing.T) {
 	return func(t *testing.T) {
 		name := UniqueString()
+		note := RandString(10)
 		identifier := UniqueString()
 		typ := buddy.TargetTypeSsh
 		host := "1.1.1.1"
@@ -321,6 +329,7 @@ func testTargetPermissions(client *buddy.Client, workspaceDomain string, memberI
 		}
 		ops := buddy.TargetOps{
 			Name:        &name,
+			Note:        &note,
 			Identifier:  &identifier,
 			Type:        &typ,
 			Host:        &host,

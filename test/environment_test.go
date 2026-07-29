@@ -181,8 +181,11 @@ func TestEnvironment(t *testing.T) {
 	allEnvsAllowed := buddy.EnvironmentAccessLevelUseOnly
 	newAllEnvsAllowed := buddy.EnvironmentAccessLevelDenied
 	scope := buddy.EnvironmentScopeProject
+	note := RandString(10)
+	newNote := ""
 	ops := buddy.EnvironmentOps{
 		Name:                    &name,
+		Note:                    &note,
 		Identifier:              &identifier,
 		PublicUrl:               &publicUrl,
 		Icon:                    &icon,
@@ -197,6 +200,7 @@ func TestEnvironment(t *testing.T) {
 	}
 	updOps := buddy.EnvironmentOps{
 		Name:                    &newName,
+		Note:                    &newNote,
 		Identifier:              &newIdentifier,
 		PublicUrl:               &newPublicUrl,
 		Icon:                    &newIcon,

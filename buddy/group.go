@@ -18,7 +18,7 @@ type Group struct {
 	HtmlUrl                   string `json:"html_url"`
 	Id                        int    `json:"id"`
 	Name                      string `json:"name"`
-	Description               string `json:"description"`
+	Note                      string `json:"note"`
 	AutoAssignToNewProjects   bool   `json:"auto_assign_to_new_projects"`
 	AutoAssignPermissionSetId int    `json:"auto_assign_permission_set_id"`
 }
@@ -31,7 +31,7 @@ type Groups struct {
 
 type GroupOps struct {
 	Name                      *string `json:"name,omitempty"`
-	Description               *string `json:"description,omitempty"`
+	Note                      *string `json:"note,omitempty"`
 	AutoAssignToNewProjects   *bool   `json:"auto_assign_to_new_projects,omitempty"`
 	AutoAssignPermissionSetId *int    `json:"auto_assign_permission_set_id,omitempty"`
 }

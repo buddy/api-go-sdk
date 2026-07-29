@@ -138,7 +138,9 @@ func TestPipelineSchedule(t *testing.T) {
 		t.Fatal(ErrorFormatted("SeedInitialData", err))
 	}
 	name := RandString(10)
+	note := RandString(10)
 	newName := RandString(10)
+	newNote := RandString(10)
 	startDate := time.Now().UTC().Add(time.Hour).Format(time.RFC3339)
 	newStartDate := time.Now().UTC().Add(5 * time.Hour).Format(time.RFC3339)
 	priority := buddy.PipelinePriorityLow
@@ -171,6 +173,7 @@ func TestPipelineSchedule(t *testing.T) {
 	}
 	ops := buddy.PipelineOps{
 		Name:                    &name,
+		Note:                    &note,
 		Priority:                &priority,
 		Events:                  &[]*buddy.PipelineEvent{&event},
 		Paused:                  &paused,
@@ -193,6 +196,7 @@ func TestPipelineSchedule(t *testing.T) {
 	}
 	updateOps := buddy.PipelineOps{
 		Name:                    &newName,
+		Note:                    &newNote,
 		Priority:                &newPriority,
 		Paused:                  &newPaused,
 		Events:                  &[]*buddy.PipelineEvent{&newEvent},

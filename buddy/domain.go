@@ -229,6 +229,7 @@ type Record struct {
 	Url       string              `json:"url"`
 	HtmlUrl   string              `json:"html_url"`
 	Name      string              `json:"name"`
+	Note      string              `json:"note"`
 	Type      string              `json:"type"`
 	Ttl       int                 `json:"ttl"`
 	Routing   string              `json:"routing"`
@@ -256,6 +257,7 @@ type DomainCreateOps struct {
 }
 
 type RecordUpsertOps struct {
+	Note      *string              `json:"note,omitempty"`
 	Routing   *string              `json:"routing,omitempty"`
 	Ttl       *int                 `json:"ttl,omitempty"`
 	Values    *[]string            `json:"values,omitempty"`
