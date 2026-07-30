@@ -24,7 +24,17 @@ const (
 )
 
 func GetClient() (*buddy.Client, error) {
-	return buddy.NewClient(os.Getenv("BUDDY_TOKEN"), os.Getenv("BUDDY_BASE_URL"), os.Getenv("BUDDY_INSECURE") == "true")
+	client, err := buddy.NewClient(os.Getenv("BUDDY_TOKEN"), os.Getenv("BUDDY_BASE_URL"), os.Getenv("BUDDY_INSECURE") == "true")
+	if err != nil {
+		return nil, err
+	}
+	// printing to stdout is fine here, the test binary owns its output
+	if tfLog := strings.ToUpper(os.Getenv("TF_LOG")); tfLog == "DEBUG" || tfLog == "INFO" || tfLog == "TRACE" {
+		client.SetLogger(func(msg string) {
+			fmt.Println(msg)
+		})
+	}
+	return client, nil
 }
 
 func RandStringFromCharSet(strlen int, charSet string) string {

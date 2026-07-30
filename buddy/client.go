@@ -38,6 +38,8 @@ func (u *UrlPath) Compute() string {
 type Client struct {
 	client *retryablehttp.Client
 
+	transport *LoggingHttpTransport
+
 	baseUrl *url.URL
 
 	mu      sync.Mutex
@@ -178,6 +180,12 @@ func NewClient(token string, baseUrl string, insecure bool) (*Client, error) {
 	return NewClientWithTimeout(token, baseUrl, insecure, 30*time.Second)
 }
 
+// SetLogger installs the sink that every API request and response is reported to.
+// Nothing is logged until one is set.
+func (c *Client) SetLogger(log LogFunc) {
+	c.transport.SetLogger(log)
+}
+
 func NewClientWithTimeout(token string, baseUrl string, insecure bool, timeout time.Duration) (*Client, error) {
 	tlsConfig := &tls.Config{}
 	// turn off ssl verification
@@ -189,12 +197,13 @@ func NewClientWithTimeout(token string, baseUrl string, insecure bool, timeout t
 	t.TLSClientConfig = tlsConfig
 	t.MaxIdleConnsPerHost = 100
 	// http client
+	lt := NewLoggingHttpTransport(t)
 	h := &http.Client{
-		Transport: NewLoggingHttpTransport(t),
+		Transport: lt,
 		Timeout:   timeout,
 	}
 	// api client
-	c := &Client{}
+	c := &Client{transport: lt}
 	if baseUrl != "" {
 		err := c.setBaseUrl(baseUrl)
 		if err != nil {

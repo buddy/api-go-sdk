@@ -3,11 +3,16 @@ package buddy
 import (
 	"bytes"
 	"encoding/json"
-	"fmt"
 	"io"
 	"net/http"
-	"os"
 )
+
+// LogFunc receives a single formatted log message.
+//
+// A caller embedding the SDK in a host that owns the process output - a Terraform
+// provider for instance - must route this to the host's own logger. Writing to
+// stdout or stderr from inside such a host corrupts its plugin protocol.
+type LogFunc func(msg string)
 
 func NewLoggingHttpTransport(t http.RoundTripper) *LoggingHttpTransport {
 	return &LoggingHttpTransport{transport: t}
@@ -15,18 +20,24 @@ func NewLoggingHttpTransport(t http.RoundTripper) *LoggingHttpTransport {
 
 type LoggingHttpTransport struct {
 	transport http.RoundTripper
+	log       LogFunc
+}
+
+// SetLogger installs the sink that requests and responses are reported to.
+// Nothing is logged until one is set.
+func (t *LoggingHttpTransport) SetLogger(log LogFunc) {
+	t.log = log
 }
 
 func (t *LoggingHttpTransport) shouldLog() bool {
-	tfLog := os.Getenv("TF_LOG")
-	return tfLog == "DEBUG" || tfLog == "INFO" || tfLog == "TRACE"
+	return t.log != nil
 }
 
-func (t *LoggingHttpTransport) Log(msg string, a ...any) {
+func (t *LoggingHttpTransport) Log(msg string) {
 	if !t.shouldLog() {
 		return
 	}
-	fmt.Printf(msg+"\n", a...)
+	t.log(msg)
 }
 
 func (t *LoggingHttpTransport) LogReq(req *http.Request) {
