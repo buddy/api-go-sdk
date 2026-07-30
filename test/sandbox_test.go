@@ -126,8 +126,10 @@ func TestSandbox(t *testing.T) {
 	}
 	name := RandString(10)
 	note := RandString(10)
+	agentNote := RandString(10)
 	newName := RandString(10)
 	newNote := ""
+	newAgentNote := RandString(10)
 	identifier := UniqueString()
 	newIdentifier := UniqueString()
 	os := buddy.SandboxOsUbuntu2204
@@ -165,6 +167,7 @@ func TestSandbox(t *testing.T) {
 	createOps := buddy.SandboxOps{
 		Name:              &name,
 		Note:              &note,
+		AgentNote:         &agentNote,
 		Identifier:        &identifier,
 		Os:                &os,
 		Resources:         &resources,
@@ -189,6 +192,7 @@ func TestSandbox(t *testing.T) {
 	updateOps := buddy.SandboxOps{
 		Name:        &newName,
 		Note:        &newNote,
+		AgentNote:   &newAgentNote,
 		Identifier:  &newIdentifier,
 		Tags:        &newTags,
 		Permissions: &newPerms,

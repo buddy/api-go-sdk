@@ -1,3 +1,6 @@
+# Release v1.44.0 (2026-07-30)
+* Adds agent note to various resources
+
 # Release v1.43.0 (2026-07-30)
 * [Breaking] Request logging no longer writes to stdout, use Client.SetLogger to receive it
 * Client.SetLogger sets the sink for API request and response logs, nothing is logged without one

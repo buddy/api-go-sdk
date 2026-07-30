@@ -45,7 +45,7 @@ func testDomainRecordGet(client *buddy.Client, workspace *buddy.Workspace, domai
 		if err != nil {
 			t.Fatal(ErrorFormatted("DomainService.GetRecord", err))
 		}
-		err = CheckRecord(r, record.Name, record.Note, record.Type, record.Ttl, buddy.DomainRecordRoutingSimple, record.Values[0], "", "", "", "")
+		err = CheckRecord(r, record.Name, record.Note, record.AgentNote, record.Type, record.Ttl, buddy.DomainRecordRoutingSimple, record.Values[0], "", "", "", "")
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -98,7 +98,7 @@ func testDomainGeoRecordUpsert(client *buddy.Client, workspace *buddy.Workspace,
 		if err != nil {
 			t.Fatal(ErrorFormatted("DomainService.UpsertRecord", err))
 		}
-		err = CheckRecord(record, name, "", typ, ttl, routing, val, "", "", countryName, countryValue)
+		err = CheckRecord(record, name, "", "", typ, ttl, routing, val, "", "", countryName, countryValue)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -117,7 +117,7 @@ func testDomainGeoRecordUpsert(client *buddy.Client, workspace *buddy.Workspace,
 		if err != nil {
 			t.Fatal(ErrorFormatted("DomainService.UpsertRecord", err))
 		}
-		err = CheckRecord(record, name, "", typ, ttl, routing, val, continentName, continentValue, "", "")
+		err = CheckRecord(record, name, "", "", typ, ttl, routing, val, continentName, continentValue, "", "")
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -129,38 +129,42 @@ func testDomainRecordUpsert(client *buddy.Client, workspace *buddy.Workspace, do
 	return func(t *testing.T) {
 		name := UniqueString()
 		note := RandString(10)
+		agentNote := RandString(10)
 		fullName := fmt.Sprintf("%s.%s", name, domain.Name)
 		val := "1.1.1.1"
 		vals := []string{val}
 		ttl := 300
 		typ := "A"
 		ops := buddy.RecordUpsertOps{
-			Ttl:    &ttl,
-			Note:   &note,
-			Values: &vals,
+			Ttl:       &ttl,
+			Note:      &note,
+			AgentNote: &agentNote,
+			Values:    &vals,
 		}
 		record, _, err := client.DomainService.UpsertRecord(workspace.Domain, domain.Id, fullName, typ, &ops)
 		if err != nil {
 			t.Fatal(ErrorFormatted("DomainService.UpsertRecord", err))
 		}
-		err = CheckRecord(record, name, note, typ, ttl, buddy.DomainRecordRoutingSimple, val, "", "", "", "")
+		err = CheckRecord(record, name, note, agentNote, typ, ttl, buddy.DomainRecordRoutingSimple, val, "", "", "", "")
 		if err != nil {
 			t.Fatal(err)
 		}
 		newVal := "2.2.2.2"
 		newNote := RandString(10)
+		newAgentNote := RandString(10)
 		newValues := []string{newVal}
 		newTtl := 3600
 		ops = buddy.RecordUpsertOps{
-			Note:   &newNote,
-			Ttl:    &newTtl,
-			Values: &newValues,
+			Note:      &newNote,
+			AgentNote: &newAgentNote,
+			Ttl:       &newTtl,
+			Values:    &newValues,
 		}
 		record, _, err = client.DomainService.UpsertRecord(workspace.Domain, domain.Id, fullName, typ, &ops)
 		if err != nil {
 			t.Fatal(ErrorFormatted("DomainService.UpsertRecord", err))
 		}
-		err = CheckRecord(record, name, newNote, typ, newTtl, buddy.DomainRecordRoutingSimple, newVal, "", "", "", "")
+		err = CheckRecord(record, name, newNote, newAgentNote, typ, newTtl, buddy.DomainRecordRoutingSimple, newVal, "", "", "", "")
 		if err != nil {
 			t.Fatal(err)
 		}

@@ -9,15 +9,17 @@ func testGroupCreate(client *buddy.Client, workspace *buddy.Workspace, out *budd
 	return func(t *testing.T) {
 		name := RandString(10)
 		desc := RandString(10)
+		agentNote := RandString(10)
 		ops := buddy.GroupOps{
-			Name: &name,
-			Note: &desc,
+			Name:      &name,
+			Note:      &desc,
+			AgentNote: &agentNote,
 		}
 		group, _, err := client.GroupService.Create(workspace.Domain, &ops)
 		if err != nil {
 			t.Fatal(ErrorFormatted("GroupService.Create", err))
 		}
-		err = CheckGroup(group, name, desc, false, 0, 0)
+		err = CheckGroup(group, name, desc, agentNote, false, 0, 0)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -29,9 +31,11 @@ func testGroupUpdate(client *buddy.Client, workspace *buddy.Workspace, group *bu
 	return func(t *testing.T) {
 		name := RandString(10)
 		desc := RandString(10)
+		agentNote := RandString(10)
 		ops := buddy.GroupOps{
-			Name: &name,
-			Note: &desc,
+			Name:      &name,
+			Note:      &desc,
+			AgentNote: &agentNote,
 		}
 		groupId := group.Id
 		var err error
@@ -39,7 +43,7 @@ func testGroupUpdate(client *buddy.Client, workspace *buddy.Workspace, group *bu
 		if err != nil {
 			t.Fatal(ErrorFormatted("GroupService.Update", err))
 		}
-		err = CheckGroup(groupUpdated, name, desc, group.AutoAssignToNewProjects, group.AutoAssignPermissionSetId, groupId)
+		err = CheckGroup(groupUpdated, name, desc, agentNote, group.AutoAssignToNewProjects, group.AutoAssignPermissionSetId, groupId)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -60,7 +64,7 @@ func testGroupUpdateAssignToProjects(client *buddy.Client, workspace *buddy.Work
 		if err != nil {
 			t.Fatal(ErrorFormatted("GroupService.Update", err))
 		}
-		err = CheckGroup(groupUpdated, group.Name, group.Note, assign, permission.Id, groupId)
+		err = CheckGroup(groupUpdated, group.Name, group.Note, group.AgentNote, assign, permission.Id, groupId)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -74,7 +78,7 @@ func testGroupGet(client *buddy.Client, workspace *buddy.Workspace, group *buddy
 		if err != nil {
 			t.Fatal(ErrorFormatted("GroupService.Get", err))
 		}
-		err = CheckGroup(groupGet, group.Name, group.Note, group.AutoAssignToNewProjects, group.AutoAssignPermissionSetId, group.Id)
+		err = CheckGroup(groupGet, group.Name, group.Note, group.AgentNote, group.AutoAssignToNewProjects, group.AutoAssignPermissionSetId, group.Id)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -109,7 +113,7 @@ func testGroupMemberUpdate(client *buddy.Client, workspace *buddy.Workspace, gro
 		if err != nil {
 			t.Fatal(ErrorFormatted("GroupService.UpdateGroupMember", err))
 		}
-		err = CheckMember(memberUpdated, member.Email, member.Name, "", false, 0, member.Admin, member.WorkspaceOwner, member.Id, status)
+		err = CheckMember(memberUpdated, member.Email, member.Name, "", "", false, 0, member.Admin, member.WorkspaceOwner, member.Id, status)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -130,7 +134,7 @@ func testGroupMemberAdd(client *buddy.Client, workspace *buddy.Workspace, group 
 		if err != nil {
 			t.Fatal(ErrorFormatted("GroupService.AddGroupMember", err))
 		}
-		err = CheckMember(memberAdded, member.Email, member.Name, "", false, 0, member.Admin, member.WorkspaceOwner, member.Id, status)
+		err = CheckMember(memberAdded, member.Email, member.Name, "", "", false, 0, member.Admin, member.WorkspaceOwner, member.Id, status)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -143,7 +147,7 @@ func testGroupMemberGet(client *buddy.Client, workspace *buddy.Workspace, group 
 		if err != nil {
 			t.Fatal(ErrorFormatted("GroupService.GetGroupMember", err))
 		}
-		err = CheckMember(memberGet, member.Email, member.Name, "", false, 0, member.Admin, member.WorkspaceOwner, member.Id, status)
+		err = CheckMember(memberGet, member.Email, member.Name, "", "", false, 0, member.Admin, member.WorkspaceOwner, member.Id, status)
 		if err != nil {
 			t.Fatal(err)
 		}

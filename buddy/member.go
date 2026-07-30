@@ -14,6 +14,7 @@ type Member struct {
 	Id                        int    `json:"id"`
 	Name                      string `json:"name"`
 	Note                      string `json:"note"`
+	AgentNote                 string `json:"agent_note"`
 	Email                     string `json:"email"`
 	AvatarUrl                 string `json:"avatar_url"`
 	AutoAssignToNewProjects   bool   `json:"auto_assign_to_new_projects"`
@@ -30,8 +31,9 @@ type Members struct {
 }
 
 type MemberCreateOps struct {
-	Email *string `json:"email"`
-	Note  *string `json:"note,omitempty"`
+	Email     *string `json:"email"`
+	Note      *string `json:"note,omitempty"`
+	AgentNote *string `json:"agent_note,omitempty"`
 }
 
 type MemberUpdateOps struct {
@@ -39,6 +41,7 @@ type MemberUpdateOps struct {
 	AutoAssignToNewProjects   *bool   `json:"auto_assign_to_new_projects,omitempty"`
 	AutoAssignPermissionSetId *int    `json:"auto_assign_permission_set_id,omitempty"`
 	Note                      *string `json:"note,omitempty"`
+	AgentNote                 *string `json:"agent_note,omitempty"`
 }
 
 func (s *MemberService) Get(workspaceDomain string, memberId int) (*Member, *http.Response, error) {
