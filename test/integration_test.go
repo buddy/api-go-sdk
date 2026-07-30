@@ -245,6 +245,7 @@ func testIntegrationAmazon(client *buddy.Client, workspace *buddy.Workspace, gro
 		scope := buddy.IntegrationScopeWorkspace
 		typ := buddy.IntegrationTypeAmazon
 		note := RandString(10)
+		agentNote := RandString(10)
 		accessKey := RandString(10)
 		secretKey := RandString(10)
 		identifier := RandString(10)
@@ -279,6 +280,7 @@ func testIntegrationAmazon(client *buddy.Client, workspace *buddy.Workspace, gro
 			Type:            &typ,
 			Scope:           &scope,
 			Note:            &note,
+			AgentNote:       &agentNote,
 			AccessKey:       &accessKey,
 			SecretKey:       &secretKey,
 			RoleAssumptions: &roleAssumptions,
@@ -287,6 +289,7 @@ func testIntegrationAmazon(client *buddy.Client, workspace *buddy.Workspace, gro
 		}
 		newName := RandString(10)
 		newNote := ""
+		newAgentNote := RandString(10)
 		newPerms := buddy.IntegrationPermissions{
 			Others: buddy.IntegrationPermissionUseOnly,
 			Admins: buddy.IntegrationPermissionManage,
@@ -294,6 +297,7 @@ func testIntegrationAmazon(client *buddy.Client, workspace *buddy.Workspace, gro
 		updateOps := buddy.IntegrationOps{
 			Name:            &newName,
 			Note:            &newNote,
+			AgentNote:       &newAgentNote,
 			AccessKey:       &accessKey,
 			SecretKey:       &secretKey,
 			RoleAssumptions: &roleAssumptions,

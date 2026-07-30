@@ -14,6 +14,7 @@ func testVariableCreate(client *buddy.Client, workspace *buddy.Workspace, projec
 		key := RandString(10)
 		val := RandString(10)
 		desc := RandString(10)
+		agentNote := RandString(10)
 		fileChmod := ""
 		filePath := ""
 		filePlace := ""
@@ -22,6 +23,7 @@ func testVariableCreate(client *buddy.Client, workspace *buddy.Workspace, projec
 			Value:     &val,
 			Type:      &typ,
 			Note:      &desc,
+			AgentNote: &agentNote,
 			Settable:  &set,
 			Encrypted: &enc,
 		}
@@ -49,7 +51,7 @@ func testVariableCreate(client *buddy.Client, workspace *buddy.Workspace, projec
 		if err != nil {
 			t.Fatal(ErrorFormatted("VariableService.Create", err))
 		}
-		err = CheckVariable(variable, key, val, typ, desc, set, enc, filePath, fileChmod, filePlace, 0, project, env)
+		err = CheckVariable(variable, key, val, typ, desc, agentNote, set, enc, filePath, fileChmod, filePlace, 0, project, env)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -65,6 +67,7 @@ func testVariableUpdate(client *buddy.Client, workspace *buddy.Workspace, projec
 		}
 		val := RandString(10)
 		desc := ""
+		agentNote := RandString(10)
 		set := false
 		enc := true
 		filePath := ""
@@ -73,6 +76,7 @@ func testVariableUpdate(client *buddy.Client, workspace *buddy.Workspace, projec
 		ops := buddy.VariableOps{
 			Value:     &val,
 			Note:      &desc,
+			AgentNote: &agentNote,
 			Settable:  &set,
 			Encrypted: &enc,
 			Type:      &out.Type,
@@ -91,7 +95,7 @@ func testVariableUpdate(client *buddy.Client, workspace *buddy.Workspace, projec
 		if err != nil {
 			t.Fatal(ErrorFormatted("VariableService.Patch", err))
 		}
-		err = CheckVariable(variable, out.Key, val, out.Type, desc, set, enc, filePath, fileChmod, filePlace, out.Id, project, env)
+		err = CheckVariable(variable, out.Key, val, out.Type, desc, agentNote, set, enc, filePath, fileChmod, filePlace, out.Id, project, env)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -105,7 +109,7 @@ func testVariableGet(client *buddy.Client, workspace *buddy.Workspace, project *
 		if err != nil {
 			t.Fatal(ErrorFormatted("VariableService.Get", err))
 		}
-		err = CheckVariable(variable, out.Key, out.Value, out.Type, out.Note, out.Settable, out.Encrypted, out.FilePath, out.FileChmod, out.FilePlace, out.Id, project, env)
+		err = CheckVariable(variable, out.Key, out.Value, out.Type, out.Note, out.AgentNote, out.Settable, out.Encrypted, out.FilePath, out.FileChmod, out.FilePlace, out.Id, project, env)
 		if err != nil {
 			t.Fatal(err)
 		}

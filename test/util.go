@@ -345,7 +345,7 @@ func CheckProject(project *buddy.Project, name string, displayName string, short
 				return err
 			}
 		}
-		if err := CheckMember(project.CreatedBy, "", "", "", false, 0, true, true, 0, ""); err != nil {
+		if err := CheckMember(project.CreatedBy, "", "", "", "", false, 0, true, true, 0, ""); err != nil {
 			return err
 		}
 	}
@@ -353,20 +353,20 @@ func CheckProject(project *buddy.Project, name string, displayName string, short
 }
 
 func CheckProjectGroup(projectGroup *buddy.ProjectGroup, group *buddy.Group, permission *buddy.Permission) error {
-	if err := CheckGroup(&projectGroup.Group, group.Name, group.Note, group.AutoAssignToNewProjects, group.AutoAssignPermissionSetId, group.Id); err != nil {
+	if err := CheckGroup(&projectGroup.Group, group.Name, group.Note, group.AgentNote, group.AutoAssignToNewProjects, group.AutoAssignPermissionSetId, group.Id); err != nil {
 		return err
 	}
-	if err := CheckPermission(projectGroup.PermissionSet, permission.Name, permission.Note, permission.Id, permission.PipelineAccessLevel, permission.RepositoryAccessLevel, permission.SandboxAccessLevel, permission.ProjectTeamAccessLevel, permission.TargetAccessLevel, permission.EnvironmentAccessLevel); err != nil {
+	if err := CheckPermission(projectGroup.PermissionSet, permission.Name, permission.Note, permission.AgentNote, permission.Id, permission.PipelineAccessLevel, permission.RepositoryAccessLevel, permission.SandboxAccessLevel, permission.ProjectTeamAccessLevel, permission.TargetAccessLevel, permission.EnvironmentAccessLevel); err != nil {
 		return err
 	}
 	return nil
 }
 
 func CheckProjectMember(projectMember *buddy.ProjectMember, member *buddy.Member, permission *buddy.Permission) error {
-	if err := CheckMember(&projectMember.Member, member.Email, member.Name, member.Note, member.AutoAssignToNewProjects, member.AutoAssignPermissionSetId, member.Admin, member.WorkspaceOwner, member.Id, ""); err != nil {
+	if err := CheckMember(&projectMember.Member, member.Email, member.Name, member.Note, member.AgentNote, member.AutoAssignToNewProjects, member.AutoAssignPermissionSetId, member.Admin, member.WorkspaceOwner, member.Id, ""); err != nil {
 		return err
 	}
-	if err := CheckPermission(projectMember.PermissionSet, permission.Name, permission.Note, permission.Id, permission.PipelineAccessLevel, permission.RepositoryAccessLevel, permission.SandboxAccessLevel, permission.ProjectTeamAccessLevel, permission.TargetAccessLevel, permission.EnvironmentAccessLevel); err != nil {
+	if err := CheckPermission(projectMember.PermissionSet, permission.Name, permission.Note, permission.AgentNote, permission.Id, permission.PipelineAccessLevel, permission.RepositoryAccessLevel, permission.SandboxAccessLevel, permission.ProjectTeamAccessLevel, permission.TargetAccessLevel, permission.EnvironmentAccessLevel); err != nil {
 		return err
 	}
 	return nil
@@ -400,8 +400,11 @@ func CheckRecords(list *buddy.Records, count int) error {
 	return nil
 }
 
-func CheckRecord(record *buddy.Record, name string, note string, typ string, ttl int, routing string, val string, continentName string, continentValue string, countryName string, countryValue string) error {
+func CheckRecord(record *buddy.Record, name string, note string, agentNote string, typ string, ttl int, routing string, val string, continentName string, continentValue string, countryName string, countryValue string) error {
 	if err := CheckFieldEqual("Record.Note", record.Note, note); err != nil {
+		return err
+	}
+	if err := CheckFieldEqual("Record.AgentNote", record.AgentNote, agentNote); err != nil {
 		return err
 	}
 	if err := CheckFieldSet("Record.Url", record.Url); err != nil {
@@ -461,7 +464,7 @@ func CheckRecord(record *buddy.Record, name string, note string, typ string, ttl
 	return nil
 }
 
-func CheckMember(member *buddy.Member, email string, name string, note string, assignToProject bool, assignToProjectPermId int, admin bool, owner bool, id int, status string) error {
+func CheckMember(member *buddy.Member, email string, name string, note string, agentNote string, assignToProject bool, assignToProjectPermId int, admin bool, owner bool, id int, status string) error {
 	if err := CheckFieldSet("Member.Url", member.Url); err != nil {
 		return err
 	}
@@ -469,6 +472,9 @@ func CheckMember(member *buddy.Member, email string, name string, note string, a
 		return err
 	}
 	if err := CheckFieldEqual("Member.Note", member.Note, note); err != nil {
+		return err
+	}
+	if err := CheckFieldEqual("Member.AgentNote", member.AgentNote, agentNote); err != nil {
 		return err
 	}
 	if id != 0 {
@@ -600,7 +606,7 @@ func CheckGroups(groups *buddy.Groups, count int) error {
 	return nil
 }
 
-func CheckPermission(permission *buddy.Permission, name string, desc string, id int, pipelineAccessLevel string, repoAccessLevel string, sandboxAccessLevel string, projectTeamAccessLevel string, targetAccessLevel string, environmentAccessLevel string) error {
+func CheckPermission(permission *buddy.Permission, name string, desc string, agentNote string, id int, pipelineAccessLevel string, repoAccessLevel string, sandboxAccessLevel string, projectTeamAccessLevel string, targetAccessLevel string, environmentAccessLevel string) error {
 	if err := CheckFieldSet("Permission.Url", permission.Url); err != nil {
 		return err
 	}
@@ -620,6 +626,9 @@ func CheckPermission(permission *buddy.Permission, name string, desc string, id 
 		return err
 	}
 	if err := CheckFieldEqual("Permission.Note", permission.Note, desc); err != nil {
+		return err
+	}
+	if err := CheckFieldEqual("Permission.AgentNote", permission.AgentNote, agentNote); err != nil {
 		return err
 	}
 	if err := CheckFieldEqualAndSet("Permission.PipelineAccessLevel", permission.PipelineAccessLevel, pipelineAccessLevel); err != nil {
@@ -760,7 +769,7 @@ func CheckWorkspace(workspace *buddy.Workspace, name string, domain string, id i
 	return nil
 }
 
-func CheckVariable(variable *buddy.Variable, key string, val string, typ string, desc string, set bool, enc bool, filePath string, fileChmod string, filePlace string, id int, project *buddy.Project, env *buddy.Environment) error {
+func CheckVariable(variable *buddy.Variable, key string, val string, typ string, desc string, agentNote string, set bool, enc bool, filePath string, fileChmod string, filePlace string, id int, project *buddy.Project, env *buddy.Environment) error {
 	if id != 0 {
 		if err := CheckIntFieldEqualAndSet("Variable.Id", variable.Id, id); err != nil {
 			return err
@@ -783,6 +792,9 @@ func CheckVariable(variable *buddy.Variable, key string, val string, typ string,
 		return err
 	}
 	if err := CheckFieldEqual("Variable.Note", variable.Note, desc); err != nil {
+		return err
+	}
+	if err := CheckFieldEqual("Variable.AgentNote", variable.AgentNote, agentNote); err != nil {
 		return err
 	}
 	if project != nil {
@@ -882,10 +894,10 @@ func CheckSourceFile(sf *buddy.SourceFile, name string, path string, message str
 	if err := CheckFieldEqualAndSet("SourceFile.Commit.Message", sf.Commit.Message, message); err != nil {
 		return err
 	}
-	if err := CheckMember(sf.Commit.Committer, "", "", "", false, 0, true, true, 0, ""); err != nil {
+	if err := CheckMember(sf.Commit.Committer, "", "", "", "", false, 0, true, true, 0, ""); err != nil {
 		return err
 	}
-	if err := CheckMember(sf.Commit.Author, "", "", "", false, 0, true, true, 0, ""); err != nil {
+	if err := CheckMember(sf.Commit.Author, "", "", "", "", false, 0, true, true, 0, ""); err != nil {
 		return err
 	}
 	return nil
@@ -943,7 +955,7 @@ func CheckToken(token *buddy.Token, name string, expiresIn int, expiresAt string
 	return nil
 }
 
-func CheckGroup(group *buddy.Group, name string, desc string, assignToProjects bool, assignToProjectsPermId int, id int) error {
+func CheckGroup(group *buddy.Group, name string, desc string, agentNote string, assignToProjects bool, assignToProjectsPermId int, id int) error {
 	if err := CheckFieldSet("Group.Url", group.Url); err != nil {
 		return err
 	}
@@ -971,6 +983,9 @@ func CheckGroup(group *buddy.Group, name string, desc string, assignToProjects b
 		return err
 	}
 	if err := CheckFieldEqual("Group.Note", group.Note, desc); err != nil {
+		return err
+	}
+	if err := CheckFieldEqual("Group.AgentNote", group.AgentNote, agentNote); err != nil {
 		return err
 	}
 	return nil
@@ -1158,6 +1173,7 @@ func CheckEnvironment(environment *buddy.Environment, expected *buddy.Environmen
 	name := expected.Name
 	id := expected.Id
 	note := expected.Note
+	agentNote := expected.AgentNote
 	identifier := expected.Identifier
 	tags := expected.Tags
 	icon := expected.Icon
@@ -1171,6 +1187,9 @@ func CheckEnvironment(environment *buddy.Environment, expected *buddy.Environmen
 	if ops != nil {
 		if ops.Note != nil {
 			note = *ops.Note
+		}
+		if ops.AgentNote != nil {
+			agentNote = *ops.AgentNote
 		}
 		if ops.Name != nil {
 			name = *ops.Name
@@ -1206,6 +1225,9 @@ func CheckEnvironment(environment *buddy.Environment, expected *buddy.Environmen
 	lenTags := len(tags)
 	lenVars := len(vars)
 	if err := CheckFieldEqual("Environment.Note", environment.Note, note); err != nil {
+		return err
+	}
+	if err := CheckFieldEqual("Environment.AgentNote", environment.AgentNote, agentNote); err != nil {
 		return err
 	}
 	if err := CheckFieldSet("Environment.Url", environment.Url); err != nil {
@@ -1352,6 +1374,7 @@ func CheckSandbox(sandbox *buddy.Sandbox, expected *buddy.Sandbox, ops *buddy.Sa
 	id := expected.Id
 	name := expected.Name
 	note := expected.Note
+	agentNote := expected.AgentNote
 	identifier := expected.Identifier
 	sos := expected.Os
 	resources := expected.Resources
@@ -1374,6 +1397,9 @@ func CheckSandbox(sandbox *buddy.Sandbox, expected *buddy.Sandbox, ops *buddy.Sa
 	if ops != nil {
 		if ops.Note != nil {
 			note = *ops.Note
+		}
+		if ops.AgentNote != nil {
+			agentNote = *ops.AgentNote
 		}
 		if ops.Timeout != nil {
 			timeout = *ops.Timeout
@@ -1420,6 +1446,9 @@ func CheckSandbox(sandbox *buddy.Sandbox, expected *buddy.Sandbox, ops *buddy.Sa
 	lenEndpoints := len(endpoints)
 	lenTags := len(tags)
 	if err := CheckFieldEqual("Sandbox.Note", sandbox.Note, note); err != nil {
+		return err
+	}
+	if err := CheckFieldEqual("Sandbox.AgentNote", sandbox.AgentNote, agentNote); err != nil {
 		return err
 	}
 	if err := CheckFieldSet("Sandbox.Url", sandbox.Url); err != nil {
@@ -1524,6 +1553,7 @@ func CheckSandbox(sandbox *buddy.Sandbox, expected *buddy.Sandbox, ops *buddy.Sa
 func CheckPipeline(project *buddy.Project, pipeline *buddy.Pipeline, expected *buddy.Pipeline, ops *buddy.PipelineOps) error {
 	name := expected.Name
 	note := expected.Note
+	agentNote := expected.AgentNote
 	identifier := expected.Identifier
 	refs := expected.Refs
 	tags := expected.Tags
@@ -1566,6 +1596,9 @@ func CheckPipeline(project *buddy.Project, pipeline *buddy.Pipeline, expected *b
 	if ops != nil {
 		if ops.Note != nil {
 			note = *ops.Note
+		}
+		if ops.AgentNote != nil {
+			agentNote = *ops.AgentNote
 		}
 		if ops.Cpu != nil {
 			cpu = *ops.Cpu
@@ -1703,6 +1736,9 @@ func CheckPipeline(project *buddy.Project, pipeline *buddy.Pipeline, expected *b
 	lenRemoteParameters := len(remoteParameters)
 	lenLoop := len(loop)
 	if err := CheckFieldEqual("Pipeline.Note", pipeline.Note, note); err != nil {
+		return err
+	}
+	if err := CheckFieldEqual("Pipeline.AgentNote", pipeline.AgentNote, agentNote); err != nil {
 		return err
 	}
 	if err := CheckFieldSet("Pipeline.Url", pipeline.Url); err != nil {
@@ -1969,7 +2005,7 @@ func CheckPipeline(project *buddy.Project, pipeline *buddy.Pipeline, expected *b
 	if pipeline.Creator == nil {
 		return errors.New("Pipeline.Creator must be set")
 	}
-	if err := CheckMember(pipeline.Creator, "", "", "", false, 0, true, true, 0, ""); err != nil {
+	if err := CheckMember(pipeline.Creator, "", "", "", "", false, 0, true, true, 0, ""); err != nil {
 		return err
 	}
 	if err := CheckFieldEqual("Pipeline.GitConfigRef", pipeline.GitConfigRef, gitConfigRef); err != nil {
@@ -2088,9 +2124,13 @@ func CheckIntegration(integration *buddy.Integration, expected *buddy.Integratio
 	allPipelinesAllowed := expected.AllPipelinesAllowed
 	allowedPipelines := expected.AllowedPipelines
 	note := expected.Note
+	agentNote := expected.AgentNote
 	if ops != nil {
 		if ops.Note != nil {
 			note = *ops.Note
+		}
+		if ops.AgentNote != nil {
+			agentNote = *ops.AgentNote
 		}
 		if ops.Identifier != nil {
 			identifier = *ops.Identifier
@@ -2129,6 +2169,9 @@ func CheckIntegration(integration *buddy.Integration, expected *buddy.Integratio
 		}
 	}
 	if err := CheckFieldEqual("Integration.Note", integration.Note, note); err != nil {
+		return err
+	}
+	if err := CheckFieldEqual("Integration.AgentNote", integration.AgentNote, agentNote); err != nil {
 		return err
 	}
 	if err := CheckFieldSet("Integration.Url", integration.Url); err != nil {

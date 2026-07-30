@@ -24,6 +24,7 @@ type Permission struct {
 	Id                     int    `json:"id"`
 	Name                   string `json:"name"`
 	Note                   string `json:"note"`
+	AgentNote              string `json:"agent_note"`
 	Type                   string `json:"type"`
 	RepositoryAccessLevel  string `json:"repository_access_level"`
 	PipelineAccessLevel    string `json:"pipeline_access_level"`
@@ -41,6 +42,7 @@ type Permissions struct {
 
 type PermissionOps struct {
 	Note                   *string `json:"note,omitempty"`
+	AgentNote              *string `json:"agent_note,omitempty"`
 	Name                   *string `json:"name"`
 	PipelineAccessLevel    *string `json:"pipeline_access_level"`
 	ProjectTeamAccessLevel *string `json:"project_team_access_level"`

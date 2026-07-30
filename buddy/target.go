@@ -106,6 +106,7 @@ type Target struct {
 	Tags                 []string                 `json:"tags"`
 	Name                 string                   `json:"name"`
 	Note                 string                   `json:"note"`
+	AgentNote            string                   `json:"agent_note"`
 	Type                 string                   `json:"type"`
 	Host                 string                   `json:"host"`
 	Scope                string                   `json:"scope"`
@@ -128,6 +129,7 @@ type TargetOps struct {
 	Identifier           *string                   `json:"identifier,omitempty"`
 	Name                 *string                   `json:"name,omitempty"`
 	Note                 *string                   `json:"note,omitempty"`
+	AgentNote            *string                   `json:"agent_note,omitempty"`
 	Tags                 *[]string                 `json:"tags,omitempty"`
 	Type                 *string                   `json:"type,omitempty"`
 	Host                 *string                   `json:"host,omitempty"`
