@@ -325,8 +325,10 @@ func CheckProject(project *buddy.Project, name string, displayName string, short
 		if err := CheckFieldSet("Project.SshRepository", project.SshRepository); err != nil {
 			return err
 		}
-		if err := CheckFieldSet("Project.DefaultBranch", project.DefaultBranch); err != nil {
-			return err
+		if !withoutRepository {
+			if err := CheckFieldSet("Project.DefaultBranch", project.DefaultBranch); err != nil {
+				return err
+			}
 		}
 		if err := CheckFieldEqual("Project.Access", project.Access, access); err != nil {
 			return err
@@ -1394,7 +1396,14 @@ func CheckSandbox(sandbox *buddy.Sandbox, expected *buddy.Sandbox, ops *buddy.Sa
 	}
 	tags := expected.Tags
 	endpoints := expected.Endpoints
+	envId := ""
+	if expected.Environment != nil {
+		envId = expected.Environment.Id
+	}
 	if ops != nil {
+		if ops.Environment != nil {
+			envId = *ops.Environment.Id
+		}
 		if ops.Note != nil {
 			note = *ops.Note
 		}
@@ -1443,6 +1452,16 @@ func CheckSandbox(sandbox *buddy.Sandbox, expected *buddy.Sandbox, ops *buddy.Sa
 			perms = ops.Permissions
 		}
 	}
+	if envId != "" {
+		if sandbox.Environment == nil {
+			return errors.New("Sandbox.Environment is null")
+		}
+		if err := CheckFieldEqual("sandbox.Environment.Id", sandbox.Environment.Id, envId); err != nil {
+			return err
+		}
+	} else if sandbox.Environment != nil {
+		return errors.New("Sandbox.Environment is not null")
+	}
 	lenEndpoints := len(endpoints)
 	lenTags := len(tags)
 	if err := CheckFieldEqual("Sandbox.Note", sandbox.Note, note); err != nil {
@@ -1455,9 +1474,6 @@ func CheckSandbox(sandbox *buddy.Sandbox, expected *buddy.Sandbox, ops *buddy.Sa
 		return err
 	}
 	if err := CheckFieldSet("Sandbox.HtmlUrl", sandbox.HtmlUrl); err != nil {
-		return err
-	}
-	if err := CheckFieldSet("Sandbox.ProjectName", sandbox.Project.Name); err != nil {
 		return err
 	}
 	if id != "" {

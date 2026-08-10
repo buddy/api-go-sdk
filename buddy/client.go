@@ -76,7 +76,8 @@ type PageQuery struct {
 }
 
 type Query struct {
-	ProjectName *string `url:"project_name,omitempty"`
+	ProjectName   *string `url:"project_name,omitempty"`
+	EnvironmentId *string `url:"environment_id,omitempty"`
 }
 
 func (c *Client) setBaseUrl(urlStr string) error {

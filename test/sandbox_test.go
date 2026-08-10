@@ -47,9 +47,9 @@ func testSandboxWaitForAppRunning(client *buddy.Client, workspace *buddy.Workspa
 	}
 }
 
-func testSandboxCreate(client *buddy.Client, workspace *buddy.Workspace, project *buddy.Project, ops *buddy.SandboxOps, out *buddy.Sandbox) func(t *testing.T) {
+func testSandboxCreate(client *buddy.Client, workspace *buddy.Workspace, query *buddy.Query, ops *buddy.SandboxOps, out *buddy.Sandbox) func(t *testing.T) {
 	return func(t *testing.T) {
-		sb, _, err := client.SandboxService.Create(workspace.Domain, project.Name, ops)
+		sb, _, err := client.SandboxService.Create(workspace.Domain, query, ops)
 		if err != nil {
 			t.Fatal(ErrorFormatted("TestSandbox.Create", err))
 		}
@@ -89,11 +89,9 @@ func testSandboxGet(client *buddy.Client, workspace *buddy.Workspace, out *buddy
 	}
 }
 
-func testSandboxes(client *buddy.Client, workspace *buddy.Workspace, project *buddy.Project) func(t *testing.T) {
+func testSandboxes(client *buddy.Client, workspace *buddy.Workspace, query *buddy.Query) func(t *testing.T) {
 	return func(t *testing.T) {
-		list, _, err := client.SandboxService.GetList(workspace.Domain, buddy.Query{
-			ProjectName: &project.Name,
-		})
+		list, _, err := client.SandboxService.GetList(workspace.Domain, query)
 		if err != nil {
 			t.Fatal(ErrorFormatted("TestSandbox.GetList", err))
 		}
@@ -121,6 +119,7 @@ func TestSandbox(t *testing.T) {
 		permission:    true,
 		projectMember: true,
 	})
+
 	if err != nil {
 		t.Fatal(ErrorFormatted("SeedInitialData", err))
 	}
@@ -197,13 +196,70 @@ func TestSandbox(t *testing.T) {
 		Tags:        &newTags,
 		Permissions: &newPerms,
 	}
+	projectQuery := buddy.Query{
+		ProjectName: &seed.Project.Name,
+	}
+	wsEnvName := UniqueString()
+	wsEnvId := UniqueString()
+	pjEnvName := UniqueString()
+	pjEnvId := UniqueString()
+	wsEnv, _, err := seed.Client.EnvironmentService.Create(seed.Workspace.Domain, &buddy.EnvironmentOps{
+		Name:       &wsEnvName,
+		Identifier: &wsEnvId,
+	})
+	if err != nil {
+		t.Fatal(ErrorFormatted("Create workspace env", err))
+	}
+	pjEnv, _, err := seed.Client.EnvironmentService.Create(seed.Workspace.Domain, &buddy.EnvironmentOps{
+		Name:       &pjEnvName,
+		Identifier: &pjEnvId,
+		Project: &buddy.ProjectSimple{
+			Name: seed.Project.Name,
+		},
+	})
+	if err != nil {
+		t.Fatal(ErrorFormatted("Create project env", err))
+	}
 	var sandbox buddy.Sandbox
-	t.Run("Create", testSandboxCreate(seed.Client, seed.Workspace, seed.Project, &createOps, &sandbox))
+	t.Run("Create", testSandboxCreate(seed.Client, seed.Workspace, &projectQuery, &createOps, &sandbox))
 	t.Run("Wait For Running", testSandboxWaitForRunning(seed.Client, seed.Workspace, &sandbox, &sandbox))
 	t.Run("Wait for Setup", testSandboxWaitForSetupDone(seed.Client, seed.Workspace, &sandbox, &sandbox))
 	t.Run("Wait for App", testSandboxWaitForAppRunning(seed.Client, seed.Workspace, &sandbox, &sandbox))
 	t.Run("Update", testSandboxEdit(seed.Client, seed.Workspace, &updateOps, &sandbox))
 	t.Run("Get", testSandboxGet(seed.Client, seed.Workspace, &sandbox))
-	t.Run("GetList", testSandboxes(seed.Client, seed.Workspace, seed.Project))
+	t.Run("GetList", testSandboxes(seed.Client, seed.Workspace, &projectQuery))
 	t.Run("Delete", testSandboxDelete(seed.Client, seed.Workspace, &sandbox))
+	sandbox = buddy.Sandbox{}
+	t.Run("Create In Workspace", testSandboxCreate(seed.Client, seed.Workspace, nil, &createOps, &sandbox))
+	t.Run("Wait For Running In Workspace", testSandboxWaitForRunning(seed.Client, seed.Workspace, &sandbox, &sandbox))
+	t.Run("Get In Workspace", testSandboxGet(seed.Client, seed.Workspace, &sandbox))
+	t.Run("GetList In Workspace", testSandboxes(seed.Client, seed.Workspace, nil))
+	t.Run("Delete In Workspace", testSandboxDelete(seed.Client, seed.Workspace, &sandbox))
+	newIdentifier = UniqueString()
+	createOps.Identifier = &newIdentifier
+	createOps.Environment = &buddy.SandboxEnvironmentOps{
+		Id: &wsEnv.Id,
+	}
+	envQuery := buddy.Query{
+		EnvironmentId: &wsEnv.Id,
+	}
+	sandbox = buddy.Sandbox{}
+	t.Run("Create In Workspace Env", testSandboxCreate(seed.Client, seed.Workspace, nil, &createOps, &sandbox))
+	t.Run("Wait For Running In Workspace Env", testSandboxWaitForRunning(seed.Client, seed.Workspace, &sandbox, &sandbox))
+	t.Run("Get In Workspace Env", testSandboxGet(seed.Client, seed.Workspace, &sandbox))
+	t.Run("GetList In Workspace Env", testSandboxes(seed.Client, seed.Workspace, &envQuery))
+	t.Run("Delete In Workspace Env", testSandboxDelete(seed.Client, seed.Workspace, &sandbox))
+	sandbox = buddy.Sandbox{}
+	newIdentifier = UniqueString()
+	createOps.Identifier = &newIdentifier
+	createOps.Environment = &buddy.SandboxEnvironmentOps{
+		Id: &pjEnv.Id,
+	}
+	envQuery.ProjectName = &seed.Project.Name
+	envQuery.EnvironmentId = &pjEnv.Id
+	t.Run("Create In Project Env", testSandboxCreate(seed.Client, seed.Workspace, &projectQuery, &createOps, &sandbox))
+	t.Run("Wait For Running In Project Env", testSandboxWaitForRunning(seed.Client, seed.Workspace, &sandbox, &sandbox))
+	t.Run("Get In Project Env", testSandboxGet(seed.Client, seed.Workspace, &sandbox))
+	t.Run("GetList In Project Env", testSandboxes(seed.Client, seed.Workspace, &envQuery))
+	t.Run("Delete In Project Env", testSandboxDelete(seed.Client, seed.Workspace, &sandbox))
 }
