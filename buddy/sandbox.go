@@ -64,6 +64,10 @@ type SandboxService struct {
 	client *Client
 }
 
+type SandboxEnvironmentOps struct {
+	Id *string `json:"id,omitempty"`
+}
+
 type SandboxEndpointHttp struct {
 	VerifyCertificate   *bool              `json:"verify_certificate,omitempty"`
 	Compression         *bool              `json:"compression,omitempty"`
@@ -143,6 +147,7 @@ type Sandbox struct {
 	Tags              []string            `json:"tags"`
 	Endpoints         []*SandboxEndpoint  `json:"endpoints"`
 	Variables         []*Variable         `json:"variables"`
+	Environment       *Environment        `json:"environment"`
 	Permissions       *SandboxPermissions `json:"permissions"`
 }
 
@@ -150,27 +155,26 @@ type SandboxStatusOps struct {
 }
 
 type SandboxOps struct {
-	Name              *string             `json:"name,omitempty"`
-	Note              *string             `json:"note,omitempty"`
-	AgentNote         *string             `json:"agent_note,omitempty"`
-	Identifier        *string             `json:"identifier,omitempty"`
-	Os                *string             `json:"os,omitempty"`
-	Resources         *string             `json:"resources,omitempty"`
-	FirstBootCommands *string             `json:"first_boot_commands,omitempty"`
-	AppDir            *string             `json:"app_dir,omitempty"`
-	Apps              *[]string           `json:"apps,omitempty"`
-	Tags              *[]string           `json:"tags,omitempty"`
-	Timeout           *int                `json:"timeout,omitempty"`
-	Variables         *[]*VariableOps     `json:"variables,omitempty"`
-	Endpoints         *[]*SandboxEndpoint `json:"endpoints,omitempty"`
-	Permissions       *SandboxPermissions `json:"permissions"`
+	Name              *string                `json:"name,omitempty"`
+	Note              *string                `json:"note,omitempty"`
+	AgentNote         *string                `json:"agent_note,omitempty"`
+	Identifier        *string                `json:"identifier,omitempty"`
+	Os                *string                `json:"os,omitempty"`
+	Resources         *string                `json:"resources,omitempty"`
+	FirstBootCommands *string                `json:"first_boot_commands,omitempty"`
+	AppDir            *string                `json:"app_dir,omitempty"`
+	Apps              *[]string              `json:"apps,omitempty"`
+	Tags              *[]string              `json:"tags,omitempty"`
+	Timeout           *int                   `json:"timeout,omitempty"`
+	Environment       *SandboxEnvironmentOps `json:"environment,omitempty"`
+	Variables         *[]*VariableOps        `json:"variables,omitempty"`
+	Endpoints         *[]*SandboxEndpoint    `json:"endpoints,omitempty"`
+	Permissions       *SandboxPermissions    `json:"permissions"`
 }
 
-func (s *SandboxService) Create(workspaceDomain string, projectName string, ops *SandboxOps) (*Sandbox, *http.Response, error) {
+func (s *SandboxService) Create(workspaceDomain string, query *Query, ops *SandboxOps) (*Sandbox, *http.Response, error) {
 	var sb *Sandbox
-	resp, err := s.client.Create(s.client.NewUrlPath("/workspaces/%s/sandboxes", workspaceDomain), &ops, &Query{
-		ProjectName: &projectName,
-	}, &sb)
+	resp, err := s.client.Create(s.client.NewUrlPath("/workspaces/%s/sandboxes", workspaceDomain), &ops, query, &sb)
 	return sb, resp, err
 }
 
@@ -190,9 +194,9 @@ func (s *SandboxService) Get(workspaceDomain string, sandboxId string) (*Sandbox
 	return sb, resp, err
 }
 
-func (s *SandboxService) GetList(workspaceDomain string, query Query) (*Sandboxes, *http.Response, error) {
+func (s *SandboxService) GetList(workspaceDomain string, query *Query) (*Sandboxes, *http.Response, error) {
 	var l *Sandboxes
-	resp, err := s.client.Get(s.client.NewUrlPath("/workspaces/%s/sandboxes", workspaceDomain), &l, &query)
+	resp, err := s.client.Get(s.client.NewUrlPath("/workspaces/%s/sandboxes", workspaceDomain), &l, query)
 	return l, resp, err
 }
 
