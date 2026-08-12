@@ -1,3 +1,6 @@
+# Release v1.46.0 (2026-08-12)
+* [Breaking] IntegrationService.GetList takes an IntegrationGetListQuery, pass ProjectName to list project scoped integrations
+
 # Release v1.45.0 (2026-08-10)
 * Sandboxes in workspace & environment
 

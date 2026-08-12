@@ -61,6 +61,10 @@ type Integration struct {
 	Permissions         *IntegrationPermissions `json:"permissions"`
 }
 
+type IntegrationGetListQuery struct {
+	ProjectName string `url:"project_name,omitempty"`
+}
+
 type Integrations struct {
 	Url          string         `json:"url"`
 	Integrations []*Integration `json:"integrations"`
@@ -146,8 +150,8 @@ func (s *IntegrationService) Get(workspaceDomain string, hashId string) (*Integr
 	return i, resp, err
 }
 
-func (s *IntegrationService) GetList(workspaceDomain string) (*Integrations, *http.Response, error) {
+func (s *IntegrationService) GetList(workspaceDomain string, query *IntegrationGetListQuery) (*Integrations, *http.Response, error) {
 	var l *Integrations
-	resp, err := s.client.Get(s.client.NewUrlPath("/workspaces/%s/integrations", workspaceDomain), &l, nil)
+	resp, err := s.client.Get(s.client.NewUrlPath("/workspaces/%s/integrations", workspaceDomain), &l, &query)
 	return l, resp, err
 }

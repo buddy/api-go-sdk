@@ -69,9 +69,9 @@ func testIntegrationGet(client *buddy.Client, workspace *buddy.Workspace, hashId
 	}
 }
 
-func testIntegrationGetList(client *buddy.Client, workspace *buddy.Workspace, count int) func(t *testing.T) {
+func testIntegrationGetList(client *buddy.Client, workspace *buddy.Workspace, query *buddy.IntegrationGetListQuery, count int) func(t *testing.T) {
 	return func(t *testing.T) {
-		integrations, _, err := client.IntegrationService.GetList(workspace.Domain)
+		integrations, _, err := client.IntegrationService.GetList(workspace.Domain, query)
 		if err != nil {
 			t.Fatal(ErrorFormatted("IntegrationService.GetList", err))
 		}
@@ -112,7 +112,7 @@ func testIntegrationStackHawk(client *buddy.Client, workspace *buddy.Workspace) 
 		t.Run("Create", testIntegrationCreate(client, workspace, &createOps, &integration))
 		t.Run("Update", testIntegrationUpdate(client, workspace, integration.HashId, &updateOps, &integration))
 		t.Run("Get", testIntegrationGet(client, workspace, integration.HashId, &integration))
-		t.Run("GetList", testIntegrationGetList(client, workspace, 1))
+		t.Run("GetList", testIntegrationGetList(client, workspace, nil, 1))
 		t.Run("Delete", testIntegrationDelete(client, workspace, integration.HashId))
 	}
 }
@@ -138,7 +138,7 @@ func testIntegrationGitLab(client *buddy.Client, workspace *buddy.Workspace) fun
 		t.Run("Create", testIntegrationCreate(client, workspace, &createOps, &integration))
 		t.Run("Update", testIntegrationUpdate(client, workspace, integration.HashId, &updateOps, &integration))
 		t.Run("Get", testIntegrationGet(client, workspace, integration.HashId, &integration))
-		t.Run("GetList", testIntegrationGetList(client, workspace, 1))
+		t.Run("GetList", testIntegrationGetList(client, workspace, nil, 1))
 		t.Run("Delete", testIntegrationDelete(client, workspace, integration.HashId))
 	}
 }
@@ -164,7 +164,7 @@ func testIntegrationGitHub(client *buddy.Client, workspace *buddy.Workspace) fun
 		t.Run("Create", testIntegrationCreate(client, workspace, &createOps, &integration))
 		t.Run("Update", testIntegrationUpdate(client, workspace, integration.HashId, &updateOps, &integration))
 		t.Run("Get", testIntegrationGet(client, workspace, integration.HashId, &integration))
-		t.Run("GetList", testIntegrationGetList(client, workspace, 1))
+		t.Run("GetList", testIntegrationGetList(client, workspace, nil, 1))
 		t.Run("Delete", testIntegrationDelete(client, workspace, integration.HashId))
 	}
 }
@@ -201,7 +201,7 @@ func testIntegrationAmazonOidc(client *buddy.Client, workspace *buddy.Workspace)
 		t.Run("Create", testIntegrationCreate(client, workspace, &createOps, &integration))
 		t.Run("Update", testIntegrationUpdate(client, workspace, integration.HashId, &updateOps, &integration))
 		t.Run("Get", testIntegrationGet(client, workspace, integration.HashId, &integration))
-		t.Run("GetList", testIntegrationGetList(client, workspace, 1))
+		t.Run("GetList", testIntegrationGetList(client, workspace, nil, 1))
 		t.Run("Delete", testIntegrationDelete(client, workspace, integration.HashId))
 	}
 }
@@ -234,7 +234,7 @@ func testIntegrationGoogleOIDC(client *buddy.Client, workspace *buddy.Workspace)
 		t.Run("Create", testIntegrationCreate(client, workspace, &createOps, &integration))
 		t.Run("Update", testIntegrationUpdate(client, workspace, integration.HashId, &updateOps, &integration))
 		t.Run("Get", testIntegrationGet(client, workspace, integration.HashId, &integration))
-		t.Run("GetList", testIntegrationGetList(client, workspace, 1))
+		t.Run("GetList", testIntegrationGetList(client, workspace, nil, 1))
 		t.Run("Delete", testIntegrationDelete(client, workspace, integration.HashId))
 	}
 }
@@ -306,7 +306,7 @@ func testIntegrationAmazon(client *buddy.Client, workspace *buddy.Workspace, gro
 		t.Run("Create", testIntegrationCreate(client, workspace, &createOps, &integration))
 		t.Run("Update", testIntegrationUpdate(client, workspace, integration.HashId, &updateOps, &integration))
 		t.Run("Get", testIntegrationGet(client, workspace, integration.HashId, &integration))
-		t.Run("GetList", testIntegrationGetList(client, workspace, 1))
+		t.Run("GetList", testIntegrationGetList(client, workspace, nil, 1))
 		t.Run("Delete", testIntegrationDelete(client, workspace, integration.HashId))
 	}
 }
@@ -337,10 +337,14 @@ func testIntegrationDigitalOcean(client *buddy.Client, workspace *buddy.Workspac
 		updateOps := buddy.IntegrationOps{
 			Name: &newName,
 		}
+		getListQuery := buddy.IntegrationGetListQuery{
+			ProjectName: project.Name,
+		}
 		t.Run("Create", testIntegrationCreate(client, workspace, &createOps, &integration))
 		t.Run("Update", testIntegrationUpdate(client, workspace, integration.HashId, &updateOps, &integration))
 		t.Run("Get", testIntegrationGet(client, workspace, integration.HashId, &integration))
-		t.Run("GetList", testIntegrationGetList(client, workspace, 1))
+		t.Run("GetList", testIntegrationGetList(client, workspace, &getListQuery, 1))
+		t.Run("GetList Workspace Scope", testIntegrationGetList(client, workspace, nil, 0))
 		t.Run("Delete", testIntegrationDelete(client, workspace, integration.HashId))
 	}
 }
@@ -368,7 +372,7 @@ func testIntegrationShopify(client *buddy.Client, workspace *buddy.Workspace) fu
 		t.Run("Create", testIntegrationCreate(client, workspace, &createOps, &integration))
 		t.Run("Update", testIntegrationUpdate(client, workspace, integration.HashId, &updateOps, &integration))
 		t.Run("Get", testIntegrationGet(client, workspace, integration.HashId, &integration))
-		t.Run("GetList", testIntegrationGetList(client, workspace, 1))
+		t.Run("GetList", testIntegrationGetList(client, workspace, nil, 1))
 		t.Run("Delete", testIntegrationDelete(client, workspace, integration.HashId))
 	}
 }
@@ -399,7 +403,7 @@ func testIntegrationShopifyPartner(client *buddy.Client, workspace *buddy.Worksp
 		t.Run("Create", testIntegrationCreate(client, workspace, &createOps, &integration))
 		t.Run("Update", testIntegrationUpdate(client, workspace, integration.HashId, &updateOps, &integration))
 		t.Run("Get", testIntegrationGet(client, workspace, integration.HashId, &integration))
-		t.Run("GetList", testIntegrationGetList(client, workspace, 1))
+		t.Run("GetList", testIntegrationGetList(client, workspace, nil, 1))
 		t.Run("Delete", testIntegrationDelete(client, workspace, integration.HashId))
 	}
 }
