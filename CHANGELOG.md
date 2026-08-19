@@ -1,3 +1,12 @@
+# Release v1.47.0 (2026-08-19)
+* [Breaking] New OAuth2 scope taxonomy, all `TokenScope*` constants follow the `READ`/`WRITE`/`MANAGE` pattern
+* [Breaking] `TokenScopeWorkspace` removed, workspace resources have their own scopes: `TokenScopeWorkspace*`, `TokenScopeProject*`, `TokenScopeMember*`, `TokenScopeGroup*`, `TokenScopePermission*`
+* [Breaking] `TokenScopeProjectDelete` removed, use `TokenScopeProjectManage` to delete a project
+* [Breaking] `TokenScopeExecution*` renamed to `TokenScopePipeline*`, `TokenScopeZone*` to `TokenScopeDomain*`, `TokenScopeWorkspacesManage` to `TokenScopeWorkspaceProvisioning`
+* [Breaking] `TokenScopeUserInfo`, `TokenScopeUserKey`, `TokenScopeUserEmail`, `TokenScopeManageEmails`, `TokenScopeMemberEmail`, `TokenScopeToken*` replaced by `TokenScopeUser*`, `TokenScopeUserSshKey*`, `TokenScopeUserEmail*`, `TokenScopeMemberEmailRead`, `TokenScopeUserPat*`
+* [Breaking] `*Info`/`*Add` scopes renamed to `*Read`/`*Write` for environment, target, variable, integration and webhook
+* Adds scopes for distributions, sandboxes, unit tests, visual tests, crawl and tunnels
+
 # Release v1.46.0 (2026-08-12)
 * [Breaking] IntegrationService.GetList takes an IntegrationGetListQuery, pass ProjectName to list project scoped integrations
 
