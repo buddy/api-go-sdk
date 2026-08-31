@@ -1,3 +1,6 @@
+# Release v1.48.0 (2026-08-31)
+* [Breaking] `Pipeline.NoSkipToMostRecent` and `PipelineOps.NoSkipToMostRecent` removed, replaced by `SkipQueuedRuns` and `CancelInprogressRuns` (`PipelineRunsScope*` constants: `NEVER`, `ALWAYS`, `SAME_REF`, `SAME_ENVIRONMENT`, `SAME_ARTIFACT`)
+
 # Release v1.47.0 (2026-08-19)
 * [Breaking] New OAuth2 scope taxonomy, all `TokenScope*` constants follow the `READ`/`WRITE`/`MANAGE` pattern
 * [Breaking] `TokenScopeWorkspace` removed, workspace resources have their own scopes: `TokenScopeWorkspace*`, `TokenScopeProject*`, `TokenScopeMember*`, `TokenScopeGroup*`, `TokenScopePermission*`

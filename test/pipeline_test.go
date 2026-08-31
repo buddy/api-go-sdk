@@ -661,7 +661,8 @@ func TestPipelineClick(t *testing.T) {
 	failOnPrepareEnvWarning := true
 	fetchAllRefs := true
 	autoClearCache := true
-	noSkipToMostRecent := true
+	skipQueuedRuns := buddy.PipelineRunsScopeAlways
+	cancelInprogressRuns := buddy.PipelineRunsScopeSameRef
 	ignoreFailOnProjectStatus := true
 	executionMessageTemplate := RandString(10)
 	targetSiteUrl := RandString(10)
@@ -677,7 +678,8 @@ func TestPipelineClick(t *testing.T) {
 		FailOnPrepareEnvWarning:   &failOnPrepareEnvWarning,
 		FetchAllRefs:              &fetchAllRefs,
 		AutoClearCache:            &autoClearCache,
-		NoSkipToMostRecent:        &noSkipToMostRecent,
+		SkipQueuedRuns:            &skipQueuedRuns,
+		CancelInprogressRuns:      &cancelInprogressRuns,
 		IgnoreFailOnProjectStatus: &ignoreFailOnProjectStatus,
 		ExecutionMessageTemplate:  &executionMessageTemplate,
 		TargetSiteUrl:             &targetSiteUrl,
@@ -696,6 +698,8 @@ func TestPipelineClick(t *testing.T) {
 	newCpu := buddy.PipelineCpuX64
 	newLoopVar := UniqueString()
 	newLoop := []string{newLoopVar}
+	newSkipQueuedRuns := buddy.PipelineRunsScopeNever
+	newCancelInprogressRuns := buddy.PipelineRunsScopeAlways
 	updateOps := buddy.PipelineOps{
 		Name:                     &newName,
 		Identifier:               &newIdentifier,
@@ -705,6 +709,8 @@ func TestPipelineClick(t *testing.T) {
 		CloneDepth:               &newCloneDepth,
 		Cpu:                      &newCpu,
 		Loop:                     &newLoop,
+		SkipQueuedRuns:           &newSkipQueuedRuns,
+		CancelInprogressRuns:     &newCancelInprogressRuns,
 	}
 	var pipeline buddy.Pipeline
 	t.Run("Create", testPipelineCreate(seed.Client, seed.Workspace, seed.Project, &ops, &pipeline))
