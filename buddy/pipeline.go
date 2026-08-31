@@ -74,6 +74,12 @@ const (
 
 	PipelineFilesystemChangeSetBaseDateModified = "DATE_MODIFIED"
 	PipelineFilesystemChangeSetBaseContents     = "CONTENTS"
+
+	PipelineRunsScopeNever           = "NEVER"
+	PipelineRunsScopeAlways          = "ALWAYS"
+	PipelineRunsScopeSameRef         = "SAME_REF"
+	PipelineRunsScopeSameEnvironment = "SAME_ENVIRONMENT"
+	PipelineRunsScopeSameArtifact    = "SAME_ARTIFACT"
 )
 
 type Pipeline struct {
@@ -96,7 +102,8 @@ type Pipeline struct {
 	FailOnPrepareEnvWarning   bool                        `json:"fail_on_prepare_env_warning"`
 	FetchAllRefs              bool                        `json:"fetch_all_refs"`
 	AutoClearCache            bool                        `json:"auto_clear_cache"`
-	NoSkipToMostRecent        bool                        `json:"no_skip_to_most_recent"`
+	SkipQueuedRuns            string                      `json:"skip_queued_runs"`
+	CancelInprogressRuns      string                      `json:"cancel_inprogress_runs"`
 	DoNotCreateCommitStatus   bool                        `json:"do_not_create_commit_status"`
 	IgnoreFailOnProjectStatus bool                        `json:"ignore_fail_on_project_status"`
 	CloneDepth                int                         `json:"clone_depth"`
@@ -202,7 +209,8 @@ type PipelineOps struct {
 	FailOnPrepareEnvWarning   *bool                        `json:"fail_on_prepare_env_warning,omitempty"`
 	FetchAllRefs              *bool                        `json:"fetch_all_refs,omitempty"`
 	AutoClearCache            *bool                        `json:"auto_clear_cache,omitempty"`
-	NoSkipToMostRecent        *bool                        `json:"no_skip_to_most_recent,omitempty"`
+	SkipQueuedRuns            *string                      `json:"skip_queued_runs,omitempty"`
+	CancelInprogressRuns      *string                      `json:"cancel_inprogress_runs,omitempty"`
 	DoNotCreateCommitStatus   *bool                        `json:"do_not_create_commit_status,omitempty"`
 	CloneDepth                *int                         `json:"clone_depth,omitempty"`
 	Paused                    *bool                        `json:"paused,omitempty"`

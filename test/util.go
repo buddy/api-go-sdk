@@ -1580,7 +1580,8 @@ func CheckPipeline(project *buddy.Project, pipeline *buddy.Pipeline, expected *b
 	failOnPrepareEnvWarning := expected.FailOnPrepareEnvWarning
 	fetchAllRefs := expected.FetchAllRefs
 	autoClearCache := expected.AutoClearCache
-	noSkipToMostRecent := expected.NoSkipToMostRecent
+	skipQueuedRuns := expected.SkipQueuedRuns
+	cancelInprogressRuns := expected.CancelInprogressRuns
 	doNotCreateCommitStatus := expected.DoNotCreateCommitStatus
 	cloneDepth := expected.CloneDepth
 	paused := expected.Paused
@@ -1655,8 +1656,11 @@ func CheckPipeline(project *buddy.Project, pipeline *buddy.Pipeline, expected *b
 		if ops.AutoClearCache != nil {
 			autoClearCache = *ops.AutoClearCache
 		}
-		if ops.NoSkipToMostRecent != nil {
-			noSkipToMostRecent = *ops.NoSkipToMostRecent
+		if ops.SkipQueuedRuns != nil {
+			skipQueuedRuns = *ops.SkipQueuedRuns
+		}
+		if ops.CancelInprogressRuns != nil {
+			cancelInprogressRuns = *ops.CancelInprogressRuns
 		}
 		if ops.DoNotCreateCommitStatus != nil {
 			doNotCreateCommitStatus = *ops.DoNotCreateCommitStatus
@@ -1738,6 +1742,12 @@ func CheckPipeline(project *buddy.Project, pipeline *buddy.Pipeline, expected *b
 	}
 	if gitConfigRef == "" {
 		gitConfigRef = buddy.PipelineGitConfigRefNone
+	}
+	if skipQueuedRuns == "" && definitionSource == buddy.PipelineDefinitionSourceLocal {
+		skipQueuedRuns = buddy.PipelineRunsScopeSameRef
+	}
+	if cancelInprogressRuns == "" && definitionSource == buddy.PipelineDefinitionSourceLocal {
+		cancelInprogressRuns = buddy.PipelineRunsScopeNever
 	}
 	if gitChangeSetBase == "" && definitionSource == buddy.PipelineDefinitionSourceLocal {
 		gitChangeSetBase = buddy.PipelineGitChangeSetBaseLatestRun
@@ -1975,8 +1985,15 @@ func CheckPipeline(project *buddy.Project, pipeline *buddy.Pipeline, expected *b
 	if err := CheckBoolFieldEqual("Pipeline.AutoClearCache", pipeline.AutoClearCache, autoClearCache); err != nil {
 		return err
 	}
-	if err := CheckBoolFieldEqual("Pipeline.NoSkipToMostRecent", pipeline.NoSkipToMostRecent, noSkipToMostRecent); err != nil {
-		return err
+	if skipQueuedRuns != "" {
+		if err := CheckFieldEqualAndSet("Pipeline.SkipQueuedRuns", pipeline.SkipQueuedRuns, skipQueuedRuns); err != nil {
+			return err
+		}
+	}
+	if cancelInprogressRuns != "" {
+		if err := CheckFieldEqualAndSet("Pipeline.CancelInprogressRuns", pipeline.CancelInprogressRuns, cancelInprogressRuns); err != nil {
+			return err
+		}
 	}
 	if err := CheckBoolFieldEqual("Pipeline.DoNotCreateCommitStatus", pipeline.DoNotCreateCommitStatus, doNotCreateCommitStatus); err != nil {
 		return err
