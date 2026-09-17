@@ -13,6 +13,7 @@ type Member struct {
 	HtmlUrl                   string `json:"html_url"`
 	Id                        int    `json:"id"`
 	Name                      string `json:"name"`
+	Username                  string `json:"username"`
 	Note                      string `json:"note"`
 	AgentNote                 string `json:"agent_note"`
 	Email                     string `json:"email"`

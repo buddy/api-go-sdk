@@ -1,3 +1,13 @@
+# Release v1.49.0 (2026-09-17)
+* Adds `Profile.Username`, `Profile.Email` and `Member.Username` (also on `ProjectMember`)
+* `PipelineTriggerCondition.TriggerUser` is now returned as the username, an email is still accepted on input
+* Adds `Variable.RunOnlySettable` and `VariableOps.RunOnlySettable`, requires `Settable` to be true
+* Adds the sandbox variable scope: `VariableSandbox`, `Variable.Sandbox`, `VariableOps.Sandbox` and `VariableGetListQuery.SandboxId`
+* Adds `Disabled`, `PipelinesAccessLevel` and `SandboxesAccessLevel` to `Variable` and `VariableOps` (`VariableAccessLevelUseOnly`, `VariableAccessLevelDenied`)
+* Adds variable allowed rules: `VariableAllowedPipeline` (with a per-action `Action`), `VariableAllowedSandbox` and `AllowedPipelines`/`AllowedSandboxes` on `Variable` and `VariableOps`
+* Adds `Variable.Url` and `Variable.HtmlUrl`
+* `VariableOps` scope fields and `Type` are immutable on `VariableService.Update`, sending a different value now fails with 400
+
 # Release v1.48.0 (2026-08-31)
 * [Breaking] `Pipeline.NoSkipToMostRecent` and `PipelineOps.NoSkipToMostRecent` removed, replaced by `SkipQueuedRuns` and `CancelInprogressRuns` (`PipelineRunsScope*` constants: `NEVER`, `ALWAYS`, `SAME_REF`, `SAME_ENVIRONMENT`, `SAME_ARTIFACT`)
 
