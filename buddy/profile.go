@@ -7,6 +7,8 @@ type Profile struct {
 	HtmlUrl       string `json:"html_url"`
 	Id            int    `json:"id"`
 	Name          string `json:"name"`
+	Username      string `json:"username"`
+	Email         string `json:"email"`
 	AvatarUrl     string `json:"avatar_url"`
 	WorkspacesUrl string `json:"workspaces_url"`
 }

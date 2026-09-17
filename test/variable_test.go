@@ -18,14 +18,24 @@ func testVariableCreate(client *buddy.Client, workspace *buddy.Workspace, projec
 		fileChmod := ""
 		filePath := ""
 		filePlace := ""
+		runOnlySet := set
+		disabled := false
+		pipelinesAccessLevel := buddy.VariableAccessLevelDenied
+		sandboxesAccessLevel := buddy.VariableAccessLevelUseOnly
 		ops := buddy.VariableOps{
-			Key:       &key,
-			Value:     &val,
-			Type:      &typ,
-			Note:      &desc,
-			AgentNote: &agentNote,
-			Settable:  &set,
-			Encrypted: &enc,
+			Key:             &key,
+			Value:           &val,
+			Type:            &typ,
+			Note:            &desc,
+			AgentNote:       &agentNote,
+			Settable:        &set,
+			RunOnlySettable: &runOnlySet,
+			Encrypted:       &enc,
+			Disabled:        &disabled,
+		}
+		if env == nil {
+			ops.PipelinesAccessLevel = &pipelinesAccessLevel
+			ops.SandboxesAccessLevel = &sandboxesAccessLevel
 		}
 		if typ == buddy.VariableTypeSshKey {
 			val = privateKey
@@ -51,7 +61,7 @@ func testVariableCreate(client *buddy.Client, workspace *buddy.Workspace, projec
 		if err != nil {
 			t.Fatal(ErrorFormatted("VariableService.Create", err))
 		}
-		err = CheckVariable(variable, key, val, typ, desc, agentNote, set, enc, filePath, fileChmod, filePlace, 0, project, env)
+		err = CheckVariable(variable, key, val, typ, desc, agentNote, set, enc, filePath, fileChmod, filePlace, 0, project, env, &ops)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -73,13 +83,22 @@ func testVariableUpdate(client *buddy.Client, workspace *buddy.Workspace, projec
 		filePath := ""
 		filePlace := ""
 		fileChmod := ""
+		runOnlySet := false
+		disabled := true
+		pipelinesAccessLevel := buddy.VariableAccessLevelUseOnly
+		sandboxesAccessLevel := buddy.VariableAccessLevelDenied
 		ops := buddy.VariableOps{
-			Value:     &val,
-			Note:      &desc,
-			AgentNote: &agentNote,
-			Settable:  &set,
-			Encrypted: &enc,
-			Type:      &out.Type,
+			Value:           &val,
+			Note:            &desc,
+			AgentNote:       &agentNote,
+			Settable:        &set,
+			RunOnlySettable: &runOnlySet,
+			Encrypted:       &enc,
+			Disabled:        &disabled,
+		}
+		if env == nil {
+			ops.PipelinesAccessLevel = &pipelinesAccessLevel
+			ops.SandboxesAccessLevel = &sandboxesAccessLevel
 		}
 		if out.Type == buddy.VariableTypeSshKey {
 			val = privateKey
@@ -95,7 +114,7 @@ func testVariableUpdate(client *buddy.Client, workspace *buddy.Workspace, projec
 		if err != nil {
 			t.Fatal(ErrorFormatted("VariableService.Patch", err))
 		}
-		err = CheckVariable(variable, out.Key, val, out.Type, desc, agentNote, set, enc, filePath, fileChmod, filePlace, out.Id, project, env)
+		err = CheckVariable(variable, out.Key, val, out.Type, desc, agentNote, set, enc, filePath, fileChmod, filePlace, out.Id, project, env, &ops)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -109,7 +128,7 @@ func testVariableGet(client *buddy.Client, workspace *buddy.Workspace, project *
 		if err != nil {
 			t.Fatal(ErrorFormatted("VariableService.Get", err))
 		}
-		err = CheckVariable(variable, out.Key, out.Value, out.Type, out.Note, out.AgentNote, out.Settable, out.Encrypted, out.FilePath, out.FileChmod, out.FilePlace, out.Id, project, env)
+		err = CheckVariable(variable, out.Key, out.Value, out.Type, out.Note, out.AgentNote, out.Settable, out.Encrypted, out.FilePath, out.FileChmod, out.FilePlace, out.Id, project, env, nil)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -206,4 +225,105 @@ func TestVariableSsh(t *testing.T) {
 	t.Run("GetList", testVariableGetList(seed.Client, seed.Workspace, nil, nil, 1))
 	t.Run("GetListInProject", testVariableGetList(seed.Client, seed.Workspace, seed.Project, nil, 2))
 	t.Run("Delete", testVariableDelete(seed.Client, seed.Workspace, &variable))
+}
+
+func testVariableAllowedRulesCreate(client *buddy.Client, workspace *buddy.Workspace, project *buddy.Project, pipeline *buddy.Pipeline, out *buddy.Variable) func(t *testing.T) {
+	return func(t *testing.T) {
+		key := RandString(10)
+		val := RandString(10)
+		pipelinesAccessLevel := buddy.VariableAccessLevelUseOnly
+		sandboxesAccessLevel := buddy.VariableAccessLevelDenied
+		allowedPipelines := []*buddy.VariableAllowedPipeline{{
+			Project:     project.Name,
+			Pipeline:    pipeline.Name,
+			AccessLevel: buddy.VariableAccessLevelDenied,
+		}}
+		ops := buddy.VariableOps{
+			Key:                  &key,
+			Value:                &val,
+			PipelinesAccessLevel: &pipelinesAccessLevel,
+			SandboxesAccessLevel: &sandboxesAccessLevel,
+			AllowedPipelines:     &allowedPipelines,
+		}
+		variable, _, err := client.VariableService.Create(workspace.Domain, &ops)
+		if err != nil {
+			t.Fatal(ErrorFormatted("VariableService.Create", err))
+		}
+		err = CheckVariableAllowedRules(variable, allowedPipelines, nil)
+		if err != nil {
+			t.Fatal(err)
+		}
+		*out = *variable
+	}
+}
+
+func testVariableAllowedRulesUpdate(client *buddy.Client, workspace *buddy.Workspace, project *buddy.Project, pipeline *buddy.Pipeline, out *buddy.Variable) func(t *testing.T) {
+	return func(t *testing.T) {
+		allowedPipelines := []*buddy.VariableAllowedPipeline{{
+			Project:     project.Name,
+			Pipeline:    pipeline.Name,
+			Action:      RandString(10),
+			AccessLevel: buddy.VariableAccessLevelDenied,
+		}}
+		ops := buddy.VariableOps{
+			AllowedPipelines: &allowedPipelines,
+		}
+		variable, _, err := client.VariableService.Update(workspace.Domain, out.Id, &ops)
+		if err != nil {
+			t.Fatal(ErrorFormatted("VariableService.Patch", err))
+		}
+		err = CheckVariableAllowedRules(variable, allowedPipelines, nil)
+		if err != nil {
+			t.Fatal(err)
+		}
+		*out = *variable
+	}
+}
+
+func testVariableAllowedRulesClear(client *buddy.Client, workspace *buddy.Workspace, out *buddy.Variable) func(t *testing.T) {
+	return func(t *testing.T) {
+		allowedPipelines := []*buddy.VariableAllowedPipeline{}
+		ops := buddy.VariableOps{
+			AllowedPipelines: &allowedPipelines,
+		}
+		variable, _, err := client.VariableService.Update(workspace.Domain, out.Id, &ops)
+		if err != nil {
+			t.Fatal(ErrorFormatted("VariableService.Patch", err))
+		}
+		err = CheckVariableAllowedRules(variable, nil, nil)
+		if err != nil {
+			t.Fatal(err)
+		}
+		*out = *variable
+	}
+}
+
+func TestVariableAllowedRules(t *testing.T) {
+	seed, err := SeedInitialData(&SeedOps{
+		workspace: true,
+		project:   true,
+		pipeline:  true,
+	})
+	if err != nil {
+		t.Fatal(ErrorFormatted("SeedInitialData", err))
+	}
+	var variable buddy.Variable
+	t.Run("Create", testVariableAllowedRulesCreate(seed.Client, seed.Workspace, seed.Project, seed.Pipeline, &variable))
+	t.Run("UpdateToActionRule", testVariableAllowedRulesUpdate(seed.Client, seed.Workspace, seed.Project, seed.Pipeline, &variable))
+	t.Run("Get", testVariableAllowedRulesGet(seed.Client, seed.Workspace, &variable))
+	t.Run("Clear", testVariableAllowedRulesClear(seed.Client, seed.Workspace, &variable))
+	t.Run("Delete", testVariableDelete(seed.Client, seed.Workspace, &variable))
+}
+
+func testVariableAllowedRulesGet(client *buddy.Client, workspace *buddy.Workspace, out *buddy.Variable) func(t *testing.T) {
+	return func(t *testing.T) {
+		variable, _, err := client.VariableService.Get(workspace.Domain, out.Id)
+		if err != nil {
+			t.Fatal(ErrorFormatted("VariableService.Get", err))
+		}
+		err = CheckVariableAllowedRules(variable, out.AllowedPipelines, out.AllowedSandboxes)
+		if err != nil {
+			t.Fatal(err)
+		}
+	}
 }

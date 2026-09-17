@@ -482,9 +482,10 @@ func TestPipelineEvent(t *testing.T) {
 		TriggerConditions: &newTcs,
 	}
 	t.Run("UpdateTcDateTime", testPipelineUpdate(seed.Client, seed.Workspace, seed.Project, &updateOps, &pipeline))
+	// The API also accepts an email here, but it always returns the username back
 	newTc = buddy.PipelineTriggerCondition{
 		TriggerCondition: buddy.PipelineTriggerConditionTriggeringUserIs,
-		TriggerUser:      seed.Member.Email,
+		TriggerUser:      seed.Member.Username,
 	}
 	updateOps = buddy.PipelineOps{
 		TriggerConditions: &newTcs,
@@ -492,7 +493,7 @@ func TestPipelineEvent(t *testing.T) {
 	t.Run("UpdateTcTriggeringUserIs", testPipelineUpdate(seed.Client, seed.Workspace, seed.Project, &updateOps, &pipeline))
 	newTc = buddy.PipelineTriggerCondition{
 		TriggerCondition: buddy.PipelineTriggerConditionTriggeringUserIsNot,
-		TriggerUser:      seed.Member.Email,
+		TriggerUser:      seed.Member.Username,
 	}
 	updateOps = buddy.PipelineOps{
 		TriggerConditions: &newTcs,

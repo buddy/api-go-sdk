@@ -518,6 +518,9 @@ func CheckMember(member *buddy.Member, email string, name string, note string, a
 	if err := CheckFieldSet("Member.AvatarUrl", member.AvatarUrl); err != nil {
 		return err
 	}
+	if err := CheckFieldSet("Member.Username", member.Username); err != nil {
+		return err
+	}
 	if err := CheckBoolFieldEqual("Member.Admin", member.Admin, admin); err != nil {
 		return err
 	}
@@ -558,6 +561,12 @@ func CheckProfile(profile *buddy.Profile, name string) error {
 		return err
 	}
 	if err := CheckFieldEqualAndSet("Profile.Name", profile.Name, name); err != nil {
+		return err
+	}
+	if err := CheckFieldSet("Profile.Username", profile.Username); err != nil {
+		return err
+	}
+	if err := CheckFieldSet("Profile.Email", profile.Email); err != nil {
 		return err
 	}
 	if err := CheckFieldSet("Profile.AvatarUrl", profile.AvatarUrl); err != nil {
@@ -771,7 +780,35 @@ func CheckWorkspace(workspace *buddy.Workspace, name string, domain string, id i
 	return nil
 }
 
-func CheckVariable(variable *buddy.Variable, key string, val string, typ string, desc string, agentNote string, set bool, enc bool, filePath string, fileChmod string, filePlace string, id int, project *buddy.Project, env *buddy.Environment) error {
+func CheckVariable(variable *buddy.Variable, key string, val string, typ string, desc string, agentNote string, set bool, enc bool, filePath string, fileChmod string, filePlace string, id int, project *buddy.Project, env *buddy.Environment, ops *buddy.VariableOps) error {
+	if err := CheckFieldSet("Variable.Url", variable.Url); err != nil {
+		return err
+	}
+	if err := CheckFieldSet("Variable.HtmlUrl", variable.HtmlUrl); err != nil {
+		return err
+	}
+	if ops != nil {
+		if ops.RunOnlySettable != nil {
+			if err := CheckBoolFieldEqual("Variable.RunOnlySettable", variable.RunOnlySettable, *ops.RunOnlySettable); err != nil {
+				return err
+			}
+		}
+		if ops.Disabled != nil {
+			if err := CheckBoolFieldEqual("Variable.Disabled", variable.Disabled, *ops.Disabled); err != nil {
+				return err
+			}
+		}
+		if ops.PipelinesAccessLevel != nil {
+			if err := CheckFieldEqualAndSet("Variable.PipelinesAccessLevel", variable.PipelinesAccessLevel, *ops.PipelinesAccessLevel); err != nil {
+				return err
+			}
+		}
+		if ops.SandboxesAccessLevel != nil {
+			if err := CheckFieldEqualAndSet("Variable.SandboxesAccessLevel", variable.SandboxesAccessLevel, *ops.SandboxesAccessLevel); err != nil {
+				return err
+			}
+		}
+	}
 	if id != 0 {
 		if err := CheckIntFieldEqualAndSet("Variable.Id", variable.Id, id); err != nil {
 			return err
@@ -1071,6 +1108,43 @@ func CheckWebhooks(webhooks *buddy.Webhooks, count int) error {
 	}
 	if err := CheckIntFieldEqual("len(Webhooks)", len(webhooks.Webhooks), count); err != nil {
 		return err
+	}
+	return nil
+}
+
+func CheckVariableAllowedRules(variable *buddy.Variable, pipelines []*buddy.VariableAllowedPipeline, sandboxes []*buddy.VariableAllowedSandbox) error {
+	if err := CheckIntFieldEqual("len(Variable.AllowedPipelines)", len(variable.AllowedPipelines), len(pipelines)); err != nil {
+		return err
+	}
+	for i, expected := range pipelines {
+		got := variable.AllowedPipelines[i]
+		if err := CheckFieldEqualAndSet("Variable.AllowedPipelines.Project", got.Project, expected.Project); err != nil {
+			return err
+		}
+		if err := CheckFieldEqualAndSet("Variable.AllowedPipelines.Pipeline", got.Pipeline, expected.Pipeline); err != nil {
+			return err
+		}
+		if err := CheckFieldEqual("Variable.AllowedPipelines.Action", got.Action, expected.Action); err != nil {
+			return err
+		}
+		if err := CheckFieldEqualAndSet("Variable.AllowedPipelines.AccessLevel", got.AccessLevel, expected.AccessLevel); err != nil {
+			return err
+		}
+	}
+	if err := CheckIntFieldEqual("len(Variable.AllowedSandboxes)", len(variable.AllowedSandboxes), len(sandboxes)); err != nil {
+		return err
+	}
+	for i, expected := range sandboxes {
+		got := variable.AllowedSandboxes[i]
+		if err := CheckFieldEqualAndSet("Variable.AllowedSandboxes.Project", got.Project, expected.Project); err != nil {
+			return err
+		}
+		if err := CheckFieldEqualAndSet("Variable.AllowedSandboxes.Sandbox", got.Sandbox, expected.Sandbox); err != nil {
+			return err
+		}
+		if err := CheckFieldEqualAndSet("Variable.AllowedSandboxes.AccessLevel", got.AccessLevel, expected.AccessLevel); err != nil {
+			return err
+		}
 	}
 	return nil
 }
