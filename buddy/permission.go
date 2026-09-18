@@ -32,6 +32,9 @@ type Permission struct {
 	ProjectTeamAccessLevel string `json:"project_team_access_level"`
 	EnvironmentAccessLevel string `json:"environment_access_level"`
 	TargetAccessLevel      string `json:"target_access_level"`
+	ArtifactAccessLevel    string `json:"artifact_access_level"`
+	RoutingAccessLevel     string `json:"routing_access_level"`
+	TunnelAgentAccessLevel string `json:"tunnel_agent_access_level"`
 }
 
 type Permissions struct {
@@ -50,6 +53,9 @@ type PermissionOps struct {
 	SandboxAccessLevel     *string `json:"sandbox_access_level"`
 	EnvironmentAccessLevel *string `json:"environment_access_level,omitempty"`
 	TargetAccessLevel      *string `json:"target_access_level,omitempty"`
+	ArtifactAccessLevel    *string `json:"artifact_access_level,omitempty"`
+	RoutingAccessLevel     *string `json:"routing_access_level,omitempty"`
+	TunnelAgentAccessLevel *string `json:"tunnel_agent_access_level,omitempty"`
 }
 
 type PermissionService struct {

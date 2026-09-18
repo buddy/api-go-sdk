@@ -1,3 +1,7 @@
+# Release v1.50.0 (2026-09-18)
+* Adds `ArtifactAccessLevel`, `RoutingAccessLevel` and `TunnelAgentAccessLevel` to `Permission` and `PermissionOps`
+* `ProjectTeamAccessLevel` set to `MANAGE` now requires full access on every other resource, the API rejects other combinations with 403
+
 # Release v1.49.0 (2026-09-17)
 * Adds `Profile.Username`, `Profile.Email` and `Member.Username` (also on `ProjectMember`)
 * `PipelineTriggerCondition.TriggerUser` is now returned as the username, an email is still accepted on input

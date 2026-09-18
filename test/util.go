@@ -358,7 +358,7 @@ func CheckProjectGroup(projectGroup *buddy.ProjectGroup, group *buddy.Group, per
 	if err := CheckGroup(&projectGroup.Group, group.Name, group.Note, group.AgentNote, group.AutoAssignToNewProjects, group.AutoAssignPermissionSetId, group.Id); err != nil {
 		return err
 	}
-	if err := CheckPermission(projectGroup.PermissionSet, permission.Name, permission.Note, permission.AgentNote, permission.Id, permission.PipelineAccessLevel, permission.RepositoryAccessLevel, permission.SandboxAccessLevel, permission.ProjectTeamAccessLevel, permission.TargetAccessLevel, permission.EnvironmentAccessLevel); err != nil {
+	if err := CheckPermission(projectGroup.PermissionSet, permission.Name, permission.Note, permission.AgentNote, permission.Id, permission.PipelineAccessLevel, permission.RepositoryAccessLevel, permission.SandboxAccessLevel, permission.ProjectTeamAccessLevel, permission.TargetAccessLevel, permission.EnvironmentAccessLevel, permission.ArtifactAccessLevel, permission.RoutingAccessLevel, permission.TunnelAgentAccessLevel); err != nil {
 		return err
 	}
 	return nil
@@ -368,7 +368,7 @@ func CheckProjectMember(projectMember *buddy.ProjectMember, member *buddy.Member
 	if err := CheckMember(&projectMember.Member, member.Email, member.Name, member.Note, member.AgentNote, member.AutoAssignToNewProjects, member.AutoAssignPermissionSetId, member.Admin, member.WorkspaceOwner, member.Id, ""); err != nil {
 		return err
 	}
-	if err := CheckPermission(projectMember.PermissionSet, permission.Name, permission.Note, permission.AgentNote, permission.Id, permission.PipelineAccessLevel, permission.RepositoryAccessLevel, permission.SandboxAccessLevel, permission.ProjectTeamAccessLevel, permission.TargetAccessLevel, permission.EnvironmentAccessLevel); err != nil {
+	if err := CheckPermission(projectMember.PermissionSet, permission.Name, permission.Note, permission.AgentNote, permission.Id, permission.PipelineAccessLevel, permission.RepositoryAccessLevel, permission.SandboxAccessLevel, permission.ProjectTeamAccessLevel, permission.TargetAccessLevel, permission.EnvironmentAccessLevel, permission.ArtifactAccessLevel, permission.RoutingAccessLevel, permission.TunnelAgentAccessLevel); err != nil {
 		return err
 	}
 	return nil
@@ -617,7 +617,7 @@ func CheckGroups(groups *buddy.Groups, count int) error {
 	return nil
 }
 
-func CheckPermission(permission *buddy.Permission, name string, desc string, agentNote string, id int, pipelineAccessLevel string, repoAccessLevel string, sandboxAccessLevel string, projectTeamAccessLevel string, targetAccessLevel string, environmentAccessLevel string) error {
+func CheckPermission(permission *buddy.Permission, name string, desc string, agentNote string, id int, pipelineAccessLevel string, repoAccessLevel string, sandboxAccessLevel string, projectTeamAccessLevel string, targetAccessLevel string, environmentAccessLevel string, artifactAccessLevel string, routingAccessLevel string, tunnelAgentAccessLevel string) error {
 	if err := CheckFieldSet("Permission.Url", permission.Url); err != nil {
 		return err
 	}
@@ -658,6 +658,15 @@ func CheckPermission(permission *buddy.Permission, name string, desc string, age
 		return err
 	}
 	if err := CheckFieldEqualAndSet("Permission.EnvironmentAccessLevel", permission.EnvironmentAccessLevel, environmentAccessLevel); err != nil {
+		return err
+	}
+	if err := CheckFieldEqualAndSet("Permission.ArtifactAccessLevel", permission.ArtifactAccessLevel, artifactAccessLevel); err != nil {
+		return err
+	}
+	if err := CheckFieldEqualAndSet("Permission.RoutingAccessLevel", permission.RoutingAccessLevel, routingAccessLevel); err != nil {
+		return err
+	}
+	if err := CheckFieldEqualAndSet("Permission.TunnelAgentAccessLevel", permission.TunnelAgentAccessLevel, tunnelAgentAccessLevel); err != nil {
 		return err
 	}
 	return nil
