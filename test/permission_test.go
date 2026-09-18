@@ -16,6 +16,9 @@ func testPermissionCreate(client *buddy.Client, workspace *buddy.Workspace, out 
 		projectTeamAccessLevel := buddy.PermissionAccessLevelReadOnly
 		environmentAccessLevel := buddy.PermissionAccessLevelUseOnly
 		targetAccessLevel := buddy.PermissionAccessLevelManage
+		artifactAccessLevel := buddy.PermissionAccessLevelReadWrite
+		routingAccessLevel := buddy.PermissionAccessLevelReadOnly
+		tunnelAgentAccessLevel := buddy.PermissionAccessLevelDenied
 		ops := buddy.PermissionOps{
 			Name:                   &name,
 			Note:                   &desc,
@@ -26,12 +29,15 @@ func testPermissionCreate(client *buddy.Client, workspace *buddy.Workspace, out 
 			ProjectTeamAccessLevel: &projectTeamAccessLevel,
 			EnvironmentAccessLevel: &environmentAccessLevel,
 			TargetAccessLevel:      &targetAccessLevel,
+			ArtifactAccessLevel:    &artifactAccessLevel,
+			RoutingAccessLevel:     &routingAccessLevel,
+			TunnelAgentAccessLevel: &tunnelAgentAccessLevel,
 		}
 		permission, _, err := client.PermissionService.Create(workspace.Domain, &ops)
 		if err != nil {
 			t.Fatal(ErrorFormatted("PermissionService.Create", err))
 		}
-		err = CheckPermission(permission, name, desc, agentNote, 0, pipelineAccessLevel, repositoryAccessLevel, sandboxAccessLevel, projectTeamAccessLevel, targetAccessLevel, environmentAccessLevel)
+		err = CheckPermission(permission, name, desc, agentNote, 0, pipelineAccessLevel, repositoryAccessLevel, sandboxAccessLevel, projectTeamAccessLevel, targetAccessLevel, environmentAccessLevel, artifactAccessLevel, routingAccessLevel, tunnelAgentAccessLevel)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -50,6 +56,10 @@ func testPermissionUpdate(client *buddy.Client, workspace *buddy.Workspace, out 
 		projectTeamAccessLevel := buddy.PermissionAccessLevelManage
 		environmentAccessLevel := buddy.PermissionAccessLevelManage
 		targetAccessLevel := buddy.PermissionAccessLevelManage
+		// PROJECT_TEAM MANAGE requires full access on every other resource
+		artifactAccessLevel := buddy.PermissionAccessLevelManage
+		routingAccessLevel := buddy.PermissionAccessLevelManage
+		tunnelAgentAccessLevel := buddy.PermissionAccessLevelManage
 		ops := buddy.PermissionOps{
 			Name:                   &name,
 			Note:                   &desc,
@@ -60,12 +70,15 @@ func testPermissionUpdate(client *buddy.Client, workspace *buddy.Workspace, out 
 			ProjectTeamAccessLevel: &projectTeamAccessLevel,
 			EnvironmentAccessLevel: &environmentAccessLevel,
 			TargetAccessLevel:      &targetAccessLevel,
+			ArtifactAccessLevel:    &artifactAccessLevel,
+			RoutingAccessLevel:     &routingAccessLevel,
+			TunnelAgentAccessLevel: &tunnelAgentAccessLevel,
 		}
 		permission, _, err := client.PermissionService.Update(workspace.Domain, out.Id, &ops)
 		if err != nil {
 			t.Fatal(ErrorFormatted("PermissionService.Patch", err))
 		}
-		err = CheckPermission(permission, name, desc, agentNote, out.Id, pipelineAccessLevel, repositoryAccessLevel, sandboxAccessLevel, projectTeamAccessLevel, targetAccessLevel, environmentAccessLevel)
+		err = CheckPermission(permission, name, desc, agentNote, out.Id, pipelineAccessLevel, repositoryAccessLevel, sandboxAccessLevel, projectTeamAccessLevel, targetAccessLevel, environmentAccessLevel, artifactAccessLevel, routingAccessLevel, tunnelAgentAccessLevel)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -79,7 +92,7 @@ func testPermissionGet(client *buddy.Client, workspace *buddy.Workspace, permiss
 		if err != nil {
 			t.Fatal(ErrorFormatted("PermissionService.Get", err))
 		}
-		err = CheckPermission(permissionGet, permission.Name, permission.Note, permission.AgentNote, permission.Id, permission.PipelineAccessLevel, permission.RepositoryAccessLevel, permission.SandboxAccessLevel, permission.ProjectTeamAccessLevel, permission.TargetAccessLevel, permission.EnvironmentAccessLevel)
+		err = CheckPermission(permissionGet, permission.Name, permission.Note, permission.AgentNote, permission.Id, permission.PipelineAccessLevel, permission.RepositoryAccessLevel, permission.SandboxAccessLevel, permission.ProjectTeamAccessLevel, permission.TargetAccessLevel, permission.EnvironmentAccessLevel, permission.ArtifactAccessLevel, permission.RoutingAccessLevel, permission.TunnelAgentAccessLevel)
 		if err != nil {
 			t.Fatal(err)
 		}
