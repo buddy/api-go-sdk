@@ -1,3 +1,8 @@
+# Release v1.51.0 (2026-09-25)
+* [Breaking] `PipelinePullRequestEvent*` constants follow the new API values: `OPENED`, `REOPENED`, `SYNCHRONIZED`, `CLOSED`, `MERGED`, `READY_FOR_REVIEW`, `LABELED`, `ASSIGNED`, `REVIEW_REQUESTED`, `EDITED`, lowercase values are rejected with 400
+* [Breaking] `PipelinePullRequestEventSynchronize` renamed to `PipelinePullRequestEventSynchronized`, adds `PipelinePullRequestEventMerged`
+* [Breaking] `PipelinePullRequestEvent*` constants for `unassigned`, `unlabeled`, `converted_to_draft`, `locked`, `unlocked`, `enqueued`, `dequeued`, `milestoned`, `demilestoned`, `review_request_removed`, `auto_merge_enabled`, `auto_merge_disabled` removed
+
 # Release v1.50.0 (2026-09-18)
 * Adds `ArtifactAccessLevel`, `RoutingAccessLevel` and `TunnelAgentAccessLevel` to `Permission` and `PermissionOps`
 * `ProjectTeamAccessLevel` set to `MANAGE` now requires full access on every other resource, the API rejects other combinations with 403
