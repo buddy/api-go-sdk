@@ -255,6 +255,27 @@ type Domain struct {
 type DomainCreateOps struct {
 	Name *string `json:"name"`
 	Type *string `json:"type"`
+	// AutoRenew applies only to DomainTypeRegistered
+	AutoRenew *bool `json:"auto_renew,omitempty"`
+	// OnOwnerBehalf applies only to DomainTypeRegistered and DomainTypeClaimed
+	OnOwnerBehalf *bool `json:"on_owner_behalf,omitempty"`
+}
+
+type DomainGetListQuery struct {
+	// Type returns only domains of the given type (DomainType* constants)
+	Type string `url:"type,omitempty"`
+}
+
+// DomainYaml holds the records of a domain as base64-encoded YAML, the top-level key is the domain name
+type DomainYaml struct {
+	Url     string `json:"url"`
+	HtmlUrl string `json:"html_url"`
+	Yaml    string `json:"yaml"`
+}
+
+type DomainYamlOps struct {
+	// Yaml is the base64-encoded YAML, in the format returned by DomainService.GetYaml
+	Yaml *string `json:"yaml"`
 }
 
 type RecordUpsertOps struct {
@@ -268,6 +289,8 @@ type RecordUpsertOps struct {
 }
 
 type Domains struct {
+	Url     string    `json:"url"`
+	HtmlUrl string    `json:"html_url"`
 	Domains []*Domain `json:"domains"`
 }
 
@@ -275,9 +298,9 @@ type Records struct {
 	Records []*Record `json:"records"`
 }
 
-func (s *DomainService) GetList(workspaceDomain string) (*Domains, *http.Response, error) {
+func (s *DomainService) GetList(workspaceDomain string, query *DomainGetListQuery) (*Domains, *http.Response, error) {
 	var d *Domains
-	resp, err := s.client.Get(s.client.NewUrlPath("/workspaces/%s/domains", workspaceDomain), &d, nil)
+	resp, err := s.client.Get(s.client.NewUrlPath("/workspaces/%s/domains", workspaceDomain), &d, &query)
 	return d, resp, err
 }
 
@@ -290,6 +313,33 @@ func (s *DomainService) Create(workspaceDomain string, ops *DomainCreateOps) (*D
 func (s *DomainService) Get(workspaceDomain string, domainId string) (*Domain, *http.Response, error) {
 	var d *Domain
 	resp, err := s.client.Get(s.client.NewUrlPath("/workspaces/%s/domains/%s", workspaceDomain, domainId), &d, nil)
+	return d, resp, err
+}
+
+// Delete removes the domain with all its records from the workspace
+func (s *DomainService) Delete(workspaceDomain string, domainId string) (*http.Response, error) {
+	return s.client.Delete(s.client.NewUrlPath("/workspaces/%s/domains/%s", workspaceDomain, domainId), nil, nil)
+}
+
+func (s *DomainService) GetYaml(workspaceDomain string, domainId string) (*DomainYaml, *http.Response, error) {
+	var y *DomainYaml
+	resp, err := s.client.Get(s.client.NewUrlPath("/workspaces/%s/domains/%s/yaml", workspaceDomain, domainId), &y, nil)
+	return y, resp, err
+}
+
+// UpdateYaml replaces all records of the domain with the ones from the YAML, the apex SOA and NS records must stay as returned by GetYaml
+func (s *DomainService) UpdateYaml(workspaceDomain string, domainId string, ops *DomainYamlOps) (*Domain, *http.Response, error) {
+	var d *Domain
+	resp, err := s.client.Patch(s.client.NewUrlPath("/workspaces/%s/domains/%s/yaml", workspaceDomain, domainId), &ops, nil, &d)
+	return d, resp, err
+}
+
+// UpsertPrivateYaml creates or updates private domains, every top-level key of the YAML is a domain. A domain that is not yet
+// private in the workspace is created as DomainTypePrivate, an existing one gets its records replaced. Public domains with the
+// same name are not touched. All domains are processed in one transaction, the returned list follows the document order
+func (s *DomainService) UpsertPrivateYaml(workspaceDomain string, ops *DomainYamlOps) (*Domains, *http.Response, error) {
+	var d *Domains
+	resp, err := s.client.Create(s.client.NewUrlPath("/workspaces/%s/domains/private/yaml", workspaceDomain), &ops, nil, &d)
 	return d, resp, err
 }
 

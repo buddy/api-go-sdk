@@ -531,10 +531,14 @@ func CheckMember(member *buddy.Member, email string, name string, note string, a
 }
 
 func CheckDomains(domains *buddy.Domains, domain *buddy.Domain) error {
+	if err := CheckFieldSet("Domains.Url", domains.Url); err != nil {
+		return err
+	}
 	if err := CheckIntFieldEqual("len(Domains)", len(domains.Domains), 1); err != nil {
 		return err
 	}
-	return CheckDomain(domains.Domains[0], domain.Name, true)
+	// the list carries the type too, only the type-specific details are left out
+	return CheckDomain(domains.Domains[0], domain.Name, false)
 }
 
 func CheckMembers(members *buddy.Members, count int) error {
