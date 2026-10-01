@@ -140,7 +140,21 @@ func testDomainPrivateYamlUpsert(client *buddy.Client, workspace *buddy.Workspac
 				t.Fatal(err)
 			}
 		}
-		// the same document again updates, it does not create
+		// existing domains need their apex SOA and NS, so the update is built from GetYaml
+		var update strings.Builder
+		for _, d := range domains.Domains {
+			y, _, err := client.DomainService.GetYaml(workspace.Domain, d.Id)
+			if err != nil {
+				t.Fatal(ErrorFormatted("DomainService.GetYaml", err))
+			}
+			raw, err := base64.StdEncoding.DecodeString(y.Yaml)
+			if err != nil {
+				t.Fatal(ErrorFormatted("base64.DecodeString", err))
+			}
+			update.WriteString(strings.TrimRight(string(raw), "\n") + "\n")
+		}
+		encoded = base64.StdEncoding.EncodeToString([]byte(update.String()))
+		// the same domains again update, they are not created
 		_, _, err = client.DomainService.UpsertPrivateYaml(workspace.Domain, &buddy.DomainYamlOps{Yaml: &encoded})
 		if err != nil {
 			t.Fatal(ErrorFormatted("DomainService.UpsertPrivateYaml", err))
@@ -312,6 +326,11 @@ func TestDomain(t *testing.T) {
 	t.Run("RecordDelete", testDomainRecordDelete(seed.Client, seed.Workspace, &domain, &record))
 	t.Run("GeoRecordUpsert", testDomainGeoRecordUpsert(seed.Client, seed.Workspace, &domain, &record))
 	t.Run("YamlUpdate", testDomainYamlUpdate(seed.Client, seed.Workspace, &domain))
-	t.Run("PrivateYamlUpsert", testDomainPrivateYamlUpsert(seed.Client, seed.Workspace))
+	// private zones need a paid plan, which only the main workspace has
+	mainWorkspace, err := GetMainWorkspace(seed.Client)
+	if err != nil {
+		t.Fatal(ErrorFormatted("GetMainWorkspace", err))
+	}
+	t.Run("PrivateYamlUpsert", testDomainPrivateYamlUpsert(seed.Client, mainWorkspace))
 	t.Run("Delete", testDomainDelete(seed.Client, seed.Workspace, &domain))
 }

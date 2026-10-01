@@ -144,6 +144,24 @@ func ErrorFieldSet(field string) error {
 	return fmt.Errorf("expected %q to be empty", field)
 }
 
+// GetMainWorkspace returns the workspace created together with the token (the oldest one), only it carries the token's plan
+func GetMainWorkspace(client *buddy.Client) (*buddy.Workspace, error) {
+	workspaces, _, err := client.WorkspaceService.GetList()
+	if err != nil {
+		return nil, err
+	}
+	var main *buddy.Workspace
+	for _, w := range workspaces.Workspaces {
+		if main == nil || w.Id < main.Id {
+			main = w
+		}
+	}
+	if main == nil {
+		return nil, fmt.Errorf("no workspace found")
+	}
+	return main, nil
+}
+
 type SeedOps struct {
 	workspace     bool
 	project       bool

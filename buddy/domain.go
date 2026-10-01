@@ -335,7 +335,8 @@ func (s *DomainService) UpdateYaml(workspaceDomain string, domainId string, ops 
 }
 
 // UpsertPrivateYaml creates or updates private domains, every top-level key of the YAML is a domain. A domain that is not yet
-// private in the workspace is created as DomainTypePrivate, an existing one gets its records replaced. Public domains with the
+// private in the workspace is created as DomainTypePrivate (apex SOA and NS may be omitted), an existing one gets its records
+// replaced and must keep its apex SOA and NS as returned by GetYaml. Public domains with the
 // same name are not touched. All domains are processed in one transaction, the returned list follows the document order
 func (s *DomainService) UpsertPrivateYaml(workspaceDomain string, ops *DomainYamlOps) (*Domains, *http.Response, error) {
 	var d *Domains
