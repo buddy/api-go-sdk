@@ -1,3 +1,11 @@
+# Release v1.52.0 (2026-09-29)
+* [Breaking] `DomainService.GetList` takes a `DomainGetListQuery`, pass `Type` (`DomainType*` constants) to list domains of one type, `nil` lists all
+* Adds `DomainService.Delete`, removes a domain of any type with all its records
+* Adds `DomainService.GetYaml` and `DomainService.UpdateYaml` (`DomainYaml`, `DomainYamlOps`), the YAML is base64-encoded and the apex SOA and NS records must stay as returned
+* Adds `DomainService.UpsertPrivateYaml`, creates or updates private domains from one YAML document in a single transaction, requires a plan with private zones, an existing domain must keep its apex SOA and NS
+* `DomainService.Create` accepts every `DomainType*`: adds `DomainCreateOps.AutoRenew` (registered) and `DomainCreateOps.OnOwnerBehalf` (registered and claimed)
+* `Domain.Type` is now returned by `DomainService.GetList`, adds `Domains.Url` and `Domains.HtmlUrl`
+
 # Release v1.51.0 (2026-09-25)
 * [Breaking] `PipelinePullRequestEvent*` constants follow the new API values: `OPENED`, `REOPENED`, `SYNCHRONIZED`, `CLOSED`, `MERGED`, `READY_FOR_REVIEW`, `LABELED`, `ASSIGNED`, `REVIEW_REQUESTED`, `EDITED`, lowercase values are rejected with 400
 * [Breaking] `PipelinePullRequestEventSynchronize` renamed to `PipelinePullRequestEventSynchronized`, adds `PipelinePullRequestEventMerged`

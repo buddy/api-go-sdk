@@ -144,6 +144,24 @@ func ErrorFieldSet(field string) error {
 	return fmt.Errorf("expected %q to be empty", field)
 }
 
+// GetMainWorkspace returns the workspace created together with the token (the oldest one), only it carries the token's plan
+func GetMainWorkspace(client *buddy.Client) (*buddy.Workspace, error) {
+	workspaces, _, err := client.WorkspaceService.GetList()
+	if err != nil {
+		return nil, err
+	}
+	var main *buddy.Workspace
+	for _, w := range workspaces.Workspaces {
+		if main == nil || w.Id < main.Id {
+			main = w
+		}
+	}
+	if main == nil {
+		return nil, fmt.Errorf("no workspace found")
+	}
+	return main, nil
+}
+
 type SeedOps struct {
 	workspace     bool
 	project       bool
@@ -531,10 +549,14 @@ func CheckMember(member *buddy.Member, email string, name string, note string, a
 }
 
 func CheckDomains(domains *buddy.Domains, domain *buddy.Domain) error {
+	if err := CheckFieldSet("Domains.Url", domains.Url); err != nil {
+		return err
+	}
 	if err := CheckIntFieldEqual("len(Domains)", len(domains.Domains), 1); err != nil {
 		return err
 	}
-	return CheckDomain(domains.Domains[0], domain.Name, true)
+	// the list carries the type too, only the type-specific details are left out
+	return CheckDomain(domains.Domains[0], domain.Name, false)
 }
 
 func CheckMembers(members *buddy.Members, count int) error {
