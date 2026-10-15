@@ -10,25 +10,41 @@ const (
 	SandboxOsUbuntu2204 = "ubuntu:22.04"
 	SandboxOsUbuntu2404 = "ubuntu:24.04"
 
-	SandboxResource1X2   = "1x2"
-	SandboxResource2X4   = "2x4"
-	SandboxResource3X6   = "3x6"
-	SandboxResource4X8   = "4x8"
-	SandboxResource5X10  = "5x10"
-	SandboxResource6X12  = "6x12"
-	SandboxResource7X14  = "7x14"
-	SandboxResource8X16  = "8x16"
-	SandboxResource9X18  = "9x18"
-	SandboxResource10X20 = "10x20"
-	SandboxResource11X22 = "11x22"
-	SandboxResource12X24 = "12x24"
+	SandboxResource1X2    = "1x2"
+	SandboxResource2X4    = "2x4"
+	SandboxResource3X6    = "3x6"
+	SandboxResource4X8    = "4x8"
+	SandboxResource5X10   = "5x10"
+	SandboxResource6X12   = "6x12"
+	SandboxResource7X14   = "7x14"
+	SandboxResource8X16   = "8x16"
+	SandboxResource9X18   = "9x18"
+	SandboxResource10X20  = "10x20"
+	SandboxResource11X22  = "11x22"
+	SandboxResource12X24  = "12x24"
+	SandboxResourceCustom = "CUSTOM"
 
 	SandboxEndpointTypeHttp = "HTTP"
 	SandboxEndpointTypeTls  = "TLS"
 	SandboxEndpointTypeTcp  = "TCP"
+	SandboxEndpointTypeSsh  = "SSH"
 
 	SandboxEndpointRegionEu = "EU"
 	SandboxEndpointRegionUs = "US"
+	SandboxEndpointRegionAs = "AS"
+
+	SandboxScopeProject     = "PROJECT"
+	SandboxScopeEnvironment = "ENVIRONMENT"
+	SandboxScopeWorkspace   = "WORKSPACE"
+
+	SandboxFetchTypeProjectRepo = "PROJECT_REPO"
+	SandboxFetchTypePublicRepo  = "PUBLIC_REPO"
+	SandboxFetchTypeArtifact    = "ARTIFACT"
+
+	SandboxFetchStatusFetching = "FETCHING"
+	SandboxFetchStatusFetched  = "FETCHED"
+	SandboxFetchStatusError    = "ERROR"
+	SandboxFetchStatusStale    = "STALE"
 
 	SandboxPermissionDefault  = "DEFAULT"
 	SandboxPermissionManage   = "READ_WRITE"
@@ -45,6 +61,7 @@ const (
 	SandboxSetupStatusInProgress = "INPROGRESS"
 	SandboxSetupStatusSuccess    = "SUCCESS"
 	SandboxSetupStatusFailed     = "FAILED"
+	SandboxSetupStatusStale      = "STALE"
 
 	SandboxAppStatusNone    = "NONE"
 	SandboxAppStatusEnded   = "ENDED"
@@ -82,6 +99,7 @@ type SandboxEndpointHttp struct {
 	AuthType            *string            `json:"auth_type,omitempty"`
 	CircuitBreaker      *int               `json:"circuit_breaker,omitempty"`
 	TlsCa               *string            `json:"tls_ca,omitempty"`
+	ServePath           *string            `json:"serve_path,omitempty"`
 }
 
 type SandboxEndpointTls struct {
@@ -92,21 +110,64 @@ type SandboxEndpointTls struct {
 }
 
 type SandboxEndpoint struct {
-	Name        *string              `json:"name,omitempty"`
-	Endpoint    *string              `json:"endpoint,omitempty"`
-	Type        *string              `json:"type,omitempty"`
-	Region      *string              `json:"region,omitempty"`
-	Whitelist   *[]string            `json:"whitelist,omitempty"`
-	Timeout     *int                 `json:"timeout,omitempty"`
-	EndpointUrl *string              `json:"endpoint_url,omitempty"`
-	Http        *SandboxEndpointHttp `json:"http,omitempty"`
-	Tls         *SandboxEndpointTls  `json:"tls,omitempty"`
+	Name          *string              `json:"name,omitempty"`
+	Endpoint      *string              `json:"endpoint,omitempty"`
+	Type          *string              `json:"type,omitempty"`
+	Region        *string              `json:"region,omitempty"`
+	Whitelist     *[]string            `json:"whitelist,omitempty"`
+	Timeout       *int                 `json:"timeout,omitempty"`
+	EndpointUrl   *string              `json:"endpoint_url,omitempty"`
+	Http          *SandboxEndpointHttp `json:"http,omitempty"`
+	Tls           *SandboxEndpointTls  `json:"tls,omitempty"`
+	Active        *bool                `json:"active,omitempty"`
+	TargetLatency *int                 `json:"target_latency,omitempty"`
 }
 
 type SandboxApp struct {
-	Id        string `json:"id"`
-	Command   string `json:"command"`
-	AppStatus string `json:"app_status"`
+	Id         string `json:"id"`
+	Identifier string `json:"identifier"`
+	Command    string `json:"command"`
+	Path       string `json:"path"`
+	AppStatus  string `json:"app_status"`
+}
+
+type SandboxAppOps struct {
+	Identifier *string `json:"identifier,omitempty"`
+	Command    *string `json:"command,omitempty"`
+	Path       *string `json:"path,omitempty"`
+}
+
+type SandboxFetch struct {
+	Id              string `json:"id"`
+	Type            string `json:"type"`
+	Repository      string `json:"repository"`
+	Ref             string `json:"ref"`
+	Path            string `json:"path"`
+	SourcePath      string `json:"source_path"`
+	Artifact        string `json:"artifact"`
+	BuildCommand    string `json:"build_command"`
+	CurrentRevision string `json:"current_revision"`
+	Behind          *int   `json:"behind"`
+	Outdated        *bool  `json:"outdated"`
+	FetchedDate     string `json:"fetched_date"`
+	Status          string `json:"status"`
+	ErrorMessage    string `json:"error_message"`
+}
+
+type SandboxFetches struct {
+	Url     string          `json:"url"`
+	HtmlUrl string          `json:"html_url"`
+	Fetches []*SandboxFetch `json:"fetches"`
+}
+
+type SandboxFetchOps struct {
+	Type         *string `json:"type,omitempty"`
+	Repository   *string `json:"repository,omitempty"`
+	Ref          *string `json:"ref,omitempty"`
+	Path         *string `json:"path,omitempty"`
+	SourcePath   *string `json:"source_path,omitempty"`
+	Artifact     *string `json:"artifact,omitempty"`
+	BuildCommand *string `json:"build_command,omitempty"`
 }
 
 type Sandboxes struct {
@@ -143,12 +204,17 @@ type Sandbox struct {
 	AppDir            string              `json:"app_dir"`
 	Timeout           int                 `json:"timeout"`
 	Apps              []*SandboxApp       `json:"apps"`
+	Fetch             []*SandboxFetch     `json:"fetch"`
 	SetupStatus       string              `json:"setup_status"`
 	Tags              []string            `json:"tags"`
 	Endpoints         []*SandboxEndpoint  `json:"endpoints"`
 	Variables         []*Variable         `json:"variables"`
 	Environment       *Environment        `json:"environment"`
 	Permissions       *SandboxPermissions `json:"permissions"`
+	Scope             string              `json:"scope"`
+	SshHost           string              `json:"ssh_host"`
+	SshPort           int                 `json:"ssh_port"`
+	CreateDate        string              `json:"create_date"`
 }
 
 type SandboxStatusOps struct {
@@ -163,7 +229,8 @@ type SandboxOps struct {
 	Resources         *string                `json:"resources,omitempty"`
 	FirstBootCommands *string                `json:"first_boot_commands,omitempty"`
 	AppDir            *string                `json:"app_dir,omitempty"`
-	Apps              *[]string              `json:"apps,omitempty"`
+	Apps              *[]*SandboxAppOps      `json:"apps,omitempty"`
+	Fetch             *[]*SandboxFetchOps    `json:"fetch,omitempty"`
 	Tags              *[]string              `json:"tags,omitempty"`
 	Timeout           *int                   `json:"timeout,omitempty"`
 	Environment       *SandboxEnvironmentOps `json:"environment,omitempty"`
@@ -210,6 +277,54 @@ func (s *SandboxService) Start(workspaceDomain string, sandboxId string) (*Sandb
 	var sb *Sandbox
 	resp, err := s.client.Create(s.client.NewUrlPath("/workspaces/%s/sandboxes/%s/start", workspaceDomain, sandboxId), &SandboxStatusOps{}, nil, &sb)
 	return sb, resp, err
+}
+
+func (s *SandboxService) GetFetches(workspaceDomain string, sandboxId string) (*SandboxFetches, *http.Response, error) {
+	var l *SandboxFetches
+	resp, err := s.client.Get(s.client.NewUrlPath("/workspaces/%s/sandboxes/%s/fetches", workspaceDomain, sandboxId), &l, nil)
+	return l, resp, err
+}
+
+func (s *SandboxService) GetFetch(workspaceDomain string, sandboxId string, fetchId string) (*SandboxFetch, *http.Response, error) {
+	var f *SandboxFetch
+	resp, err := s.client.Get(s.client.NewUrlPath("/workspaces/%s/sandboxes/%s/fetches/%s", workspaceDomain, sandboxId, fetchId), &f, nil)
+	return f, resp, err
+}
+
+func (s *SandboxService) CreateFetch(workspaceDomain string, sandboxId string, ops *SandboxFetchOps) (*SandboxFetch, *http.Response, error) {
+	var f *SandboxFetch
+	resp, err := s.client.Create(s.client.NewUrlPath("/workspaces/%s/sandboxes/%s/fetches", workspaceDomain, sandboxId), &ops, nil, &f)
+	return f, resp, err
+}
+
+func (s *SandboxService) DeleteFetch(workspaceDomain string, sandboxId string, fetchId string) (*http.Response, error) {
+	return s.client.Delete(s.client.NewUrlPath("/workspaces/%s/sandboxes/%s/fetches/%s", workspaceDomain, sandboxId, fetchId), nil, nil)
+}
+
+func (s *SandboxService) Refetch(workspaceDomain string, sandboxId string, fetchId string) (*SandboxFetch, *http.Response, error) {
+	var f *SandboxFetch
+	resp, err := s.client.Create(s.client.NewUrlPath("/workspaces/%s/sandboxes/%s/fetches/%s/refetch", workspaceDomain, sandboxId, fetchId), &SandboxStatusOps{}, nil, &f)
+	return f, resp, err
+}
+
+func (s *SandboxService) WaitForFetchStatuses(workspaceDomain string, sandboxId string, fetchId string, timeout int, statuses []string) (*SandboxFetch, error) {
+	start := time.Now()
+	for {
+		f, _, err := s.GetFetch(workspaceDomain, sandboxId, fetchId)
+		if err != nil {
+			return nil, err
+		}
+		for _, status := range statuses {
+			if f != nil && f.Status == status {
+				return f, nil
+			}
+		}
+		if int(time.Since(start).Seconds()) > timeout {
+			break
+		}
+		time.Sleep(3 * time.Second)
+	}
+	return nil, errors.New("timeout waiting for sandbox fetch")
 }
 
 func (s *SandboxService) waitUntilCondition(workspaceDomain string, sandboxId string, timeout int, condition func(sb *Sandbox) bool) (*Sandbox, error) {

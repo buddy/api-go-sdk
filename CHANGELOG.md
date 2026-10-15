@@ -1,3 +1,14 @@
+# Release v1.53.0 (2026-10-15)
+* [Breaking] `SandboxOps.Apps` is now `*[]*SandboxAppOps` (`Identifier`, `Command`, `Path`) instead of `*[]string`
+* Adds sandbox fetches: `SandboxFetch`, `Sandbox.Fetch` and `SandboxOps.Fetch` (`SandboxFetchOps`), sending `Fetch` replaces the whole list, an empty list removes all fetches
+* `SandboxFetchOps.Type` is required (`SandboxFetchType*` constants: `PROJECT_REPO`, `PUBLIC_REPO`, `ARTIFACT`), two fetches cannot share the same `Path`
+* Adds `SandboxService.GetFetches`, `GetFetch`, `CreateFetch`, `DeleteFetch`, `Refetch` and `WaitForFetchStatuses` (`SandboxFetchStatus*` constants: `FETCHING`, `FETCHED`, `ERROR`, `STALE`), `DeleteFetch` leaves the fetched files in the sandbox
+* Adds `SandboxApp.Identifier` and `SandboxApp.Path`
+* Adds `Sandbox.Scope` (`SandboxScope*` constants), `Sandbox.SshHost`, `Sandbox.SshPort` and `Sandbox.CreateDate`
+* Adds `SandboxEndpoint.Active`, `SandboxEndpoint.TargetLatency` and `SandboxEndpointHttp.ServePath`
+* Adds `SandboxSetupStatusStale`, `SandboxResourceCustom`, `SandboxEndpointTypeSsh` and `SandboxEndpointRegionAs`
+* `IntegrationOps.AuthType` is now required for integration types with several authentication methods (e.g. `GIT_HUB`, `GIT_LAB`, `DIGITAL_OCEAN`, `SHOPIFY`, `AMAZON`), the API rejects a missing value with 400, adds `IntegrationAuthTypeAccessKeys`
+
 # Release v1.52.0 (2026-09-29)
 * [Breaking] `DomainService.GetList` takes a `DomainGetListQuery`, pass `Type` (`DomainType*` constants) to list domains of one type, `nil` lists all
 * Adds `DomainService.Delete`, removes a domain of any type with all its records

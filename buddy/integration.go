@@ -38,6 +38,7 @@ const (
 	IntegrationAuthTypeDefault           = "DEFAULT"
 	IntegrationAuthTypeTrusted           = "TRUSTED"
 	IntegrationAuthTypeOidc              = "OIDC"
+	IntegrationAuthTypeAccessKeys        = "ACCESS_KEYS"
 
 	IntegrationPermissionManage  = "MANAGE"
 	IntegrationPermissionUseOnly = "USE_ONLY"

@@ -459,11 +459,13 @@ func testTargetDigitalOcean(client *buddy.Client, workspaceDomain string) func(t
 		integrationType := buddy.IntegrationTypeDigitalOcean
 		integrationToken := UniqueString()
 		integrationScope := buddy.IntegrationScopeWorkspace
+		integrationAuthType := buddy.IntegrationAuthTypeToken
 		integrationOps := buddy.IntegrationOps{
-			Name:  &integrationName,
-			Type:  &integrationType,
-			Token: &integrationToken,
-			Scope: &integrationScope,
+			AuthType: &integrationAuthType,
+			Name:     &integrationName,
+			Type:     &integrationType,
+			Token:    &integrationToken,
+			Scope:    &integrationScope,
 		}
 		integration, _, err := client.IntegrationService.Create(workspaceDomain, &integrationOps)
 		if err != nil {
