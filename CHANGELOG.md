@@ -1,3 +1,8 @@
+# Release v1.54.0 (2026-10-15)
+* Adds `IntegrationAuthType*` constants for every auth method the API knows: `ApiKey`, `ServicePrincipal`, `ServiceAccountJson`, `UsernamePassword`, `UsernameToken`, `AccessKeyToken`, `ApiKeySecret`, `App`, `AppRw`, `AppSpryker`, `ClientCredentials`, `ClientServerTokens`, `KeyIdApplicationKey`, `None` and `Oauth`
+* `IntegrationOps.AuthType` is required for types with several auth methods, changing it requires all required fields of the new method, switching to a legacy method or to an `OAUTH`/`APP` flow method is rejected
+* `IntegrationAuthTypeDefault` is deprecated, the API maps it to `ACCESS_KEYS` (`AMAZON`), `SERVICE_ACCOUNT_JSON` (`GOOGLE_SERVICE_ACCOUNT`) or `SERVICE_PRINCIPAL` (`AZURE_CLOUD`) and returns the mapped value, other types reject it
+
 # Release v1.53.0 (2026-10-15)
 * [Breaking] `SandboxOps.Apps` is now `*[]*SandboxAppOps` (`Identifier`, `Command`, `Path`) instead of `*[]string`
 * Adds sandbox fetches: `SandboxFetch`, `Sandbox.Fetch` and `SandboxOps.Fetch` (`SandboxFetchOps`), sending `Fetch` replaces the whole list, an empty list removes all fetches
