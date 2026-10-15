@@ -102,6 +102,97 @@ func testSandboxes(client *buddy.Client, workspace *buddy.Workspace, query *budd
 	}
 }
 
+func testSandboxUpdateFetch(client *buddy.Client, workspace *buddy.Workspace, ops *buddy.SandboxOps, out *buddy.Sandbox) func(t *testing.T) {
+	return func(t *testing.T) {
+		sb, _, err := client.SandboxService.Update(workspace.Domain, out.Id, ops)
+		if err != nil {
+			t.Fatal(ErrorFormatted("TestSandbox.UpdateFetch", err))
+		}
+		err = CheckSandbox(sb, out, ops, buddy.SandboxStatusRunning, "", "")
+		if err != nil {
+			t.Fatal(err)
+		}
+		*out = *sb
+	}
+}
+
+func testSandboxFetchWaitForFetched(client *buddy.Client, workspace *buddy.Workspace, sandbox *buddy.Sandbox, expected *buddy.SandboxFetch, out *buddy.SandboxFetch) func(t *testing.T) {
+	return func(t *testing.T) {
+		f, err := client.SandboxService.WaitForFetchStatuses(workspace.Domain, sandbox.Id, expected.Id, 120, []string{buddy.SandboxFetchStatusFetched, buddy.SandboxFetchStatusError})
+		if err != nil {
+			t.Fatal(ErrorFormatted("SandboxService.WaitForFetchStatuses", err))
+		}
+		err = CheckSandboxFetch(f, expected, buddy.SandboxFetchStatusFetched)
+		if err != nil {
+			t.Fatal(err)
+		}
+		*out = *f
+	}
+}
+
+func testSandboxFetchCreate(client *buddy.Client, workspace *buddy.Workspace, sandbox *buddy.Sandbox, ops *buddy.SandboxFetchOps, out *buddy.SandboxFetch) func(t *testing.T) {
+	return func(t *testing.T) {
+		f, _, err := client.SandboxService.CreateFetch(workspace.Domain, sandbox.Id, ops)
+		if err != nil {
+			t.Fatal(ErrorFormatted("SandboxService.CreateFetch", err))
+		}
+		err = CheckSandboxFetch(f, SandboxFetchFromOps(ops), "")
+		if err != nil {
+			t.Fatal(err)
+		}
+		*out = *f
+	}
+}
+
+func testSandboxFetchGet(client *buddy.Client, workspace *buddy.Workspace, sandbox *buddy.Sandbox, out *buddy.SandboxFetch) func(t *testing.T) {
+	return func(t *testing.T) {
+		f, _, err := client.SandboxService.GetFetch(workspace.Domain, sandbox.Id, out.Id)
+		if err != nil {
+			t.Fatal(ErrorFormatted("SandboxService.GetFetch", err))
+		}
+		err = CheckSandboxFetch(f, out, buddy.SandboxFetchStatusFetched)
+		if err != nil {
+			t.Fatal(err)
+		}
+		*out = *f
+	}
+}
+
+func testSandboxFetchRefetch(client *buddy.Client, workspace *buddy.Workspace, sandbox *buddy.Sandbox, out *buddy.SandboxFetch) func(t *testing.T) {
+	return func(t *testing.T) {
+		f, _, err := client.SandboxService.Refetch(workspace.Domain, sandbox.Id, out.Id)
+		if err != nil {
+			t.Fatal(ErrorFormatted("SandboxService.Refetch", err))
+		}
+		err = CheckSandboxFetch(f, out, "")
+		if err != nil {
+			t.Fatal(err)
+		}
+	}
+}
+
+func testSandboxFetches(client *buddy.Client, workspace *buddy.Workspace, sandbox *buddy.Sandbox, count int) func(t *testing.T) {
+	return func(t *testing.T) {
+		list, _, err := client.SandboxService.GetFetches(workspace.Domain, sandbox.Id)
+		if err != nil {
+			t.Fatal(ErrorFormatted("SandboxService.GetFetches", err))
+		}
+		err = CheckSandboxFetches(list, count)
+		if err != nil {
+			t.Fatal(err)
+		}
+	}
+}
+
+func testSandboxFetchDelete(client *buddy.Client, workspace *buddy.Workspace, sandbox *buddy.Sandbox, out *buddy.SandboxFetch) func(t *testing.T) {
+	return func(t *testing.T) {
+		_, err := client.SandboxService.DeleteFetch(workspace.Domain, sandbox.Id, out.Id)
+		if err != nil {
+			t.Fatal(ErrorFormatted("SandboxService.DeleteFetch", err))
+		}
+	}
+}
+
 func testSandboxDelete(client *buddy.Client, workspace *buddy.Workspace, out *buddy.Sandbox) func(t *testing.T) {
 	return func(t *testing.T) {
 		_, err := client.SandboxService.Delete(workspace.Domain, out.Id)
@@ -162,7 +253,44 @@ func TestSandbox(t *testing.T) {
 			},
 		},
 	}
-	apps := []string{app}
+	appIdentifier := UniqueString()
+	appPath := "/tmp"
+	apps := []*buddy.SandboxAppOps{{
+		Identifier: &appIdentifier,
+		Command:    &app,
+		Path:       &appPath,
+	}}
+	fetchType := buddy.SandboxFetchTypePublicRepo
+	fetchRepository := "https://github.com/octocat/Hello-World"
+	fetchRef := "master"
+	fetchPath := "/tmp/hello-world"
+	fetchBuildCommand := "ls"
+	fetch := []*buddy.SandboxFetchOps{{
+		Type:         &fetchType,
+		Repository:   &fetchRepository,
+		Ref:          &fetchRef,
+		Path:         &fetchPath,
+		BuildCommand: &fetchBuildCommand,
+	}}
+	newFetchRepository := "https://github.com/octocat/Spoon-Knife"
+	newFetchPath := "/tmp/spoon-knife"
+	newFetchOps := buddy.SandboxFetchOps{
+		Type:       &fetchType,
+		Repository: &newFetchRepository,
+		Path:       &newFetchPath,
+	}
+	updateFetchPath := "/tmp/hello-world-2"
+	updateFetchOps := buddy.SandboxOps{
+		Fetch: &[]*buddy.SandboxFetchOps{{
+			Type:       &fetchType,
+			Repository: &fetchRepository,
+			Ref:        &fetchRef,
+			Path:       &updateFetchPath,
+		}},
+	}
+	clearFetchOps := buddy.SandboxOps{
+		Fetch: &[]*buddy.SandboxFetchOps{},
+	}
 	createOps := buddy.SandboxOps{
 		Name:              &name,
 		Note:              &note,
@@ -173,6 +301,7 @@ func TestSandbox(t *testing.T) {
 		FirstBootCommands: &installCommands,
 		AppDir:            &appDir,
 		Apps:              &apps,
+		Fetch:             &fetch,
 		Tags:              &tags,
 		Timeout:           &timeout,
 		Endpoints:         &endpoints,
@@ -228,10 +357,28 @@ func TestSandbox(t *testing.T) {
 	t.Run("Update", testSandboxEdit(seed.Client, seed.Workspace, &updateOps, &sandbox))
 	t.Run("Get", testSandboxGet(seed.Client, seed.Workspace, &sandbox))
 	t.Run("GetList", testSandboxes(seed.Client, seed.Workspace, &projectQuery))
+	if len(sandbox.Fetch) == 0 {
+		t.Fatal("Sandbox.Fetch is empty")
+	}
+	var sandboxFetch buddy.SandboxFetch
+	t.Run("Wait For Fetch", testSandboxFetchWaitForFetched(seed.Client, seed.Workspace, &sandbox, sandbox.Fetch[0], &sandboxFetch))
+	t.Run("GetFetches", testSandboxFetches(seed.Client, seed.Workspace, &sandbox, 1))
+	var newSandboxFetch buddy.SandboxFetch
+	t.Run("CreateFetch", testSandboxFetchCreate(seed.Client, seed.Workspace, &sandbox, &newFetchOps, &newSandboxFetch))
+	t.Run("Wait For New Fetch", testSandboxFetchWaitForFetched(seed.Client, seed.Workspace, &sandbox, &newSandboxFetch, &newSandboxFetch))
+	t.Run("GetFetch", testSandboxFetchGet(seed.Client, seed.Workspace, &sandbox, &newSandboxFetch))
+	t.Run("Refetch", testSandboxFetchRefetch(seed.Client, seed.Workspace, &sandbox, &newSandboxFetch))
+	t.Run("GetFetches After Create", testSandboxFetches(seed.Client, seed.Workspace, &sandbox, 2))
+	t.Run("DeleteFetch", testSandboxFetchDelete(seed.Client, seed.Workspace, &sandbox, &newSandboxFetch))
+	t.Run("GetFetches After Delete", testSandboxFetches(seed.Client, seed.Workspace, &sandbox, 1))
+	t.Run("Update Fetch", testSandboxUpdateFetch(seed.Client, seed.Workspace, &updateFetchOps, &sandbox))
+	t.Run("Clear Fetch", testSandboxUpdateFetch(seed.Client, seed.Workspace, &clearFetchOps, &sandbox))
 	t.Run("Delete", testSandboxDelete(seed.Client, seed.Workspace, &sandbox))
 	sandbox = buddy.Sandbox{}
 	t.Run("Create In Workspace", testSandboxCreate(seed.Client, seed.Workspace, nil, &createOps, &sandbox))
 	t.Run("Wait For Running In Workspace", testSandboxWaitForRunning(seed.Client, seed.Workspace, &sandbox, &sandbox))
+	t.Run("Wait for Setup In Workspace", testSandboxWaitForSetupDone(seed.Client, seed.Workspace, &sandbox, &sandbox))
+	t.Run("Wait for App In Workspace", testSandboxWaitForAppRunning(seed.Client, seed.Workspace, &sandbox, &sandbox))
 	t.Run("Get In Workspace", testSandboxGet(seed.Client, seed.Workspace, &sandbox))
 	t.Run("GetList In Workspace", testSandboxes(seed.Client, seed.Workspace, nil))
 	t.Run("Delete In Workspace", testSandboxDelete(seed.Client, seed.Workspace, &sandbox))
@@ -246,6 +393,8 @@ func TestSandbox(t *testing.T) {
 	sandbox = buddy.Sandbox{}
 	t.Run("Create In Workspace Env", testSandboxCreate(seed.Client, seed.Workspace, nil, &createOps, &sandbox))
 	t.Run("Wait For Running In Workspace Env", testSandboxWaitForRunning(seed.Client, seed.Workspace, &sandbox, &sandbox))
+	t.Run("Wait for Setup In Workspace Env", testSandboxWaitForSetupDone(seed.Client, seed.Workspace, &sandbox, &sandbox))
+	t.Run("Wait for App In Workspace Env", testSandboxWaitForAppRunning(seed.Client, seed.Workspace, &sandbox, &sandbox))
 	t.Run("Get In Workspace Env", testSandboxGet(seed.Client, seed.Workspace, &sandbox))
 	t.Run("GetList In Workspace Env", testSandboxes(seed.Client, seed.Workspace, &envQuery))
 	t.Run("Delete In Workspace Env", testSandboxDelete(seed.Client, seed.Workspace, &sandbox))
@@ -259,6 +408,8 @@ func TestSandbox(t *testing.T) {
 	envQuery.EnvironmentId = &pjEnv.Id
 	t.Run("Create In Project Env", testSandboxCreate(seed.Client, seed.Workspace, &projectQuery, &createOps, &sandbox))
 	t.Run("Wait For Running In Project Env", testSandboxWaitForRunning(seed.Client, seed.Workspace, &sandbox, &sandbox))
+	t.Run("Wait for Setup In Project Env", testSandboxWaitForSetupDone(seed.Client, seed.Workspace, &sandbox, &sandbox))
+	t.Run("Wait for App In Project Env", testSandboxWaitForAppRunning(seed.Client, seed.Workspace, &sandbox, &sandbox))
 	t.Run("Get In Project Env", testSandboxGet(seed.Client, seed.Workspace, &sandbox))
 	t.Run("GetList In Project Env", testSandboxes(seed.Client, seed.Workspace, &envQuery))
 	t.Run("Delete In Project Env", testSandboxDelete(seed.Client, seed.Workspace, &sandbox))

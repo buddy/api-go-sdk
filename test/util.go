@@ -1477,6 +1477,97 @@ func CheckSandboxEndpoint(endpoint *buddy.SandboxEndpoint, expected *buddy.Sandb
 	return nil
 }
 
+func SandboxFetchFromOps(ops *buddy.SandboxFetchOps) *buddy.SandboxFetch {
+	f := &buddy.SandboxFetch{}
+	if ops.Type != nil {
+		f.Type = *ops.Type
+	}
+	if ops.Repository != nil {
+		f.Repository = *ops.Repository
+	}
+	if ops.Ref != nil {
+		f.Ref = *ops.Ref
+	}
+	if ops.Path != nil {
+		f.Path = *ops.Path
+	}
+	if ops.SourcePath != nil {
+		f.SourcePath = *ops.SourcePath
+	}
+	if ops.Artifact != nil {
+		f.Artifact = *ops.Artifact
+	}
+	if ops.BuildCommand != nil {
+		f.BuildCommand = *ops.BuildCommand
+	}
+	return f
+}
+
+func CheckSandboxFetch(fetch *buddy.SandboxFetch, expected *buddy.SandboxFetch, expectedStatus string) error {
+	if err := CheckFieldSet("SandboxFetch.Id", fetch.Id); err != nil {
+		return err
+	}
+	if expected.Id != "" {
+		if err := CheckFieldEqual("SandboxFetch.Id", fetch.Id, expected.Id); err != nil {
+			return err
+		}
+	}
+	if err := CheckFieldEqualAndSet("SandboxFetch.Type", fetch.Type, expected.Type); err != nil {
+		return err
+	}
+	if err := CheckFieldEqual("SandboxFetch.Repository", fetch.Repository, expected.Repository); err != nil {
+		return err
+	}
+	if expected.Ref != "" {
+		if err := CheckFieldEqual("SandboxFetch.Ref", fetch.Ref, expected.Ref); err != nil {
+			return err
+		}
+	}
+	if expected.Path != "" {
+		if err := CheckFieldEqual("SandboxFetch.Path", fetch.Path, expected.Path); err != nil {
+			return err
+		}
+	}
+	if err := CheckFieldEqual("SandboxFetch.SourcePath", fetch.SourcePath, expected.SourcePath); err != nil {
+		return err
+	}
+	if err := CheckFieldEqual("SandboxFetch.Artifact", fetch.Artifact, expected.Artifact); err != nil {
+		return err
+	}
+	if err := CheckFieldEqual("SandboxFetch.BuildCommand", fetch.BuildCommand, expected.BuildCommand); err != nil {
+		return err
+	}
+	if err := CheckFieldSet("SandboxFetch.Status", fetch.Status); err != nil {
+		return err
+	}
+	if expectedStatus != "" {
+		if err := CheckFieldEqual("SandboxFetch.Status", fetch.Status, expectedStatus); err != nil {
+			return err
+		}
+	}
+	if expectedStatus == buddy.SandboxFetchStatusFetched {
+		if err := CheckFieldSet("SandboxFetch.FetchedDate", fetch.FetchedDate); err != nil {
+			return err
+		}
+		if fetch.Type != buddy.SandboxFetchTypeArtifact {
+			if err := CheckFieldSet("SandboxFetch.CurrentRevision", fetch.CurrentRevision); err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
+func CheckSandboxFetches(fetches *buddy.SandboxFetches, count int) error {
+	if err := CheckFieldSet("SandboxFetches.Url", fetches.Url); err != nil {
+		return err
+	}
+	if err := CheckIntFieldEqual("len(SandboxFetches.Fetches)", len(fetches.Fetches), count); err != nil {
+		return err
+	}
+	return nil
+}
+
 func CheckSandbox(sandbox *buddy.Sandbox, expected *buddy.Sandbox, ops *buddy.SandboxOps, expectedStatus string, expectedSetupStatus string, expectedAppStatus string) error {
 	id := expected.Id
 	name := expected.Name
@@ -1490,11 +1581,16 @@ func CheckSandbox(sandbox *buddy.Sandbox, expected *buddy.Sandbox, ops *buddy.Sa
 	timeout := expected.Timeout
 	perms := expected.Permissions
 	var app string
+	var appIdentifier string
+	var appPath string
 	var varKey string
 	var varVal string
 	if len(expected.Apps) > 0 {
 		app = expected.Apps[0].Command
+		appIdentifier = expected.Apps[0].Identifier
+		appPath = expected.Apps[0].Path
 	}
+	fetch := expected.Fetch
 	if len(expected.Variables) > 0 {
 		varKey = expected.Variables[0].Key
 		varVal = expected.Variables[0].Value
@@ -1534,7 +1630,22 @@ func CheckSandbox(sandbox *buddy.Sandbox, expected *buddy.Sandbox, ops *buddy.Sa
 			installCommands = *ops.FirstBootCommands
 		}
 		if ops.Apps != nil {
-			app = (*ops.Apps)[0]
+			a := (*ops.Apps)[0]
+			app = *a.Command
+			appIdentifier = ""
+			if a.Identifier != nil {
+				appIdentifier = *a.Identifier
+			}
+			appPath = ""
+			if a.Path != nil {
+				appPath = *a.Path
+			}
+		}
+		if ops.Fetch != nil {
+			fetch = []*buddy.SandboxFetch{}
+			for _, f := range *ops.Fetch {
+				fetch = append(fetch, SandboxFetchFromOps(f))
+			}
 		}
 		if ops.Variables != nil {
 			v := (*ops.Variables)[0]
@@ -1622,6 +1733,35 @@ func CheckSandbox(sandbox *buddy.Sandbox, expected *buddy.Sandbox, ops *buddy.Sa
 		if err := CheckFieldEqualAndSet("Sandbox.Apps[0].Command", sandbox.Apps[0].Command, app); err != nil {
 			return err
 		}
+		if err := CheckFieldSet("Sandbox.Apps[0].Id", sandbox.Apps[0].Id); err != nil {
+			return err
+		}
+		if appIdentifier != "" {
+			if err := CheckFieldEqualAndSet("Sandbox.Apps[0].Identifier", sandbox.Apps[0].Identifier, appIdentifier); err != nil {
+				return err
+			}
+		} else if err := CheckFieldSet("Sandbox.Apps[0].Identifier", sandbox.Apps[0].Identifier); err != nil {
+			return err
+		}
+		if appPath != "" {
+			if err := CheckFieldEqualAndSet("Sandbox.Apps[0].Path", sandbox.Apps[0].Path, appPath); err != nil {
+				return err
+			}
+		}
+	}
+	if err := CheckIntFieldEqual("len(Sandbox.Fetch)", len(sandbox.Fetch), len(fetch)); err != nil {
+		return err
+	}
+	for i, f := range fetch {
+		if err := CheckSandboxFetch(sandbox.Fetch[i], f, ""); err != nil {
+			return err
+		}
+	}
+	if err := CheckFieldSet("Sandbox.Scope", sandbox.Scope); err != nil {
+		return err
+	}
+	if err := CheckFieldSet("Sandbox.CreateDate", sandbox.CreateDate); err != nil {
+		return err
 	}
 	if varKey != "" && varVal != "" {
 		if err := CheckFieldEqualAndSet("Sandbox.Variables[0].Key", sandbox.Variables[0].Key, varKey); err != nil {
