@@ -7,6 +7,7 @@
 * Adds `Sandbox.Scope` (`SandboxScope*` constants), `Sandbox.SshHost`, `Sandbox.SshPort` and `Sandbox.CreateDate`
 * Adds `SandboxEndpoint.Active`, `SandboxEndpoint.TargetLatency` and `SandboxEndpointHttp.ServePath`
 * Adds `SandboxSetupStatusStale`, `SandboxResourceCustom`, `SandboxEndpointTypeSsh` and `SandboxEndpointRegionAs`
+* `IntegrationOps.AuthType` is now required for integration types with several authentication methods (e.g. `GIT_HUB`, `GIT_LAB`, `DIGITAL_OCEAN`, `SHOPIFY`, `AMAZON`), the API rejects a missing value with 400, adds `IntegrationAuthTypeAccessKeys`
 
 # Release v1.52.0 (2026-09-29)
 * [Breaking] `DomainService.GetList` takes a `DomainGetListQuery`, pass `Type` (`DomainType*` constants) to list domains of one type, `nil` lists all
