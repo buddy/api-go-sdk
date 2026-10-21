@@ -1,6 +1,8 @@
 package test
 
 import (
+	"encoding/base64"
+	"fmt"
 	"github.com/buddy/api-go-sdk/buddy"
 	"testing"
 )
@@ -102,11 +104,11 @@ func testSandboxes(client *buddy.Client, workspace *buddy.Workspace, query *budd
 	}
 }
 
-func testSandboxUpdateFetch(client *buddy.Client, workspace *buddy.Workspace, ops *buddy.SandboxOps, out *buddy.Sandbox) func(t *testing.T) {
+func testSandboxPatch(client *buddy.Client, workspace *buddy.Workspace, ops *buddy.SandboxOps, out *buddy.Sandbox) func(t *testing.T) {
 	return func(t *testing.T) {
 		sb, _, err := client.SandboxService.Update(workspace.Domain, out.Id, ops)
 		if err != nil {
-			t.Fatal(ErrorFormatted("TestSandbox.UpdateFetch", err))
+			t.Fatal(ErrorFormatted("TestSandbox.Patch", err))
 		}
 		err = CheckSandbox(sb, out, ops, buddy.SandboxStatusRunning, "", "")
 		if err != nil {
@@ -202,6 +204,128 @@ func testSandboxDelete(client *buddy.Client, workspace *buddy.Workspace, out *bu
 	}
 }
 
+func testSandboxCreatePipelines(client *buddy.Client, workspace *buddy.Workspace, query *buddy.Query, ops *buddy.SandboxOps, out *buddy.Sandbox) func(t *testing.T) {
+	return func(t *testing.T) {
+		sb, _, err := client.SandboxService.Create(workspace.Domain, query, ops)
+		if err != nil {
+			t.Fatal(ErrorFormatted("TestSandbox.Create", err))
+		}
+		err = CheckSandboxPipelines(sb, *ops.PipelinesAccessLevel, *ops.AllowedPipelines)
+		if err != nil {
+			t.Fatal(err)
+		}
+		*out = *sb
+	}
+}
+
+func testSandboxWaitForSetupPipelines(client *buddy.Client, workspace *buddy.Workspace, sandbox *buddy.Sandbox) func(t *testing.T) {
+	return func(t *testing.T) {
+		sb, err := client.SandboxService.WaitForSetupStatuses(workspace.Domain, sandbox.Id, 60, []string{buddy.SandboxSetupStatusSuccess})
+		if err != nil {
+			t.Fatal(ErrorFormatted("TestSandbox.WaitForSetup", err))
+		}
+		err = CheckSandboxPipelines(sb, sandbox.PipelinesAccessLevel, sandbox.AllowedPipelines)
+		if err != nil {
+			t.Fatal(err)
+		}
+	}
+}
+
+func testSandboxYamlRoundtrip(client *buddy.Client, workspace *buddy.Workspace, sandbox *buddy.Sandbox) func(t *testing.T) {
+	return func(t *testing.T) {
+		y, _, err := client.SandboxService.GetYaml(workspace.Domain, sandbox.Id)
+		if err != nil {
+			t.Fatal(ErrorFormatted("TestSandbox.GetYaml", err))
+		}
+		if err = CheckFieldSet("SandboxYaml.Yaml", y.Yaml); err != nil {
+			t.Fatal(err)
+		}
+		sb, _, err := client.SandboxService.UpdateYaml(workspace.Domain, sandbox.Id, &buddy.SandboxYamlOps{
+			Yaml: &y.Yaml,
+		})
+		if err != nil {
+			t.Fatal(ErrorFormatted("TestSandbox.UpdateYaml", err))
+		}
+		err = CheckSandboxPipelines(sb, sandbox.PipelinesAccessLevel, sandbox.AllowedPipelines)
+		if err != nil {
+			t.Fatal(err)
+		}
+	}
+}
+
+func testSandboxUpdateYamlPipelines(client *buddy.Client, workspace *buddy.Workspace, sandbox *buddy.Sandbox, yaml string, pipelinesAccessLevel string, allowedPipelines []*buddy.SandboxAllowedPipeline) func(t *testing.T) {
+	return func(t *testing.T) {
+		encoded := base64.StdEncoding.EncodeToString([]byte(yaml))
+		sb, _, err := client.SandboxService.UpdateYaml(workspace.Domain, sandbox.Id, &buddy.SandboxYamlOps{
+			Yaml: &encoded,
+		})
+		if err != nil {
+			t.Fatal(ErrorFormatted("TestSandbox.UpdateYaml", err))
+		}
+		err = CheckSandboxPipelines(sb, pipelinesAccessLevel, allowedPipelines)
+		if err != nil {
+			t.Fatal(err)
+		}
+		sb, _, err = client.SandboxService.Get(workspace.Domain, sandbox.Id)
+		if err != nil {
+			t.Fatal(ErrorFormatted("TestSandbox.Get", err))
+		}
+		err = CheckSandboxPipelines(sb, pipelinesAccessLevel, allowedPipelines)
+		if err != nil {
+			t.Fatal(err)
+		}
+	}
+}
+
+func TestSandboxYamlPipelines(t *testing.T) {
+	seed, err := SeedInitialData(&SeedOps{
+		workspace: true,
+		project:   true,
+		pipeline:  true,
+	})
+	if err != nil {
+		t.Fatal(ErrorFormatted("SeedInitialData", err))
+	}
+	identifier := UniqueString()
+	os := buddy.SandboxOsUbuntu2404
+	resources := buddy.SandboxResource1X2
+	pipelinesAccessLevelDenied := buddy.SandboxPipelineAccessLevelDenied
+	allowedPipelines := []*buddy.SandboxAllowedPipeline{{
+		Project:     seed.Project.Name,
+		Pipeline:    seed.Pipeline.Identifier,
+		AccessLevel: buddy.SandboxPipelineAccessLevelUseOnly,
+	}}
+	createOps := buddy.SandboxOps{
+		Name:                 &identifier,
+		Identifier:           &identifier,
+		Os:                   &os,
+		Resources:            &resources,
+		PipelinesAccessLevel: &pipelinesAccessLevelDenied,
+		AllowedPipelines:     &allowedPipelines,
+	}
+	projectQuery := buddy.Query{
+		ProjectName: &seed.Project.Name,
+	}
+	yamlWithoutPipelines := fmt.Sprintf("- sandbox: %s\n  os: %s\n  resources: %s\n", identifier, os, resources)
+	yamlWithoutAll := yamlWithoutPipelines + fmt.Sprintf("  permissions:\n    pipelines:\n    - project: %s\n      pipeline: %s\n      access: %s\n", seed.Project.Name, seed.Pipeline.Identifier, buddy.SandboxPipelineAccessLevelDenied)
+	yamlOnlyAll := yamlWithoutPipelines + fmt.Sprintf("  permissions:\n    pipelines:\n    - all: %s\n", buddy.SandboxPipelineAccessLevelDenied)
+	deniedPipelines := []*buddy.SandboxAllowedPipeline{{
+		Project:     seed.Project.Name,
+		Pipeline:    seed.Pipeline.Identifier,
+		AccessLevel: buddy.SandboxPipelineAccessLevelDenied,
+	}}
+	var sandbox buddy.Sandbox
+	t.Run("Create", testSandboxCreatePipelines(seed.Client, seed.Workspace, &projectQuery, &createOps, &sandbox))
+	t.Run("Wait for Setup", testSandboxWaitForSetupPipelines(seed.Client, seed.Workspace, &sandbox))
+	t.Run("Yaml Roundtrip", testSandboxYamlRoundtrip(seed.Client, seed.Workspace, &sandbox))
+	// YAML is the target state: no pipelines section resets the permissions to the defaults
+	t.Run("Yaml Without Pipelines", testSandboxUpdateYamlPipelines(seed.Client, seed.Workspace, &sandbox, yamlWithoutPipelines, buddy.SandboxPipelineAccessLevelUseOnly, nil))
+	// a section without all gets the default all
+	t.Run("Yaml Without All", testSandboxUpdateYamlPipelines(seed.Client, seed.Workspace, &sandbox, yamlWithoutAll, buddy.SandboxPipelineAccessLevelUseOnly, deniedPipelines))
+	t.Run("Yaml Only All", testSandboxUpdateYamlPipelines(seed.Client, seed.Workspace, &sandbox, yamlOnlyAll, buddy.SandboxPipelineAccessLevelDenied, nil))
+	t.Run("Delete", testSandboxDelete(seed.Client, seed.Workspace, &sandbox))
+}
+
 func TestSandbox(t *testing.T) {
 	seed, err := SeedInitialData(&SeedOps{
 		workspace:     true,
@@ -209,6 +333,7 @@ func TestSandbox(t *testing.T) {
 		member:        true,
 		permission:    true,
 		projectMember: true,
+		pipeline:      true,
 	})
 
 	if err != nil {
@@ -317,13 +442,26 @@ func TestSandbox(t *testing.T) {
 			},
 		},
 	}
+	pipelinesAccessLevelDenied := buddy.SandboxPipelineAccessLevelDenied
+	allowedPipelines := []*buddy.SandboxAllowedPipeline{{
+		Project:     seed.Project.Name,
+		Pipeline:    seed.Pipeline.Identifier,
+		AccessLevel: buddy.SandboxPipelineAccessLevelUseOnly,
+	}}
 	updateOps := buddy.SandboxOps{
-		Name:        &newName,
-		Note:        &newNote,
-		AgentNote:   &newAgentNote,
-		Identifier:  &newIdentifier,
-		Tags:        &newTags,
-		Permissions: &newPerms,
+		Name:                 &newName,
+		Note:                 &newNote,
+		AgentNote:            &newAgentNote,
+		Identifier:           &newIdentifier,
+		Tags:                 &newTags,
+		Permissions:          &newPerms,
+		PipelinesAccessLevel: &pipelinesAccessLevelDenied,
+		AllowedPipelines:     &allowedPipelines,
+	}
+	pipelinesAccessLevelUseOnly := buddy.SandboxPipelineAccessLevelUseOnly
+	clearAllowedPipelinesOps := buddy.SandboxOps{
+		PipelinesAccessLevel: &pipelinesAccessLevelUseOnly,
+		AllowedPipelines:     &[]*buddy.SandboxAllowedPipeline{},
 	}
 	projectQuery := buddy.Query{
 		ProjectName: &seed.Project.Name,
@@ -371,8 +509,9 @@ func TestSandbox(t *testing.T) {
 	t.Run("GetFetches After Create", testSandboxFetches(seed.Client, seed.Workspace, &sandbox, 2))
 	t.Run("DeleteFetch", testSandboxFetchDelete(seed.Client, seed.Workspace, &sandbox, &newSandboxFetch))
 	t.Run("GetFetches After Delete", testSandboxFetches(seed.Client, seed.Workspace, &sandbox, 1))
-	t.Run("Update Fetch", testSandboxUpdateFetch(seed.Client, seed.Workspace, &updateFetchOps, &sandbox))
-	t.Run("Clear Fetch", testSandboxUpdateFetch(seed.Client, seed.Workspace, &clearFetchOps, &sandbox))
+	t.Run("Update Fetch", testSandboxPatch(seed.Client, seed.Workspace, &updateFetchOps, &sandbox))
+	t.Run("Clear Fetch", testSandboxPatch(seed.Client, seed.Workspace, &clearFetchOps, &sandbox))
+	t.Run("Clear Allowed Pipelines", testSandboxPatch(seed.Client, seed.Workspace, &clearAllowedPipelinesOps, &sandbox))
 	t.Run("Delete", testSandboxDelete(seed.Client, seed.Workspace, &sandbox))
 	sandbox = buddy.Sandbox{}
 	t.Run("Create In Workspace", testSandboxCreate(seed.Client, seed.Workspace, nil, &createOps, &sandbox))

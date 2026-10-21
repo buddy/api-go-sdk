@@ -1,3 +1,11 @@
+# Release v1.55.0 (2026-10-21)
+* Adds sandbox pipeline permissions: `Sandbox.PipelinesAccessLevel`, `Sandbox.AllowedPipelines` (`SandboxAllowedPipeline`), `SandboxOps.PipelinesAccessLevel` and `SandboxOps.AllowedPipelines`, they apply to the sandbox's shadow target the same way as agent permissions do
+* `SandboxPipelineAccessLevel*` constants: `USE_ONLY` (default, all pipelines allowed) and `DENIED`, other values are rejected with 400, `SandboxAllowedPipeline.AccessLevel` is required
+* Sending `AllowedPipelines` replaces the whole list, an empty list removes all rules, leaving it out keeps the current rules
+* Not available for sandboxes in scope `ENVIRONMENT`, `PipelinesAccessLevel` is empty there
+* Adds `SandboxService.GetYaml` and `SandboxService.UpdateYaml` (`SandboxYaml`, `SandboxYamlOps`), the YAML is base64-encoded and replaces the whole sandbox definition, a key omitted from the document clears its value
+* Sandbox YAML without a `permissions.pipelines` section resets pipeline permissions to the defaults (`USE_ONLY`, no rules) instead of keeping the previous ones, a section without `all` sets `all` to `USE_ONLY`
+
 # Release v1.54.0 (2026-10-15)
 * Adds `IntegrationAuthType*` constants for every auth method the API knows: `ApiKey`, `ServicePrincipal`, `ServiceAccountJson`, `UsernamePassword`, `UsernameToken`, `AccessKeyToken`, `ApiKeySecret`, `App`, `AppRw`, `AppSpryker`, `ClientCredentials`, `ClientServerTokens`, `KeyIdApplicationKey`, `None` and `Oauth`
 * `IntegrationOps.AuthType` is required for types with several auth methods, changing it requires all required fields of the new method, switching to a legacy method or to an `OAUTH`/`APP` flow method is rejected
