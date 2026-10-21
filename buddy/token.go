@@ -43,6 +43,7 @@ const (
 	TokenScopeTargetRead   = "TARGET_READ"
 	TokenScopeTargetWrite  = "TARGET_WRITE"
 	TokenScopeTargetManage = "TARGET_MANAGE"
+	TokenScopeTargetUse    = "TARGET_USE"
 
 	TokenScopeDomainRead   = "DOMAIN_READ"
 	TokenScopeDomainWrite  = "DOMAIN_WRITE"
@@ -51,6 +52,7 @@ const (
 	TokenScopeIntegrationRead   = "INTEGRATION_READ"
 	TokenScopeIntegrationWrite  = "INTEGRATION_WRITE"
 	TokenScopeIntegrationManage = "INTEGRATION_MANAGE"
+	TokenScopeIntegrationUse    = "INTEGRATION_USE"
 
 	TokenScopeWebhookRead   = "WEBHOOK_READ"
 	TokenScopeWebhookWrite  = "WEBHOOK_WRITE"
@@ -64,18 +66,26 @@ const (
 	TokenScopeEnvironmentWrite  = "ENVIRONMENT_WRITE"
 	TokenScopeEnvironmentManage = "ENVIRONMENT_MANAGE"
 
-	TokenScopeDistributionRead  = "DISTRIBUTION_READ"
-	TokenScopeDistributionWrite = "DISTRIBUTION_WRITE"
+	TokenScopeDistributionRead   = "DISTRIBUTION_READ"
+	TokenScopeDistributionWrite  = "DISTRIBUTION_WRITE"
+	TokenScopeDistributionManage = "DISTRIBUTION_MANAGE"
 
-	TokenScopeSandboxRead  = "SANDBOX_READ"
-	TokenScopeSandboxWrite = "SANDBOX_WRITE"
+	TokenScopeArtifactRead   = "ARTIFACT_READ"
+	TokenScopeArtifactWrite  = "ARTIFACT_WRITE"
+	TokenScopeArtifactManage = "ARTIFACT_MANAGE"
+
+	TokenScopeSandboxRead   = "SANDBOX_READ"
+	TokenScopeSandboxUse    = "SANDBOX_USE"
+	TokenScopeSandboxWrite  = "SANDBOX_WRITE"
+	TokenScopeSandboxManage = "SANDBOX_MANAGE"
 
 	TokenScopeUnitTestRead   = "UNIT_TEST_READ"
 	TokenScopeUnitTestWrite  = "UNIT_TEST_WRITE"
 	TokenScopeUnitTestManage = "UNIT_TEST_MANAGE"
 
-	TokenScopeVisualTestRead  = "VISUAL_TEST_READ"
-	TokenScopeVisualTestWrite = "VISUAL_TEST_WRITE"
+	TokenScopeVisualTestRead   = "VISUAL_TEST_READ"
+	TokenScopeVisualTestWrite  = "VISUAL_TEST_WRITE"
+	TokenScopeVisualTestManage = "VISUAL_TEST_MANAGE"
 
 	TokenScopeCrawlRead   = "CRAWL_READ"
 	TokenScopeCrawlWrite  = "CRAWL_WRITE"

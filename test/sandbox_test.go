@@ -370,7 +370,7 @@ func TestSandbox(t *testing.T) {
 		Value: &variableVal,
 	}}
 	perms := buddy.SandboxPermissions{
-		Others: buddy.SandboxPermissionReadOnly,
+		Others: buddy.SandboxPermissionUseOnly,
 		Users: []*buddy.SandboxResourcePermission{
 			{
 				Id:          seed.Member.Id,
@@ -438,7 +438,7 @@ func TestSandbox(t *testing.T) {
 		Users: []*buddy.SandboxResourcePermission{
 			{
 				Id:          seed.Member.Id,
-				AccessLevel: buddy.SandboxPermissionReadOnly,
+				AccessLevel: buddy.SandboxPermissionUseOnly,
 			},
 		},
 	}
