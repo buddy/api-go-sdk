@@ -49,6 +49,7 @@ const (
 	SandboxPermissionDefault  = "DEFAULT"
 	SandboxPermissionManage   = "READ_WRITE"
 	SandboxPermissionReadOnly = "READ_ONLY"
+	SandboxPermissionUseOnly  = "USE_ONLY"
 	SandboxPermissionDenied   = "DENIED"
 
 	SandboxPipelineAccessLevelUseOnly = "USE_ONLY"

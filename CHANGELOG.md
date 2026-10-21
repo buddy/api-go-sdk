@@ -1,3 +1,8 @@
+# Release v1.56.0 (2026-10-21)
+* Adds `SandboxPermissionUseOnly` (`USE_ONLY`) for `SandboxPermissions.Others` and user/group access levels, it replaces `RUN_ONLY` (rejected by the API) and allows running commands, the terminal and file operations without managing the sandbox. Project permission sets keep `DENIED`, `READ_ONLY` and `READ_WRITE` for sandboxes
+* Adds `TokenScopeSandboxUse` (`SANDBOX_USE`, required to start and cancel sandbox execs) and `TokenScopeSandboxManage`
+* Adds the token scopes the API already supports: `TokenScopeTargetUse`, `TokenScopeIntegrationUse`, `TokenScopeArtifactRead`, `TokenScopeArtifactWrite`, `TokenScopeArtifactManage`, `TokenScopeDistributionManage` and `TokenScopeVisualTestManage`
+
 # Release v1.55.0 (2026-10-21)
 * Adds sandbox pipeline permissions: `Sandbox.PipelinesAccessLevel`, `Sandbox.AllowedPipelines` (`SandboxAllowedPipeline`), `SandboxOps.PipelinesAccessLevel` and `SandboxOps.AllowedPipelines`, they apply to the sandbox's shadow target the same way as agent permissions do
 * `SandboxPipelineAccessLevel*` constants: `USE_ONLY` (default, all pipelines allowed) and `DENIED`, other values are rejected with 400, `SandboxAllowedPipeline.AccessLevel` is required

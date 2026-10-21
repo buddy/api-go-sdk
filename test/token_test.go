@@ -10,7 +10,20 @@ func testTokenCreateAdvanced(client *buddy.Client, workspace *buddy.Workspace, o
 	return func(t *testing.T) {
 		name := UniqueString()
 		expiresIn := 25
-		scopes := []string{buddy.TokenScopeWorkspaceRead, buddy.TokenScopeProjectRead, buddy.TokenScopeUserRead}
+		scopes := []string{
+			buddy.TokenScopeWorkspaceRead,
+			buddy.TokenScopeProjectRead,
+			buddy.TokenScopeUserRead,
+			buddy.TokenScopeSandboxUse,
+			buddy.TokenScopeSandboxManage,
+			buddy.TokenScopeTargetUse,
+			buddy.TokenScopeIntegrationUse,
+			buddy.TokenScopeArtifactRead,
+			buddy.TokenScopeArtifactWrite,
+			buddy.TokenScopeArtifactManage,
+			buddy.TokenScopeDistributionManage,
+			buddy.TokenScopeVisualTestManage,
+		}
 		workspaceRestrictions := []string{workspace.Domain}
 		ipRestrictions := []string{"127.0.0.1"}
 		ops := buddy.TokenOps{
