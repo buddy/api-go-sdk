@@ -51,6 +51,9 @@ const (
 	SandboxPermissionReadOnly = "READ_ONLY"
 	SandboxPermissionDenied   = "DENIED"
 
+	SandboxPipelineAccessLevelUseOnly = "USE_ONLY"
+	SandboxPipelineAccessLevelDenied  = "DENIED"
+
 	SandboxStatusStarting  = "STARTING"
 	SandboxStatusStopping  = "STOPPING"
 	SandboxStatusFailed    = "FAILED"
@@ -187,56 +190,78 @@ type SandboxPermissions struct {
 	Groups []*SandboxResourcePermission `json:"groups"`
 }
 
+type SandboxAllowedPipeline struct {
+	Project     string `json:"project"`
+	Pipeline    string `json:"pipeline"`
+	AccessLevel string `json:"access_level"`
+}
+
 type Sandbox struct {
-	Url               string              `json:"url"`
-	HtmlUrl           string              `json:"html_url"`
-	Id                string              `json:"id"`
-	Identifier        string              `json:"identifier"`
-	Name              string              `json:"name"`
-	Note              string              `json:"note"`
-	AgentNote         string              `json:"agent_note"`
-	Project           *Project            `json:"project"`
-	Status            string              `json:"status"`
-	Os                string              `json:"os"`
-	Resources         string              `json:"resources"`
-	FirstBootCommands string              `json:"first_boot_commands"`
-	BootLogs          []string            `json:"boot_logs"`
-	AppDir            string              `json:"app_dir"`
-	Timeout           int                 `json:"timeout"`
-	Apps              []*SandboxApp       `json:"apps"`
-	Fetch             []*SandboxFetch     `json:"fetch"`
-	SetupStatus       string              `json:"setup_status"`
-	Tags              []string            `json:"tags"`
-	Endpoints         []*SandboxEndpoint  `json:"endpoints"`
-	Variables         []*Variable         `json:"variables"`
-	Environment       *Environment        `json:"environment"`
-	Permissions       *SandboxPermissions `json:"permissions"`
-	Scope             string              `json:"scope"`
-	SshHost           string              `json:"ssh_host"`
-	SshPort           int                 `json:"ssh_port"`
-	CreateDate        string              `json:"create_date"`
+	Url                  string                    `json:"url"`
+	HtmlUrl              string                    `json:"html_url"`
+	Id                   string                    `json:"id"`
+	Identifier           string                    `json:"identifier"`
+	Name                 string                    `json:"name"`
+	Note                 string                    `json:"note"`
+	AgentNote            string                    `json:"agent_note"`
+	Project              *Project                  `json:"project"`
+	Status               string                    `json:"status"`
+	Os                   string                    `json:"os"`
+	Resources            string                    `json:"resources"`
+	FirstBootCommands    string                    `json:"first_boot_commands"`
+	BootLogs             []string                  `json:"boot_logs"`
+	AppDir               string                    `json:"app_dir"`
+	Timeout              int                       `json:"timeout"`
+	Apps                 []*SandboxApp             `json:"apps"`
+	Fetch                []*SandboxFetch           `json:"fetch"`
+	SetupStatus          string                    `json:"setup_status"`
+	Tags                 []string                  `json:"tags"`
+	Endpoints            []*SandboxEndpoint        `json:"endpoints"`
+	Variables            []*Variable               `json:"variables"`
+	Environment          *Environment              `json:"environment"`
+	Permissions          *SandboxPermissions       `json:"permissions"`
+	PipelinesAccessLevel string                    `json:"pipelines_access_level"`
+	AllowedPipelines     []*SandboxAllowedPipeline `json:"allowed_pipelines"`
+	Scope                string                    `json:"scope"`
+	SshHost              string                    `json:"ssh_host"`
+	SshPort              int                       `json:"ssh_port"`
+	CreateDate           string                    `json:"create_date"`
 }
 
 type SandboxStatusOps struct {
 }
 
+// SandboxYaml holds the sandbox configuration as base64-encoded YAML
+type SandboxYaml struct {
+	Url     string `json:"url"`
+	HtmlUrl string `json:"html_url"`
+	Yaml    string `json:"yaml"`
+}
+
+type SandboxYamlOps struct {
+	// Yaml is the base64-encoded YAML, in the format returned by SandboxService.GetYaml
+	Yaml *string `json:"yaml"`
+}
+
 type SandboxOps struct {
-	Name              *string                `json:"name,omitempty"`
-	Note              *string                `json:"note,omitempty"`
-	AgentNote         *string                `json:"agent_note,omitempty"`
-	Identifier        *string                `json:"identifier,omitempty"`
-	Os                *string                `json:"os,omitempty"`
-	Resources         *string                `json:"resources,omitempty"`
-	FirstBootCommands *string                `json:"first_boot_commands,omitempty"`
-	AppDir            *string                `json:"app_dir,omitempty"`
-	Apps              *[]*SandboxAppOps      `json:"apps,omitempty"`
-	Fetch             *[]*SandboxFetchOps    `json:"fetch,omitempty"`
-	Tags              *[]string              `json:"tags,omitempty"`
-	Timeout           *int                   `json:"timeout,omitempty"`
-	Environment       *SandboxEnvironmentOps `json:"environment,omitempty"`
-	Variables         *[]*VariableOps        `json:"variables,omitempty"`
-	Endpoints         *[]*SandboxEndpoint    `json:"endpoints,omitempty"`
-	Permissions       *SandboxPermissions    `json:"permissions"`
+	Name                 *string                    `json:"name,omitempty"`
+	Note                 *string                    `json:"note,omitempty"`
+	AgentNote            *string                    `json:"agent_note,omitempty"`
+	Identifier           *string                    `json:"identifier,omitempty"`
+	Os                   *string                    `json:"os,omitempty"`
+	Resources            *string                    `json:"resources,omitempty"`
+	FirstBootCommands    *string                    `json:"first_boot_commands,omitempty"`
+	AppDir               *string                    `json:"app_dir,omitempty"`
+	Apps                 *[]*SandboxAppOps          `json:"apps,omitempty"`
+	Fetch                *[]*SandboxFetchOps        `json:"fetch,omitempty"`
+	Tags                 *[]string                  `json:"tags,omitempty"`
+	Timeout              *int                       `json:"timeout,omitempty"`
+	Environment          *SandboxEnvironmentOps     `json:"environment,omitempty"`
+	Variables            *[]*VariableOps            `json:"variables,omitempty"`
+	Endpoints            *[]*SandboxEndpoint        `json:"endpoints,omitempty"`
+	Permissions          *SandboxPermissions        `json:"permissions"`
+	PipelinesAccessLevel *string                    `json:"pipelines_access_level,omitempty"`
+	AllowedPipelines     *[]*SandboxAllowedPipeline `json:"allowed_pipelines,omitempty"`
 }
 
 func (s *SandboxService) Create(workspaceDomain string, query *Query, ops *SandboxOps) (*Sandbox, *http.Response, error) {
@@ -265,6 +290,19 @@ func (s *SandboxService) GetList(workspaceDomain string, query *Query) (*Sandbox
 	var l *Sandboxes
 	resp, err := s.client.Get(s.client.NewUrlPath("/workspaces/%s/sandboxes", workspaceDomain), &l, query)
 	return l, resp, err
+}
+
+func (s *SandboxService) GetYaml(workspaceDomain string, sandboxId string) (*SandboxYaml, *http.Response, error) {
+	var y *SandboxYaml
+	resp, err := s.client.Get(s.client.NewUrlPath("/workspaces/%s/sandboxes/%s/yaml", workspaceDomain, sandboxId), &y, nil)
+	return y, resp, err
+}
+
+// UpdateYaml replaces the whole sandbox definition with the YAML, a key omitted from the document clears its value
+func (s *SandboxService) UpdateYaml(workspaceDomain string, sandboxId string, ops *SandboxYamlOps) (*Sandbox, *http.Response, error) {
+	var sb *Sandbox
+	resp, err := s.client.Patch(s.client.NewUrlPath("/workspaces/%s/sandboxes/%s/yaml", workspaceDomain, sandboxId), &ops, nil, &sb)
+	return sb, resp, err
 }
 
 func (s *SandboxService) Stop(workspaceDomain string, sandboxId string) (*Sandbox, *http.Response, error) {

@@ -1580,6 +1580,8 @@ func CheckSandbox(sandbox *buddy.Sandbox, expected *buddy.Sandbox, ops *buddy.Sa
 	appDir := expected.AppDir
 	timeout := expected.Timeout
 	perms := expected.Permissions
+	pipelinesAccessLevel := expected.PipelinesAccessLevel
+	allowedPipelines := expected.AllowedPipelines
 	var app string
 	var appIdentifier string
 	var appPath string
@@ -1666,6 +1668,12 @@ func CheckSandbox(sandbox *buddy.Sandbox, expected *buddy.Sandbox, ops *buddy.Sa
 		}
 		if ops.Permissions != nil {
 			perms = ops.Permissions
+		}
+		if ops.PipelinesAccessLevel != nil {
+			pipelinesAccessLevel = *ops.PipelinesAccessLevel
+		}
+		if ops.AllowedPipelines != nil {
+			allowedPipelines = *ops.AllowedPipelines
 		}
 	}
 	if envId != "" {
@@ -1805,6 +1813,35 @@ func CheckSandbox(sandbox *buddy.Sandbox, expected *buddy.Sandbox, ops *buddy.Sa
 			return err
 		}
 		if err := CheckFieldEqualAndSet("Sandbox.Permissions.Users[0].AccessLevel", sandbox.Permissions.Users[0].AccessLevel, perms.Users[0].AccessLevel); err != nil {
+			return err
+		}
+	}
+	// pipeline permissions are not available for sandboxes in environment scope
+	if sandbox.Scope == buddy.SandboxScopeEnvironment {
+		pipelinesAccessLevel = ""
+		allowedPipelines = nil
+	} else if pipelinesAccessLevel == "" {
+		pipelinesAccessLevel = buddy.SandboxPipelineAccessLevelUseOnly
+	}
+	return CheckSandboxPipelines(sandbox, pipelinesAccessLevel, allowedPipelines)
+}
+
+func CheckSandboxPipelines(sandbox *buddy.Sandbox, pipelinesAccessLevel string, allowedPipelines []*buddy.SandboxAllowedPipeline) error {
+	if err := CheckFieldEqual("Sandbox.PipelinesAccessLevel", sandbox.PipelinesAccessLevel, pipelinesAccessLevel); err != nil {
+		return err
+	}
+	if err := CheckIntFieldEqual("len(Sandbox.AllowedPipelines)", len(sandbox.AllowedPipelines), len(allowedPipelines)); err != nil {
+		return err
+	}
+	for i, expectedPipeline := range allowedPipelines {
+		got := sandbox.AllowedPipelines[i]
+		if err := CheckFieldEqualAndSet("Sandbox.AllowedPipelines.Project", got.Project, expectedPipeline.Project); err != nil {
+			return err
+		}
+		if err := CheckFieldEqualAndSet("Sandbox.AllowedPipelines.Pipeline", got.Pipeline, expectedPipeline.Pipeline); err != nil {
+			return err
+		}
+		if err := CheckFieldEqualAndSet("Sandbox.AllowedPipelines.AccessLevel", got.AccessLevel, expectedPipeline.AccessLevel); err != nil {
 			return err
 		}
 	}
