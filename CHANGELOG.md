@@ -1,3 +1,7 @@
+# Release v1.57.0 (2026-11-04)
+* Adds database targets: `TargetTypeMysql` (`MYSQL`), `TargetTypeMongo` (`MONGO`) and `TargetTypeClickhouse` (`CLICKHOUSE`), with `Host`, `Port`, `Auth` (`PASSWORD` only) and optionally `Proxy` (the `Name` of an SSH target)
+* Adds `Database`, `SslMode`, `CaCertificate` and `AuthSource` to `Target` and `TargetOps`: `Database` for all three types, `SslMode` (`TargetSslModeDisable`, `TargetSslModeRequire` - default, `TargetSslModeVerifyFull`) and `CaCertificate` (PEM, required for `VERIFY_FULL`) for `MYSQL`, `AuthSource` for `MONGO`; `Secure` (TLS on the native protocol) applies to `CLICKHOUSE`
+
 # Release v1.56.0 (2026-10-21)
 * Adds `SandboxPermissionUseOnly` (`USE_ONLY`) for `SandboxPermissions.Others` and user/group access levels, it replaces `RUN_ONLY` (rejected by the API) and allows running commands, the terminal and file operations without managing the sandbox. Project permission sets keep `DENIED`, `READ_ONLY` and `READ_WRITE` for sandboxes
 * Adds `TokenScopeSandboxUse` (`SANDBOX_USE`, required to start and cancel sandbox execs) and `TokenScopeSandboxManage`
