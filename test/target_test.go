@@ -816,7 +816,10 @@ func testTargetDatabase(client *buddy.Client, workspaceDomain string, typ string
 		if err != nil {
 			t.Fatal(err)
 		}
-		updOps := buddy.TargetOps{}
+		// PATCH must carry the type, the API picks the target kind by it
+		updOps := buddy.TargetOps{
+			Type: &typ,
+		}
 		update(&updOps)
 		target, _, err = client.TargetService.Update(workspaceDomain, target.Id, &updOps)
 		if err != nil {
