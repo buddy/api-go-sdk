@@ -136,6 +136,26 @@ func CheckTarget(target *buddy.Target, want *buddy.TargetOps) error {
 			return err
 		}
 	}
+	if want.Database != nil {
+		if err := CheckFieldEqualAndSet("Database", target.Database, *want.Database); err != nil {
+			return err
+		}
+	}
+	if want.SslMode != nil {
+		if err := CheckFieldEqualAndSet("SslMode", target.SslMode, *want.SslMode); err != nil {
+			return err
+		}
+	}
+	if want.CaCertificate != nil {
+		if err := CheckFieldSet("CaCertificate", target.CaCertificate); err != nil {
+			return err
+		}
+	}
+	if want.AuthSource != nil {
+		if err := CheckFieldEqualAndSet("AuthSource", target.AuthSource, *want.AuthSource); err != nil {
+			return err
+		}
+	}
 	if want.Permissions == nil && target.Permissions != nil {
 		if err := CheckFieldEqualAndSet("Permissions.Others", target.Permissions.Others, buddy.TargetPermissionUseOnly); err != nil {
 			return err
@@ -768,6 +788,71 @@ func testTargetGitSshKey(client *buddy.Client, workspaceDomain string) func(t *t
 	}
 }
 
+func testTargetDatabase(client *buddy.Client, workspaceDomain string, typ string, port string, update func(ops *buddy.TargetOps)) func(t *testing.T) {
+	return func(t *testing.T) {
+		name := UniqueString()
+		identifier := UniqueString()
+		host := "1.1.1.1"
+		database := "db" + RandString(5)
+		auth := buddy.TargetAuth{
+			Method:   buddy.TargetAuthMethodPassword,
+			Username: RandString(10),
+			Password: RandString(10),
+		}
+		ops := buddy.TargetOps{
+			Name:       &name,
+			Identifier: &identifier,
+			Type:       &typ,
+			Host:       &host,
+			Port:       &port,
+			Database:   &database,
+			Auth:       &auth,
+		}
+		target, _, err := client.TargetService.Create(workspaceDomain, &ops)
+		if err != nil {
+			t.Fatal(ErrorFormatted("TargetService.Create", err))
+		}
+		err = CheckTarget(target, &ops)
+		if err != nil {
+			t.Fatal(err)
+		}
+		// PATCH must carry the type, the API picks the target kind by it
+		updOps := buddy.TargetOps{
+			Type: &typ,
+		}
+		update(&updOps)
+		target, _, err = client.TargetService.Update(workspaceDomain, target.Id, &updOps)
+		if err != nil {
+			t.Fatal(ErrorFormatted("TargetService.Update", err))
+		}
+		err = CheckTarget(target, &updOps)
+		if err != nil {
+			t.Fatal(err)
+		}
+	}
+}
+
+func testTargetMysql(client *buddy.Client, workspaceDomain string) func(t *testing.T) {
+	return testTargetDatabase(client, workspaceDomain, buddy.TargetTypeMysql, "3306", func(ops *buddy.TargetOps) {
+		sslMode := buddy.TargetSslModeDisable
+		ops.SslMode = &sslMode
+	})
+}
+
+func testTargetMongo(client *buddy.Client, workspaceDomain string) func(t *testing.T) {
+	return testTargetDatabase(client, workspaceDomain, buddy.TargetTypeMongo, "27017", func(ops *buddy.TargetOps) {
+		authSource := "admin"
+		ops.AuthSource = &authSource
+	})
+}
+
+func testTargetClickhouse(client *buddy.Client, workspaceDomain string) func(t *testing.T) {
+	return testTargetDatabase(client, workspaceDomain, buddy.TargetTypeClickhouse, "9000", func(ops *buddy.TargetOps) {
+		secure := true
+		ops.Secure = &secure
+	})
+}
+
 func TestTarget(t *testing.T) {
 	seed, err := SeedInitialData(&SeedOps{
 		workspace: true,
@@ -791,9 +876,12 @@ func TestTarget(t *testing.T) {
 	t.Run("CreateUpcloud", testTargetUpcloud(seed.Client, seed.Workspace.Domain))
 	t.Run("CreateVultr", testTargetVultr(seed.Client, seed.Workspace.Domain))
 	t.Run("CreateDigitalOcean", testTargetDigitalOcean(seed.Client, seed.Workspace.Domain))
+	t.Run("CreateMysql", testTargetMysql(seed.Client, seed.Workspace.Domain))
+	t.Run("CreateMongo", testTargetMongo(seed.Client, seed.Workspace.Domain))
+	t.Run("CreateClickhouse", testTargetClickhouse(seed.Client, seed.Workspace.Domain))
 	t.Run("CreateWithPerms", testTargetPermissions(seed.Client, seed.Workspace.Domain, seed.Member.Id, seed.Group.Id, &target))
 	t.Run("UpdateWithPerms", testTargetPermissionsUpdate(seed.Client, seed.Workspace.Domain, seed.Member.Id, seed.Group.Id, &target))
 	t.Run("Get", testTargetGet(seed.Client, seed.Workspace.Domain, &target))
-	t.Run("GetList", testTargetGetList(seed.Client, seed.Workspace.Domain, 9))
+	t.Run("GetList", testTargetGetList(seed.Client, seed.Workspace.Domain, 12))
 	t.Run("Delete", testTargetDelete(seed.Client, seed.Workspace.Domain, &target))
 }

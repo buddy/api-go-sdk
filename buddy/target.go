@@ -10,6 +10,13 @@ const (
 	TargetTypeVultr        = "VULTR"
 	TargetTypeDigitalOcean = "DIGITAL_OCEAN"
 	TargetTypeGit          = "GIT"
+	TargetTypeMysql        = "MYSQL"
+	TargetTypeMongo        = "MONGO"
+	TargetTypeClickhouse   = "CLICKHOUSE"
+
+	TargetSslModeDisable    = "DISABLE"
+	TargetSslModeRequire    = "REQUIRE"
+	TargetSslModeVerifyFull = "VERIFY_FULL"
 
 	TargetScopeWorkspace   = "WORKSPACE"
 	TargetScopeProject     = "PROJECT"
@@ -114,6 +121,10 @@ type Target struct {
 	Port                 string                   `json:"port"`
 	Path                 string                   `json:"path"`
 	Secure               bool                     `json:"secure"`
+	Database             string                   `json:"database"`
+	SslMode              string                   `json:"ssl_mode"`
+	CaCertificate        string                   `json:"ca_certificate"`
+	AuthSource           string                   `json:"auth_source"`
 	Integration          string                   `json:"integration"`
 	Disabled             bool                     `json:"disabled"`
 	Auth                 *TargetAuth              `json:"auth"`
@@ -138,6 +149,10 @@ type TargetOps struct {
 	Port                 *string                   `json:"port,omitempty"`
 	Path                 *string                   `json:"path,omitempty"`
 	Secure               *bool                     `json:"secure,omitempty"`
+	Database             *string                   `json:"database,omitempty"`
+	SslMode              *string                   `json:"ssl_mode,omitempty"`
+	CaCertificate        *string                   `json:"ca_certificate,omitempty"`
+	AuthSource           *string                   `json:"auth_source,omitempty"`
 	Integration          *string                   `json:"integration,omitempty"`
 	Disabled             *bool                     `json:"disabled,omitempty"`
 	Auth                 *TargetAuth               `json:"auth,omitempty"`
