@@ -172,15 +172,7 @@ func TestVariableEnv(t *testing.T) {
 	if err != nil {
 		t.Fatal(ErrorFormatted("SeedInitialData", err))
 	}
-	var env *buddy.Environment
-	name := RandString(10)
-	identifier := UniqueString()
-	scope := buddy.EnvironmentScopeWorkspace
-	env, _, err = seed.Client.EnvironmentService.Create(seed.Workspace.Domain, &buddy.EnvironmentOps{
-		Name:       &name,
-		Identifier: &identifier,
-		Scope:      &scope,
-	})
+	env, err := createTestEnvironment(seed.Client, seed.Workspace.Domain, "")
 	if err != nil {
 		t.Fatal(ErrorFormatted("EnvironmentService.Create", err))
 	}
@@ -227,7 +219,7 @@ func TestVariableSsh(t *testing.T) {
 	t.Run("Delete", testVariableDelete(seed.Client, seed.Workspace, &variable))
 }
 
-func testVariableAllowedRulesCreate(client *buddy.Client, workspace *buddy.Workspace, project *buddy.Project, pipeline *buddy.Pipeline, out *buddy.Variable) func(t *testing.T) {
+func testVariableAllowedRulesCreate(client *buddy.Client, workspace *buddy.Workspace, project *buddy.Project, pipeline *buddy.Pipeline, projectEnv *buddy.Environment, workspaceEnv *buddy.Environment, out *buddy.Variable) func(t *testing.T) {
 	return func(t *testing.T) {
 		key := RandString(10)
 		val := RandString(10)
@@ -238,18 +230,27 @@ func testVariableAllowedRulesCreate(client *buddy.Client, workspace *buddy.Works
 			Pipeline:    pipeline.Name,
 			AccessLevel: buddy.VariableAccessLevelDenied,
 		}}
+		allowedEnvironments := []*buddy.VariableAllowedEnvironment{{
+			Project:     project.Name,
+			Environment: projectEnv.Identifier,
+			AccessLevel: buddy.VariableAccessLevelUseOnly,
+		}, {
+			Environment: workspaceEnv.Identifier,
+			AccessLevel: buddy.VariableAccessLevelUseOnly,
+		}}
 		ops := buddy.VariableOps{
 			Key:                  &key,
 			Value:                &val,
 			PipelinesAccessLevel: &pipelinesAccessLevel,
 			SandboxesAccessLevel: &sandboxesAccessLevel,
 			AllowedPipelines:     &allowedPipelines,
+			AllowedEnvironments:  &allowedEnvironments,
 		}
 		variable, _, err := client.VariableService.Create(workspace.Domain, &ops)
 		if err != nil {
 			t.Fatal(ErrorFormatted("VariableService.Create", err))
 		}
-		err = CheckVariableAllowedRules(variable, allowedPipelines, nil)
+		err = CheckVariableAllowedRules(variable, allowedPipelines, nil, allowedEnvironments)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -257,7 +258,7 @@ func testVariableAllowedRulesCreate(client *buddy.Client, workspace *buddy.Works
 	}
 }
 
-func testVariableAllowedRulesUpdate(client *buddy.Client, workspace *buddy.Workspace, project *buddy.Project, pipeline *buddy.Pipeline, out *buddy.Variable) func(t *testing.T) {
+func testVariableAllowedRulesUpdate(client *buddy.Client, workspace *buddy.Workspace, project *buddy.Project, pipeline *buddy.Pipeline, workspaceEnv *buddy.Environment, out *buddy.Variable) func(t *testing.T) {
 	return func(t *testing.T) {
 		allowedPipelines := []*buddy.VariableAllowedPipeline{{
 			Project:     project.Name,
@@ -265,14 +266,19 @@ func testVariableAllowedRulesUpdate(client *buddy.Client, workspace *buddy.Works
 			Action:      RandString(10),
 			AccessLevel: buddy.VariableAccessLevelDenied,
 		}}
+		allowedEnvironments := []*buddy.VariableAllowedEnvironment{{
+			Environment: workspaceEnv.Identifier,
+			AccessLevel: buddy.VariableAccessLevelUseOnly,
+		}}
 		ops := buddy.VariableOps{
-			AllowedPipelines: &allowedPipelines,
+			AllowedPipelines:    &allowedPipelines,
+			AllowedEnvironments: &allowedEnvironments,
 		}
 		variable, _, err := client.VariableService.Update(workspace.Domain, out.Id, &ops)
 		if err != nil {
 			t.Fatal(ErrorFormatted("VariableService.Patch", err))
 		}
-		err = CheckVariableAllowedRules(variable, allowedPipelines, nil)
+		err = CheckVariableAllowedRules(variable, allowedPipelines, nil, allowedEnvironments)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -282,6 +288,7 @@ func testVariableAllowedRulesUpdate(client *buddy.Client, workspace *buddy.Works
 
 func testVariableAllowedRulesClear(client *buddy.Client, workspace *buddy.Workspace, out *buddy.Variable) func(t *testing.T) {
 	return func(t *testing.T) {
+		// leaving AllowedEnvironments nil removes the environment rules as well
 		allowedPipelines := []*buddy.VariableAllowedPipeline{}
 		ops := buddy.VariableOps{
 			AllowedPipelines: &allowedPipelines,
@@ -290,7 +297,7 @@ func testVariableAllowedRulesClear(client *buddy.Client, workspace *buddy.Worksp
 		if err != nil {
 			t.Fatal(ErrorFormatted("VariableService.Patch", err))
 		}
-		err = CheckVariableAllowedRules(variable, nil, nil)
+		err = CheckVariableAllowedRules(variable, nil, nil, nil)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -307,9 +314,17 @@ func TestVariableAllowedRules(t *testing.T) {
 	if err != nil {
 		t.Fatal(ErrorFormatted("SeedInitialData", err))
 	}
+	projectEnv, err := createTestEnvironment(seed.Client, seed.Workspace.Domain, seed.Project.Name)
+	if err != nil {
+		t.Fatal(ErrorFormatted("EnvironmentService.Create", err))
+	}
+	workspaceEnv, err := createTestEnvironment(seed.Client, seed.Workspace.Domain, "")
+	if err != nil {
+		t.Fatal(ErrorFormatted("EnvironmentService.Create", err))
+	}
 	var variable buddy.Variable
-	t.Run("Create", testVariableAllowedRulesCreate(seed.Client, seed.Workspace, seed.Project, seed.Pipeline, &variable))
-	t.Run("UpdateToActionRule", testVariableAllowedRulesUpdate(seed.Client, seed.Workspace, seed.Project, seed.Pipeline, &variable))
+	t.Run("Create", testVariableAllowedRulesCreate(seed.Client, seed.Workspace, seed.Project, seed.Pipeline, projectEnv, workspaceEnv, &variable))
+	t.Run("UpdateToActionRule", testVariableAllowedRulesUpdate(seed.Client, seed.Workspace, seed.Project, seed.Pipeline, workspaceEnv, &variable))
 	t.Run("Get", testVariableAllowedRulesGet(seed.Client, seed.Workspace, &variable))
 	t.Run("Clear", testVariableAllowedRulesClear(seed.Client, seed.Workspace, &variable))
 	t.Run("Delete", testVariableDelete(seed.Client, seed.Workspace, &variable))
@@ -321,7 +336,7 @@ func testVariableAllowedRulesGet(client *buddy.Client, workspace *buddy.Workspac
 		if err != nil {
 			t.Fatal(ErrorFormatted("VariableService.Get", err))
 		}
-		err = CheckVariableAllowedRules(variable, out.AllowedPipelines, out.AllowedSandboxes)
+		err = CheckVariableAllowedRules(variable, out.AllowedPipelines, out.AllowedSandboxes, out.AllowedEnvironments)
 		if err != nil {
 			t.Fatal(err)
 		}

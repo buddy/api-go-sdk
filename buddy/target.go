@@ -13,6 +13,7 @@ const (
 	TargetTypeMysql        = "MYSQL"
 	TargetTypeMongo        = "MONGO"
 	TargetTypeClickhouse   = "CLICKHOUSE"
+	TargetTypeProjectRepo  = "PROJECT_REPO"
 
 	TargetSslModeDisable    = "DISABLE"
 	TargetSslModeRequire    = "REQUIRE"
@@ -105,66 +106,84 @@ type TargetAllowedSandbox struct {
 	AccessLevel string `json:"access_level"`
 }
 
-type Target struct {
-	Url                  string                   `json:"url"`
-	HtmlUrl              string                   `json:"html_url"`
-	Id                   string                   `json:"id"`
-	Identifier           string                   `json:"identifier"`
-	Tags                 []string                 `json:"tags"`
-	Name                 string                   `json:"name"`
-	Note                 string                   `json:"note"`
-	AgentNote            string                   `json:"agent_note"`
-	Type                 string                   `json:"type"`
-	Host                 string                   `json:"host"`
-	Scope                string                   `json:"scope"`
-	Repository           string                   `json:"repository"`
-	Port                 string                   `json:"port"`
-	Path                 string                   `json:"path"`
-	Secure               bool                     `json:"secure"`
-	Database             string                   `json:"database"`
-	SslMode              string                   `json:"ssl_mode"`
-	CaCertificate        string                   `json:"ca_certificate"`
-	AuthSource           string                   `json:"auth_source"`
-	Integration          string                   `json:"integration"`
-	Disabled             bool                     `json:"disabled"`
-	Auth                 *TargetAuth              `json:"auth"`
-	Proxy                *TargetProxy             `json:"proxy"`
-	Permissions          *TargetPermissions       `json:"permissions"`
-	AllowedPipelines     []*TargetAllowedPipeline `json:"allowed_pipelines"`
-	AllowedSandboxes     []*TargetAllowedSandbox  `json:"allowed_sandboxes"`
-	SandboxesAccessLevel string                   `json:"sandboxes_access_level"`
-	PipelinesAccessLevel string                   `json:"pipelines_access_level"`
+// TargetAllowedEnvironment grants or denies access to every sandbox of an environment.
+// Project is the project of a project environment and is left empty for a workspace
+// environment. A TargetAllowedSandbox rule for a specific sandbox takes precedence over
+// an environment rule.
+type TargetAllowedEnvironment struct {
+	Project     string `json:"project,omitempty"`
+	Environment string `json:"environment"`
+	AccessLevel string `json:"access_level"`
 }
 
+type Target struct {
+	Url                  string                      `json:"url"`
+	HtmlUrl              string                      `json:"html_url"`
+	Id                   string                      `json:"id"`
+	Identifier           string                      `json:"identifier"`
+	Tags                 []string                    `json:"tags"`
+	Name                 string                      `json:"name"`
+	Note                 string                      `json:"note"`
+	AgentNote            string                      `json:"agent_note"`
+	Type                 string                      `json:"type"`
+	Host                 string                      `json:"host"`
+	Scope                string                      `json:"scope"`
+	Repository           string                      `json:"repository"`
+	Port                 string                      `json:"port"`
+	Path                 string                      `json:"path"`
+	Secure               bool                        `json:"secure"`
+	Database             string                      `json:"database"`
+	SslMode              string                      `json:"ssl_mode"`
+	CaCertificate        string                      `json:"ca_certificate"`
+	AuthSource           string                      `json:"auth_source"`
+	Integration          string                      `json:"integration"`
+	Disabled             bool                        `json:"disabled"`
+	Auth                 *TargetAuth                 `json:"auth"`
+	Proxy                *TargetProxy                `json:"proxy"`
+	Permissions          *TargetPermissions          `json:"permissions"`
+	AllowedPipelines     []*TargetAllowedPipeline    `json:"allowed_pipelines"`
+	AllowedSandboxes     []*TargetAllowedSandbox     `json:"allowed_sandboxes"`
+	AllowedEnvironments  []*TargetAllowedEnvironment `json:"allowed_environments"`
+	SandboxesAccessLevel string                      `json:"sandboxes_access_level"`
+	PipelinesAccessLevel string                      `json:"pipelines_access_level"`
+}
+
+// TargetOps is used both to create and to update a target. Update requires Type.
+//
+// AllowedEnvironments applies only to TargetTypeProjectRepo targets, other types ignore it.
+// Every rule needs Environment and AccessLevel (TargetSandboxAccessLevel* constants), at
+// most 30 rules are allowed. Sending AllowedEnvironments replaces the whole list, an empty
+// slice removes every rule, leaving it nil keeps the current rules.
 type TargetOps struct {
-	Identifier           *string                   `json:"identifier,omitempty"`
-	Name                 *string                   `json:"name,omitempty"`
-	Note                 *string                   `json:"note,omitempty"`
-	AgentNote            *string                   `json:"agent_note,omitempty"`
-	Tags                 *[]string                 `json:"tags,omitempty"`
-	Type                 *string                   `json:"type,omitempty"`
-	Host                 *string                   `json:"host,omitempty"`
-	Scope                *string                   `json:"scope,omitempty"`
-	Repository           *string                   `json:"repository,omitempty"`
-	Port                 *string                   `json:"port,omitempty"`
-	Path                 *string                   `json:"path,omitempty"`
-	Secure               *bool                     `json:"secure,omitempty"`
-	Database             *string                   `json:"database,omitempty"`
-	SslMode              *string                   `json:"ssl_mode,omitempty"`
-	CaCertificate        *string                   `json:"ca_certificate,omitempty"`
-	AuthSource           *string                   `json:"auth_source,omitempty"`
-	Integration          *string                   `json:"integration,omitempty"`
-	Disabled             *bool                     `json:"disabled,omitempty"`
-	Auth                 *TargetAuth               `json:"auth,omitempty"`
-	Project              *TargetProject            `json:"project,omitempty"`
-	Pipeline             *TargetPipeline           `json:"pipeline,omitempty"`
-	Environment          *TargetEnvironment        `json:"environment,omitempty"`
-	Proxy                *TargetProxy              `json:"proxy,omitempty"`
-	Permissions          *TargetPermissions        `json:"permissions,omitempty"`
-	PipelinesAccessLevel *string                   `json:"pipelines_access_level,omitempty"`
-	AllowedPipelines     *[]*TargetAllowedPipeline `json:"allowed_pipelines,omitempty"`
-	SandboxesAccessLevel *string                   `json:"sandboxes_access_level,omitempty"`
-	AllowedSandboxes     *[]*TargetAllowedSandbox  `json:"allowed_sandboxes,omitempty"`
+	Identifier           *string                      `json:"identifier,omitempty"`
+	Name                 *string                      `json:"name,omitempty"`
+	Note                 *string                      `json:"note,omitempty"`
+	AgentNote            *string                      `json:"agent_note,omitempty"`
+	Tags                 *[]string                    `json:"tags,omitempty"`
+	Type                 *string                      `json:"type,omitempty"`
+	Host                 *string                      `json:"host,omitempty"`
+	Scope                *string                      `json:"scope,omitempty"`
+	Repository           *string                      `json:"repository,omitempty"`
+	Port                 *string                      `json:"port,omitempty"`
+	Path                 *string                      `json:"path,omitempty"`
+	Secure               *bool                        `json:"secure,omitempty"`
+	Database             *string                      `json:"database,omitempty"`
+	SslMode              *string                      `json:"ssl_mode,omitempty"`
+	CaCertificate        *string                      `json:"ca_certificate,omitempty"`
+	AuthSource           *string                      `json:"auth_source,omitempty"`
+	Integration          *string                      `json:"integration,omitempty"`
+	Disabled             *bool                        `json:"disabled,omitempty"`
+	Auth                 *TargetAuth                  `json:"auth,omitempty"`
+	Project              *TargetProject               `json:"project,omitempty"`
+	Pipeline             *TargetPipeline              `json:"pipeline,omitempty"`
+	Environment          *TargetEnvironment           `json:"environment,omitempty"`
+	Proxy                *TargetProxy                 `json:"proxy,omitempty"`
+	Permissions          *TargetPermissions           `json:"permissions,omitempty"`
+	PipelinesAccessLevel *string                      `json:"pipelines_access_level,omitempty"`
+	AllowedPipelines     *[]*TargetAllowedPipeline    `json:"allowed_pipelines,omitempty"`
+	SandboxesAccessLevel *string                      `json:"sandboxes_access_level,omitempty"`
+	AllowedSandboxes     *[]*TargetAllowedSandbox     `json:"allowed_sandboxes,omitempty"`
+	AllowedEnvironments  *[]*TargetAllowedEnvironment `json:"allowed_environments,omitempty"`
 }
 
 type TargetGetListQuery struct {

@@ -617,16 +617,7 @@ func testTargetUpcloud(client *buddy.Client, workspaceDomain string) func(t *tes
 
 func testTargetSshAsset(client *buddy.Client, workspaceDomain string, projectName string) func(t *testing.T) {
 	return func(t *testing.T) {
-		envName := UniqueString()
-		envId := UniqueString()
-		envOps := buddy.EnvironmentOps{
-			Name:       &envName,
-			Identifier: &envId,
-			Project: &buddy.ProjectSimple{
-				Name: projectName,
-			},
-		}
-		env, _, err := client.EnvironmentService.Create(workspaceDomain, &envOps)
+		env, err := createTestEnvironment(client, workspaceDomain, projectName)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -851,6 +842,117 @@ func testTargetClickhouse(client *buddy.Client, workspaceDomain string) func(t *
 		secure := true
 		ops.Secure = &secure
 	})
+}
+
+func CheckTargetAllowedEnvironments(target *buddy.Target, want []*buddy.TargetAllowedEnvironment) error {
+	return checkAllowedEnvironments("AllowedEnvironments", targetAllowedEnvironmentRules(target.AllowedEnvironments), targetAllowedEnvironmentRules(want))
+}
+
+func testTargetProjectRepoCreate(client *buddy.Client, workspaceDomain string, project *buddy.Project, allowedEnvironments []*buddy.TargetAllowedEnvironment, out *buddy.Target) func(t *testing.T) {
+	return func(t *testing.T) {
+		name := UniqueString()
+		identifier := UniqueString()
+		typ := buddy.TargetTypeProjectRepo
+		sandboxesAccessLevel := buddy.TargetSandboxAccessLevelDenied
+		ops := buddy.TargetOps{
+			Name:                 &name,
+			Identifier:           &identifier,
+			Type:                 &typ,
+			Project:              &buddy.TargetProject{Name: project.Name},
+			SandboxesAccessLevel: &sandboxesAccessLevel,
+			AllowedEnvironments:  &allowedEnvironments,
+		}
+		target, _, err := client.TargetService.Create(workspaceDomain, &ops)
+		if err != nil {
+			t.Fatal(ErrorFormatted("TargetService.Create", err))
+		}
+		if err = CheckTarget(target, &ops); err != nil {
+			t.Fatal(err)
+		}
+		if err = CheckFieldEqualAndSet("SandboxesAccessLevel", target.SandboxesAccessLevel, sandboxesAccessLevel); err != nil {
+			t.Fatal(err)
+		}
+		if err = CheckTargetAllowedEnvironments(target, allowedEnvironments); err != nil {
+			t.Fatal(err)
+		}
+		*out = *target
+	}
+}
+
+func testTargetProjectRepoUpdate(client *buddy.Client, workspaceDomain string, allowedEnvironments *[]*buddy.TargetAllowedEnvironment, out *buddy.Target) func(t *testing.T) {
+	return func(t *testing.T) {
+		// PATCH of a PROJECT_REPO target ignores name, identifier, note and tags
+		ops := buddy.TargetOps{
+			Type:                &out.Type,
+			AllowedEnvironments: allowedEnvironments,
+		}
+		want := out.AllowedEnvironments
+		if allowedEnvironments != nil {
+			want = *allowedEnvironments
+		}
+		target, _, err := client.TargetService.Update(workspaceDomain, out.Id, &ops)
+		if err != nil {
+			t.Fatal(ErrorFormatted("TargetService.Update", err))
+		}
+		if err = CheckTarget(target, &ops); err != nil {
+			t.Fatal(err)
+		}
+		if err = CheckTargetAllowedEnvironments(target, want); err != nil {
+			t.Fatal(err)
+		}
+		*out = *target
+	}
+}
+
+func testTargetProjectRepoGet(client *buddy.Client, workspaceDomain string, out *buddy.Target) func(t *testing.T) {
+	return func(t *testing.T) {
+		target, _, err := client.TargetService.Get(workspaceDomain, out.Id)
+		if err != nil {
+			t.Fatal(ErrorFormatted("TargetService.Get", err))
+		}
+		if err = CheckTargetAllowedEnvironments(target, out.AllowedEnvironments); err != nil {
+			t.Fatal(err)
+		}
+	}
+}
+
+func TestTargetProjectRepo(t *testing.T) {
+	seed, err := SeedInitialData(&SeedOps{
+		workspace: true,
+		project:   true,
+	})
+	if err != nil {
+		t.Fatal(ErrorFormatted("SeedInitialData", err))
+	}
+	projectEnv, err := createTestEnvironment(seed.Client, seed.Workspace.Domain, seed.Project.Name)
+	if err != nil {
+		t.Fatal(ErrorFormatted("EnvironmentService.Create", err))
+	}
+	workspaceEnv, err := createTestEnvironment(seed.Client, seed.Workspace.Domain, "")
+	if err != nil {
+		t.Fatal(ErrorFormatted("EnvironmentService.Create", err))
+	}
+	allowedEnvironments := []*buddy.TargetAllowedEnvironment{{
+		Project:     seed.Project.Name,
+		Environment: projectEnv.Identifier,
+		AccessLevel: buddy.TargetSandboxAccessLevelReadWrite,
+	}, {
+		Environment: workspaceEnv.Identifier,
+		AccessLevel: buddy.TargetSandboxAccessLevelReadOnly,
+	}}
+	newAllowedEnvironments := []*buddy.TargetAllowedEnvironment{{
+		Project:     seed.Project.Name,
+		Environment: projectEnv.Identifier,
+		AccessLevel: buddy.TargetSandboxAccessLevelReadOnly,
+	}}
+	emptyAllowedEnvironments := []*buddy.TargetAllowedEnvironment{}
+	var target buddy.Target
+	t.Run("Create", testTargetProjectRepoCreate(seed.Client, seed.Workspace.Domain, seed.Project, allowedEnvironments, &target))
+	t.Run("UpdateKeepsAllowedEnvironments", testTargetProjectRepoUpdate(seed.Client, seed.Workspace.Domain, nil, &target))
+	t.Run("UpdateAllowedEnvironments", testTargetProjectRepoUpdate(seed.Client, seed.Workspace.Domain, &newAllowedEnvironments, &target))
+	t.Run("Get", testTargetProjectRepoGet(seed.Client, seed.Workspace.Domain, &target))
+	t.Run("ClearAllowedEnvironments", testTargetProjectRepoUpdate(seed.Client, seed.Workspace.Domain, &emptyAllowedEnvironments, &target))
+	t.Run("Delete", testTargetDelete(seed.Client, seed.Workspace.Domain, &target))
 }
 
 func TestTarget(t *testing.T) {

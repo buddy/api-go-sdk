@@ -20,33 +20,34 @@ type VariableService struct {
 }
 
 type Variable struct {
-	Url                  string                     `json:"url"`
-	HtmlUrl              string                     `json:"html_url"`
-	Id                   int                        `json:"id"`
-	Key                  string                     `json:"key"`
-	Value                string                     `json:"value"`
-	Type                 string                     `json:"type"`
-	Encrypted            bool                       `json:"encrypted"`
-	Settable             bool                       `json:"settable"`
-	RunOnlySettable      bool                       `json:"run_only_settable"`
-	Disabled             bool                       `json:"disabled"`
-	PipelinesAccessLevel string                     `json:"pipelines_access_level"`
-	SandboxesAccessLevel string                     `json:"sandboxes_access_level"`
-	AllowedPipelines     []*VariableAllowedPipeline `json:"allowed_pipelines"`
-	AllowedSandboxes     []*VariableAllowedSandbox  `json:"allowed_sandboxes"`
-	Note                 string                     `json:"note"`
-	AgentNote            string                     `json:"agent_note"`
-	FilePath             string                     `json:"file_path"`
-	FileChmod            string                     `json:"file_chmod"`
-	FilePlace            string                     `json:"file_place"`
-	PublicValue          string                     `json:"public_value"`
-	KeyFingerprint       string                     `json:"key_fingerprint"`
-	Checksum             string                     `json:"checksum"`
-	Project              *VariableProject           `json:"project"`
-	Pipeline             *VariablePipeline          `json:"pipeline"`
-	Action               *VariableAction            `json:"action"`
-	Environment          *VariableEnvironment       `json:"environment"`
-	Sandbox              *VariableSandbox           `json:"sandbox"`
+	Url                  string                        `json:"url"`
+	HtmlUrl              string                        `json:"html_url"`
+	Id                   int                           `json:"id"`
+	Key                  string                        `json:"key"`
+	Value                string                        `json:"value"`
+	Type                 string                        `json:"type"`
+	Encrypted            bool                          `json:"encrypted"`
+	Settable             bool                          `json:"settable"`
+	RunOnlySettable      bool                          `json:"run_only_settable"`
+	Disabled             bool                          `json:"disabled"`
+	PipelinesAccessLevel string                        `json:"pipelines_access_level"`
+	SandboxesAccessLevel string                        `json:"sandboxes_access_level"`
+	AllowedPipelines     []*VariableAllowedPipeline    `json:"allowed_pipelines"`
+	AllowedSandboxes     []*VariableAllowedSandbox     `json:"allowed_sandboxes"`
+	AllowedEnvironments  []*VariableAllowedEnvironment `json:"allowed_environments"`
+	Note                 string                        `json:"note"`
+	AgentNote            string                        `json:"agent_note"`
+	FilePath             string                        `json:"file_path"`
+	FileChmod            string                        `json:"file_chmod"`
+	FilePlace            string                        `json:"file_place"`
+	PublicValue          string                        `json:"public_value"`
+	KeyFingerprint       string                        `json:"key_fingerprint"`
+	Checksum             string                        `json:"checksum"`
+	Project              *VariableProject              `json:"project"`
+	Pipeline             *VariablePipeline             `json:"pipeline"`
+	Action               *VariableAction               `json:"action"`
+	Environment          *VariableEnvironment          `json:"environment"`
+	Sandbox              *VariableSandbox              `json:"sandbox"`
 }
 
 type Variables struct {
@@ -64,38 +65,45 @@ type Variables struct {
 // RunOnlySettable requires Settable to be true, otherwise both Create and Update fail
 // with 400.
 //
-// PipelinesAccessLevel, SandboxesAccessLevel, AllowedPipelines and AllowedSandboxes can
-// only be set on workspace- and project-scoped variables, setting them on any other scope
-// fails with 400. PipelinesAccessLevel defaults to VariableAccessLevelUseOnly and
-// SandboxesAccessLevel to VariableAccessLevelDenied.
+// PipelinesAccessLevel, SandboxesAccessLevel, AllowedPipelines, AllowedSandboxes and
+// AllowedEnvironments can only be set on workspace- and project-scoped variables, setting
+// them on any other scope fails with 400. PipelinesAccessLevel defaults to
+// VariableAccessLevelUseOnly and SandboxesAccessLevel to VariableAccessLevelDenied.
 //
-// AllowedPipelines and AllowedSandboxes are exceptions to those defaults, so every rule
-// needs the opposite AccessLevel of the default it overrides. A rule either covers a whole
-// pipeline or a single Action, and rules for one pipeline cannot mix the two forms nor
-// carry different access levels. Pointing at an empty slice removes every rule of that
-// kind; the default level itself cannot be changed while rules still exist.
+// AllowedPipelines, AllowedSandboxes and AllowedEnvironments are exceptions to those
+// defaults, so every rule needs the opposite AccessLevel of the default it overrides. A
+// pipeline rule either covers a whole pipeline or a single Action, and rules for one
+// pipeline cannot mix the two forms nor carry different access levels. Pointing at an
+// empty slice removes every rule of that kind; the default level itself cannot be changed
+// while rules still exist.
+//
+// Update replaces AllowedPipelines, AllowedSandboxes and AllowedEnvironments as a whole,
+// and leaving one of them nil removes every rule of that kind as well, so send the current
+// rules back with every update that should keep them. All environment rules for one
+// environment must use the same AccessLevel.
 type VariableOps struct {
-	Key                  *string                     `json:"key,omitempty"`
-	Value                *string                     `json:"value,omitempty"`
-	Type                 *string                     `json:"type,omitempty"`
-	Note                 *string                     `json:"note,omitempty"`
-	AgentNote            *string                     `json:"agent_note,omitempty"`
-	Settable             *bool                       `json:"settable,omitempty"`
-	RunOnlySettable      *bool                       `json:"run_only_settable,omitempty"`
-	Disabled             *bool                       `json:"disabled,omitempty"`
-	PipelinesAccessLevel *string                     `json:"pipelines_access_level,omitempty"`
-	SandboxesAccessLevel *string                     `json:"sandboxes_access_level,omitempty"`
-	AllowedPipelines     *[]*VariableAllowedPipeline `json:"allowed_pipelines,omitempty"`
-	AllowedSandboxes     *[]*VariableAllowedSandbox  `json:"allowed_sandboxes,omitempty"`
-	Encrypted            *bool                       `json:"encrypted,omitempty"`
-	Project              *VariableProject            `json:"project,omitempty"`
-	Pipeline             *VariablePipeline           `json:"pipeline,omitempty"`
-	Action               *VariableAction             `json:"action,omitempty"`
-	Environment          *VariableEnvironment        `json:"environment,omitempty"`
-	Sandbox              *VariableSandbox            `json:"sandbox,omitempty"`
-	FilePlace            *string                     `json:"file_place,omitempty"`
-	FilePath             *string                     `json:"file_path,omitempty"`
-	FileChmod            *string                     `json:"file_chmod,omitempty"`
+	Key                  *string                        `json:"key,omitempty"`
+	Value                *string                        `json:"value,omitempty"`
+	Type                 *string                        `json:"type,omitempty"`
+	Note                 *string                        `json:"note,omitempty"`
+	AgentNote            *string                        `json:"agent_note,omitempty"`
+	Settable             *bool                          `json:"settable,omitempty"`
+	RunOnlySettable      *bool                          `json:"run_only_settable,omitempty"`
+	Disabled             *bool                          `json:"disabled,omitempty"`
+	PipelinesAccessLevel *string                        `json:"pipelines_access_level,omitempty"`
+	SandboxesAccessLevel *string                        `json:"sandboxes_access_level,omitempty"`
+	AllowedPipelines     *[]*VariableAllowedPipeline    `json:"allowed_pipelines,omitempty"`
+	AllowedSandboxes     *[]*VariableAllowedSandbox     `json:"allowed_sandboxes,omitempty"`
+	AllowedEnvironments  *[]*VariableAllowedEnvironment `json:"allowed_environments,omitempty"`
+	Encrypted            *bool                          `json:"encrypted,omitempty"`
+	Project              *VariableProject               `json:"project,omitempty"`
+	Pipeline             *VariablePipeline              `json:"pipeline,omitempty"`
+	Action               *VariableAction                `json:"action,omitempty"`
+	Environment          *VariableEnvironment           `json:"environment,omitempty"`
+	Sandbox              *VariableSandbox               `json:"sandbox,omitempty"`
+	FilePlace            *string                        `json:"file_place,omitempty"`
+	FilePath             *string                        `json:"file_path,omitempty"`
+	FileChmod            *string                        `json:"file_chmod,omitempty"`
 }
 
 type VariableGetListQuery struct {
@@ -136,6 +144,16 @@ type VariableAllowedPipeline struct {
 type VariableAllowedSandbox struct {
 	Project     string `json:"project"`
 	Sandbox     string `json:"sandbox"`
+	AccessLevel string `json:"access_level"`
+}
+
+// VariableAllowedEnvironment grants or denies access to the variable for every sandbox of
+// an environment. Project is the project of a project environment and is left empty for a
+// workspace environment. A VariableAllowedSandbox rule for a specific sandbox takes
+// precedence over an environment rule.
+type VariableAllowedEnvironment struct {
+	Project     string `json:"project,omitempty"`
+	Environment string `json:"environment"`
 	AccessLevel string `json:"access_level"`
 }
 
