@@ -466,24 +466,11 @@ func TestSandbox(t *testing.T) {
 	projectQuery := buddy.Query{
 		ProjectName: &seed.Project.Name,
 	}
-	wsEnvName := UniqueString()
-	wsEnvId := UniqueString()
-	pjEnvName := UniqueString()
-	pjEnvId := UniqueString()
-	wsEnv, _, err := seed.Client.EnvironmentService.Create(seed.Workspace.Domain, &buddy.EnvironmentOps{
-		Name:       &wsEnvName,
-		Identifier: &wsEnvId,
-	})
+	wsEnv, err := createTestEnvironment(seed.Client, seed.Workspace.Domain, "")
 	if err != nil {
 		t.Fatal(ErrorFormatted("Create workspace env", err))
 	}
-	pjEnv, _, err := seed.Client.EnvironmentService.Create(seed.Workspace.Domain, &buddy.EnvironmentOps{
-		Name:       &pjEnvName,
-		Identifier: &pjEnvId,
-		Project: &buddy.ProjectSimple{
-			Name: seed.Project.Name,
-		},
-	})
+	pjEnv, err := createTestEnvironment(seed.Client, seed.Workspace.Domain, seed.Project.Name)
 	if err != nil {
 		t.Fatal(ErrorFormatted("Create project env", err))
 	}

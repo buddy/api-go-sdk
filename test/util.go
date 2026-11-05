@@ -1143,7 +1143,67 @@ func CheckWebhooks(webhooks *buddy.Webhooks, count int) error {
 	return nil
 }
 
-func CheckVariableAllowedRules(variable *buddy.Variable, pipelines []*buddy.VariableAllowedPipeline, sandboxes []*buddy.VariableAllowedSandbox) error {
+// createTestEnvironment creates a workspace environment, or a project environment when
+// projectName is not empty.
+func createTestEnvironment(client *buddy.Client, workspaceDomain string, projectName string) (*buddy.Environment, error) {
+	name := RandString(10)
+	identifier := UniqueString()
+	scope := buddy.EnvironmentScopeWorkspace
+	ops := buddy.EnvironmentOps{
+		Name:       &name,
+		Identifier: &identifier,
+		Scope:      &scope,
+	}
+	if projectName != "" {
+		scope = buddy.EnvironmentScopeProject
+		ops.Project = &buddy.ProjectSimple{Name: projectName}
+	}
+	env, _, err := client.EnvironmentService.Create(workspaceDomain, &ops)
+	return env, err
+}
+
+type allowedEnvironmentRule struct {
+	project     string
+	environment string
+	accessLevel string
+}
+
+// checkAllowedEnvironments compares environment rules regardless of their order, the API
+// does not keep it.
+func checkAllowedEnvironments(field string, got []allowedEnvironmentRule, want []allowedEnvironmentRule) error {
+	if err := CheckIntFieldEqual("len("+field+")", len(got), len(want)); err != nil {
+		return err
+	}
+	levels := map[string]string{}
+	for _, rule := range got {
+		levels[rule.project+"/"+rule.environment] = rule.accessLevel
+	}
+	for _, expected := range want {
+		key := expected.project + "/" + expected.environment
+		if err := CheckFieldEqualAndSet(field+"["+key+"].AccessLevel", levels[key], expected.accessLevel); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func variableAllowedEnvironmentRules(rules []*buddy.VariableAllowedEnvironment) []allowedEnvironmentRule {
+	out := make([]allowedEnvironmentRule, 0, len(rules))
+	for _, rule := range rules {
+		out = append(out, allowedEnvironmentRule{rule.Project, rule.Environment, rule.AccessLevel})
+	}
+	return out
+}
+
+func targetAllowedEnvironmentRules(rules []*buddy.TargetAllowedEnvironment) []allowedEnvironmentRule {
+	out := make([]allowedEnvironmentRule, 0, len(rules))
+	for _, rule := range rules {
+		out = append(out, allowedEnvironmentRule{rule.Project, rule.Environment, rule.AccessLevel})
+	}
+	return out
+}
+
+func CheckVariableAllowedRules(variable *buddy.Variable, pipelines []*buddy.VariableAllowedPipeline, sandboxes []*buddy.VariableAllowedSandbox, environments []*buddy.VariableAllowedEnvironment) error {
 	if err := CheckIntFieldEqual("len(Variable.AllowedPipelines)", len(variable.AllowedPipelines), len(pipelines)); err != nil {
 		return err
 	}
@@ -1177,7 +1237,7 @@ func CheckVariableAllowedRules(variable *buddy.Variable, pipelines []*buddy.Vari
 			return err
 		}
 	}
-	return nil
+	return checkAllowedEnvironments("Variable.AllowedEnvironments", variableAllowedEnvironmentRules(variable.AllowedEnvironments), variableAllowedEnvironmentRules(environments))
 }
 
 func CheckVariables(variables *buddy.Variables, count int) error {

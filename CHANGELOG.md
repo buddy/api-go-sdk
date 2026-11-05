@@ -1,3 +1,10 @@
+# Release v1.58.0 (2026-11-05)
+* Adds `TargetTypeProjectRepo` (`PROJECT_REPO`), the target of a project's own repository. A PATCH of such a target ignores `Name`, `Identifier`, `Note` and `Tags`
+* Adds `TargetAllowedEnvironment`, `Target.AllowedEnvironments` and `TargetOps.AllowedEnvironments`, a rule grants or denies access (`TargetSandboxAccessLevel*`: `DENIED`, `READ_ONLY`, `READ_WRITE`) to every sandbox of an environment. Only `PROJECT_REPO` targets use it, other types ignore it
+* Adds `VariableAllowedEnvironment`, `Variable.AllowedEnvironments` and `VariableOps.AllowedEnvironments` for workspace and project variables, the `AccessLevel` must be the opposite of `SandboxesAccessLevel`, all rules for one environment must use the same level and `SandboxesAccessLevel` cannot change while environment rules exist
+* An environment rule takes `Project` and `Environment` (identifier) for a project environment, and only `Environment` for a workspace environment. A rule for a specific sandbox takes precedence over an environment rule, at most 30 rules are allowed, and the API does not keep their order
+* `TargetOps.AllowedEnvironments` replaces the whole list, an empty list removes all rules, leaving it out keeps the current rules. `VariableService.Update` removes environment rules left out of `VariableOps`, the same way it does for `AllowedPipelines` and `AllowedSandboxes`
+
 # Release v1.57.0 (2026-11-04)
 * Adds database targets: `TargetTypeMysql` (`MYSQL`), `TargetTypeMongo` (`MONGO`) and `TargetTypeClickhouse` (`CLICKHOUSE`), with `Host`, `Port`, `Auth` (`PASSWORD` only) and optionally `Proxy` (the `Name` of an SSH target)
 * Adds `Database`, `SslMode`, `CaCertificate` and `AuthSource` to `Target` and `TargetOps`: `Database` for all three types, `SslMode` (`TargetSslModeDisable`, `TargetSslModeRequire` - default, `TargetSslModeVerifyFull`) and `CaCertificate` (PEM, required for `VERIFY_FULL`) for `MYSQL`, `AuthSource` for `MONGO`; `Secure` (TLS on the native protocol) applies to `CLICKHOUSE`
