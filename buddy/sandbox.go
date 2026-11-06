@@ -55,6 +55,11 @@ const (
 	SandboxPipelineAccessLevelUseOnly = "USE_ONLY"
 	SandboxPipelineAccessLevelDenied  = "DENIED"
 
+	SandboxBackupOff    = "OFF"
+	SandboxBackupHourly = "HOURLY"
+	SandboxBackupDaily  = "DAILY"
+	SandboxBackupWeekly = "WEEKLY"
+
 	SandboxStatusStarting  = "STARTING"
 	SandboxStatusStopping  = "STOPPING"
 	SandboxStatusFailed    = "FAILED"
@@ -197,6 +202,13 @@ type SandboxAllowedPipeline struct {
 	AccessLevel string `json:"access_level"`
 }
 
+// SandboxSnapshotRetention sets which snapshots of the sandbox are kept, automatic and manual ones alike:
+// the KeepLast most recent ones or those taken within the last KeepForDays days, only one of the two
+type SandboxSnapshotRetention struct {
+	KeepLast    *int `json:"keep_last,omitempty"`
+	KeepForDays *int `json:"keep_for_days,omitempty"`
+}
+
 type Sandbox struct {
 	Url                  string                    `json:"url"`
 	HtmlUrl              string                    `json:"html_url"`
@@ -213,6 +225,9 @@ type Sandbox struct {
 	BootLogs             []string                  `json:"boot_logs"`
 	AppDir               string                    `json:"app_dir"`
 	Timeout              int                       `json:"timeout"`
+	Backup               string                    `json:"backup"`
+	SnapshotRetention    *SandboxSnapshotRetention `json:"snapshot_retention"`
+	LastBackupDate       string                    `json:"last_backup_date"`
 	Apps                 []*SandboxApp             `json:"apps"`
 	Fetch                []*SandboxFetch           `json:"fetch"`
 	SetupStatus          string                    `json:"setup_status"`
@@ -245,18 +260,21 @@ type SandboxYamlOps struct {
 }
 
 type SandboxOps struct {
-	Name                 *string                    `json:"name,omitempty"`
-	Note                 *string                    `json:"note,omitempty"`
-	AgentNote            *string                    `json:"agent_note,omitempty"`
-	Identifier           *string                    `json:"identifier,omitempty"`
-	Os                   *string                    `json:"os,omitempty"`
-	Resources            *string                    `json:"resources,omitempty"`
-	FirstBootCommands    *string                    `json:"first_boot_commands,omitempty"`
-	AppDir               *string                    `json:"app_dir,omitempty"`
-	Apps                 *[]*SandboxAppOps          `json:"apps,omitempty"`
-	Fetch                *[]*SandboxFetchOps        `json:"fetch,omitempty"`
-	Tags                 *[]string                  `json:"tags,omitempty"`
-	Timeout              *int                       `json:"timeout,omitempty"`
+	Name              *string             `json:"name,omitempty"`
+	Note              *string             `json:"note,omitempty"`
+	AgentNote         *string             `json:"agent_note,omitempty"`
+	Identifier        *string             `json:"identifier,omitempty"`
+	Os                *string             `json:"os,omitempty"`
+	Resources         *string             `json:"resources,omitempty"`
+	FirstBootCommands *string             `json:"first_boot_commands,omitempty"`
+	AppDir            *string             `json:"app_dir,omitempty"`
+	Apps              *[]*SandboxAppOps   `json:"apps,omitempty"`
+	Fetch             *[]*SandboxFetchOps `json:"fetch,omitempty"`
+	Tags              *[]string           `json:"tags,omitempty"`
+	Timeout           *int                `json:"timeout,omitempty"`
+	Backup            *string             `json:"backup,omitempty"`
+	// SnapshotRetention set to an empty SandboxSnapshotRetention removes the retention, leaving it out keeps the current one
+	SnapshotRetention    *SandboxSnapshotRetention  `json:"snapshot_retention,omitempty"`
 	Environment          *SandboxEnvironmentOps     `json:"environment,omitempty"`
 	Variables            *[]*VariableOps            `json:"variables,omitempty"`
 	Endpoints            *[]*SandboxEndpoint        `json:"endpoints,omitempty"`

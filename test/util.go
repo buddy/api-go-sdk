@@ -1628,6 +1628,26 @@ func CheckSandboxFetches(fetches *buddy.SandboxFetches, count int) error {
 	return nil
 }
 
+func CheckSandboxSnapshotRetention(got *buddy.SandboxSnapshotRetention, want *buddy.SandboxSnapshotRetention) error {
+	value := func(r *buddy.SandboxSnapshotRetention) (int, int) {
+		keepLast := 0
+		keepForDays := 0
+		if r != nil && r.KeepLast != nil {
+			keepLast = *r.KeepLast
+		}
+		if r != nil && r.KeepForDays != nil {
+			keepForDays = *r.KeepForDays
+		}
+		return keepLast, keepForDays
+	}
+	gotKeepLast, gotKeepForDays := value(got)
+	wantKeepLast, wantKeepForDays := value(want)
+	if err := CheckIntFieldEqual("Sandbox.SnapshotRetention.KeepLast", gotKeepLast, wantKeepLast); err != nil {
+		return err
+	}
+	return CheckIntFieldEqual("Sandbox.SnapshotRetention.KeepForDays", gotKeepForDays, wantKeepForDays)
+}
+
 func CheckSandbox(sandbox *buddy.Sandbox, expected *buddy.Sandbox, ops *buddy.SandboxOps, expectedStatus string, expectedSetupStatus string, expectedAppStatus string) error {
 	id := expected.Id
 	name := expected.Name
@@ -1642,6 +1662,8 @@ func CheckSandbox(sandbox *buddy.Sandbox, expected *buddy.Sandbox, ops *buddy.Sa
 	perms := expected.Permissions
 	pipelinesAccessLevel := expected.PipelinesAccessLevel
 	allowedPipelines := expected.AllowedPipelines
+	backup := expected.Backup
+	snapshotRetention := expected.SnapshotRetention
 	var app string
 	var appIdentifier string
 	var appPath string
@@ -1735,6 +1757,20 @@ func CheckSandbox(sandbox *buddy.Sandbox, expected *buddy.Sandbox, ops *buddy.Sa
 		if ops.AllowedPipelines != nil {
 			allowedPipelines = *ops.AllowedPipelines
 		}
+		if ops.Backup != nil {
+			backup = *ops.Backup
+		}
+		if ops.SnapshotRetention != nil {
+			snapshotRetention = ops.SnapshotRetention
+		}
+	}
+	if backup != "" {
+		if err := CheckFieldEqualAndSet("Sandbox.Backup", sandbox.Backup, backup); err != nil {
+			return err
+		}
+	}
+	if err := CheckSandboxSnapshotRetention(sandbox.SnapshotRetention, snapshotRetention); err != nil {
+		return err
 	}
 	if envId != "" {
 		if sandbox.Environment == nil {

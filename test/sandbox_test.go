@@ -118,6 +118,18 @@ func testSandboxPatch(client *buddy.Client, workspace *buddy.Workspace, ops *bud
 	}
 }
 
+func testSandboxPatchFails(client *buddy.Client, workspace *buddy.Workspace, ops *buddy.SandboxOps, out *buddy.Sandbox) func(t *testing.T) {
+	return func(t *testing.T) {
+		_, resp, err := client.SandboxService.Update(workspace.Domain, out.Id, ops)
+		if err == nil {
+			t.Fatal("TestSandbox.PatchFails: expected an error")
+		}
+		if resp == nil || resp.StatusCode != 400 {
+			t.Fatal(ErrorFormatted("TestSandbox.PatchFails: expected 400", err))
+		}
+	}
+}
+
 func testSandboxFetchWaitForFetched(client *buddy.Client, workspace *buddy.Workspace, sandbox *buddy.Sandbox, expected *buddy.SandboxFetch, out *buddy.SandboxFetch) func(t *testing.T) {
 	return func(t *testing.T) {
 		f, err := client.SandboxService.WaitForFetchStatuses(workspace.Domain, sandbox.Id, expected.Id, 120, []string{buddy.SandboxFetchStatusFetched, buddy.SandboxFetchStatusError})
@@ -416,7 +428,11 @@ func TestSandbox(t *testing.T) {
 	clearFetchOps := buddy.SandboxOps{
 		Fetch: &[]*buddy.SandboxFetchOps{},
 	}
+	backup := buddy.SandboxBackupDaily
+	keepLast := 10
 	createOps := buddy.SandboxOps{
+		Backup:            &backup,
+		SnapshotRetention: &buddy.SandboxSnapshotRetention{KeepLast: &keepLast},
 		Name:              &name,
 		Note:              &note,
 		AgentNote:         &agentNote,
@@ -448,7 +464,11 @@ func TestSandbox(t *testing.T) {
 		Pipeline:    seed.Pipeline.Identifier,
 		AccessLevel: buddy.SandboxPipelineAccessLevelUseOnly,
 	}}
+	newBackup := buddy.SandboxBackupWeekly
+	keepForDays := 30
 	updateOps := buddy.SandboxOps{
+		Backup:               &newBackup,
+		SnapshotRetention:    &buddy.SandboxSnapshotRetention{KeepForDays: &keepForDays},
 		Name:                 &newName,
 		Note:                 &newNote,
 		AgentNote:            &newAgentNote,
@@ -462,6 +482,18 @@ func TestSandbox(t *testing.T) {
 	clearAllowedPipelinesOps := buddy.SandboxOps{
 		PipelinesAccessLevel: &pipelinesAccessLevelUseOnly,
 		AllowedPipelines:     &[]*buddy.SandboxAllowedPipeline{},
+	}
+	bothRetentionsOps := buddy.SandboxOps{
+		SnapshotRetention: &buddy.SandboxSnapshotRetention{KeepLast: &keepLast, KeepForDays: &keepForDays},
+	}
+	zero := 0
+	zeroRetentionOps := buddy.SandboxOps{
+		SnapshotRetention: &buddy.SandboxSnapshotRetention{KeepLast: &zero},
+	}
+	backupOff := buddy.SandboxBackupOff
+	clearBackupOps := buddy.SandboxOps{
+		Backup:            &backupOff,
+		SnapshotRetention: &buddy.SandboxSnapshotRetention{},
 	}
 	projectQuery := buddy.Query{
 		ProjectName: &seed.Project.Name,
@@ -499,6 +531,10 @@ func TestSandbox(t *testing.T) {
 	t.Run("Update Fetch", testSandboxPatch(seed.Client, seed.Workspace, &updateFetchOps, &sandbox))
 	t.Run("Clear Fetch", testSandboxPatch(seed.Client, seed.Workspace, &clearFetchOps, &sandbox))
 	t.Run("Clear Allowed Pipelines", testSandboxPatch(seed.Client, seed.Workspace, &clearAllowedPipelinesOps, &sandbox))
+	t.Run("Both Retentions Rejected", testSandboxPatchFails(seed.Client, seed.Workspace, &bothRetentionsOps, &sandbox))
+	t.Run("Zero Retention Rejected", testSandboxPatchFails(seed.Client, seed.Workspace, &zeroRetentionOps, &sandbox))
+	t.Run("Clear Backup", testSandboxPatch(seed.Client, seed.Workspace, &clearBackupOps, &sandbox))
+	t.Run("Get After Clear Backup", testSandboxGet(seed.Client, seed.Workspace, &sandbox))
 	t.Run("Delete", testSandboxDelete(seed.Client, seed.Workspace, &sandbox))
 	sandbox = buddy.Sandbox{}
 	t.Run("Create In Workspace", testSandboxCreate(seed.Client, seed.Workspace, nil, &createOps, &sandbox))
