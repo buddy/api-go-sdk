@@ -1,3 +1,9 @@
+# Release v1.59.0 (2026-11-06)
+* Adds sandbox backups: `Sandbox.Backup` and `SandboxOps.Backup` (`SandboxBackup*` constants: `OFF` - default, `HOURLY`, `DAILY`, `WEEKLY`), an automatic snapshot is taken on that schedule only while the sandbox is `RUNNING`, stopped sandboxes are skipped
+* Adds `Sandbox.SnapshotRetention` and `SandboxOps.SnapshotRetention` (`SandboxSnapshotRetention`): `KeepLast` keeps the N most recent snapshots, `KeepForDays` the snapshots from the last N days, only one of the two and greater than 0 (400 otherwise). It applies to all snapshots of the sandbox, manual ones too, whether backups are on or not, and a change removes the excess snapshots right away
+* `SandboxOps.SnapshotRetention` set to an empty `SandboxSnapshotRetention{}` removes the retention, leaving it out keeps the current one
+* Adds `Sandbox.LastBackupDate`, when the last automatic snapshot was taken (empty if never)
+
 # Release v1.58.0 (2026-11-05)
 * Adds `TargetTypeProjectRepo` (`PROJECT_REPO`), the target of a project's own repository. A PATCH of such a target ignores `Name`, `Identifier`, `Note` and `Tags`
 * Adds `TargetAllowedEnvironment`, `Target.AllowedEnvironments` and `TargetOps.AllowedEnvironments`, a rule grants or denies access (`TargetSandboxAccessLevel*`: `DENIED`, `READ_ONLY`, `READ_WRITE`) to every sandbox of an environment. Only `PROJECT_REPO` targets use it, other types ignore it
