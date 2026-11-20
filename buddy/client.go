@@ -68,6 +68,7 @@ type Client struct {
 	TokenService         *TokenService
 	SourceService        *SourceService
 	SandboxService       *SandboxService
+	RulesetService       *RulesetService
 }
 
 type PageQuery struct {
@@ -245,6 +246,7 @@ func NewClientWithTimeout(token string, baseUrl string, insecure bool, timeout t
 	c.EnvironmentService = &EnvironmentService{client: c}
 	c.TargetService = &TargetService{client: c}
 	c.SandboxService = &SandboxService{client: c}
+	c.RulesetService = &RulesetService{client: c}
 	return c, nil
 }
 

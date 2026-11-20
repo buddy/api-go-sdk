@@ -35,6 +35,9 @@ const (
 	TokenScopeRepositoryRead  = "REPOSITORY_READ"
 	TokenScopeRepositoryWrite = "REPOSITORY_WRITE"
 
+	TokenScopeRulesetRead   = "RULESET_READ"
+	TokenScopeRulesetManage = "RULESET_MANAGE"
+
 	TokenScopePipelineRead   = "PIPELINE_READ"
 	TokenScopePipelineRun    = "PIPELINE_RUN"
 	TokenScopePipelineWrite  = "PIPELINE_WRITE"

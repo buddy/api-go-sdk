@@ -23,6 +23,8 @@ func testTokenCreateAdvanced(client *buddy.Client, workspace *buddy.Workspace, o
 			buddy.TokenScopeArtifactManage,
 			buddy.TokenScopeDistributionManage,
 			buddy.TokenScopeVisualTestManage,
+			buddy.TokenScopeRulesetRead,
+			buddy.TokenScopeRulesetManage,
 		}
 		workspaceRestrictions := []string{workspace.Domain}
 		ipRestrictions := []string{"127.0.0.1"}
