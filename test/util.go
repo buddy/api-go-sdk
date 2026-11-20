@@ -2667,3 +2667,191 @@ func CheckIntegration(integration *buddy.Integration, expected *buddy.Integratio
 	}
 	return nil
 }
+
+func CheckRulesets(rulesets *buddy.Rulesets, count int) error {
+	if err := CheckFieldSet("Rulesets.HtmlUrl", rulesets.HtmlUrl); err != nil {
+		return err
+	}
+	if err := CheckFieldSet("Rulesets.Url", rulesets.Url); err != nil {
+		return err
+	}
+	if err := CheckIntFieldEqual("len(Rulesets)", len(rulesets.Rulesets), count); err != nil {
+		return err
+	}
+	return nil
+}
+
+// entries are matched by id, the API does not promise their order
+func checkRulesetBypassEntries(field string, got []*buddy.RulesetBypassEntry, want []*buddy.RulesetBypassEntry) error {
+	if err := CheckIntFieldEqual("len("+field+")", len(got), len(want)); err != nil {
+		return err
+	}
+	for _, w := range want {
+		var found *buddy.RulesetBypassEntry
+		for _, g := range got {
+			if g.Id == w.Id {
+				found = g
+			}
+		}
+		if found == nil {
+			return fmt.Errorf("expected %q to have an entry with id %d", field, w.Id)
+		}
+		if err := CheckFieldEqual(field+".Access", found.Access, w.Access); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func checkRulesetSources(got []*buddy.RulesetSource, want []*buddy.RulesetSource) error {
+	if err := CheckIntFieldEqual("len(Ruleset.MissingSources)", len(got), len(want)); err != nil {
+		return err
+	}
+	for _, w := range want {
+		found := false
+		for _, g := range got {
+			if g.Type == w.Type && g.Identifier == w.Identifier {
+				found = true
+			}
+		}
+		if !found {
+			return fmt.Errorf("expected %q to have %s %s", "Ruleset.MissingSources", w.Type, w.Identifier)
+		}
+	}
+	return nil
+}
+
+func CheckRuleset(ruleset *buddy.Ruleset, expected *buddy.Ruleset, ops *buddy.RulesetOps) error {
+	id := expected.Id
+	identifier := expected.Identifier
+	name := expected.Name
+	disabled := expected.Disabled
+	refs := expected.Refs
+	bypass := expected.Bypass
+	rules := expected.Rules
+	note := expected.Note
+	agentNote := expected.AgentNote
+	if ops != nil {
+		if ops.Identifier != nil {
+			identifier = *ops.Identifier
+		}
+		if ops.Name != nil {
+			name = *ops.Name
+		}
+		if ops.Disabled != nil {
+			disabled = *ops.Disabled
+		}
+		if ops.Refs != nil {
+			refs = *ops.Refs
+		}
+		if ops.Bypass != nil {
+			bypass = ops.Bypass
+		}
+		if ops.Rules != nil {
+			rules = ops.Rules
+		}
+		if ops.Note != nil {
+			note = *ops.Note
+		}
+		if ops.AgentNote != nil {
+			agentNote = *ops.AgentNote
+		}
+	}
+	if err := CheckFieldSet("Ruleset.Url", ruleset.Url); err != nil {
+		return err
+	}
+	if err := CheckFieldSet("Ruleset.HtmlUrl", ruleset.HtmlUrl); err != nil {
+		return err
+	}
+	if id != "" {
+		if err := CheckFieldEqualAndSet("Ruleset.Id", ruleset.Id, id); err != nil {
+			return err
+		}
+	} else if err := CheckFieldSet("Ruleset.Id", ruleset.Id); err != nil {
+		return err
+	}
+	if err := CheckFieldEqualAndSet("Ruleset.Identifier", ruleset.Identifier, identifier); err != nil {
+		return err
+	}
+	if err := CheckFieldEqual("Ruleset.Name", ruleset.Name, name); err != nil {
+		return err
+	}
+	if err := CheckBoolFieldEqual("Ruleset.Disabled", ruleset.Disabled, disabled); err != nil {
+		return err
+	}
+	if err := CheckStringArrayEqual("Ruleset.Refs", ruleset.Refs, refs); err != nil {
+		return err
+	}
+	if err := CheckFieldEqual("Ruleset.Note", ruleset.Note, note); err != nil {
+		return err
+	}
+	if err := CheckFieldEqual("Ruleset.AgentNote", ruleset.AgentNote, agentNote); err != nil {
+		return err
+	}
+	if bypass == nil {
+		bypass = &buddy.RulesetBypass{}
+	}
+	// an empty bypass, rules or required checks may come back as null: it is compared as the empty value
+	gotBypass := ruleset.Bypass
+	if gotBypass == nil {
+		gotBypass = &buddy.RulesetBypass{}
+	}
+	if (gotBypass.Admins == nil) != (bypass.Admins == nil) || (bypass.Admins != nil && *gotBypass.Admins != *bypass.Admins) {
+		return fmt.Errorf("expected %q to be equal", "Ruleset.Bypass.Admins")
+	}
+	if err := CheckFieldEqual("Ruleset.Bypass.Others", gotBypass.Others, bypass.Others); err != nil {
+		return err
+	}
+	if err := checkRulesetBypassEntries("Ruleset.Bypass.Users", gotBypass.Users, bypass.Users); err != nil {
+		return err
+	}
+	if err := checkRulesetBypassEntries("Ruleset.Bypass.Groups", gotBypass.Groups, bypass.Groups); err != nil {
+		return err
+	}
+	if rules == nil {
+		rules = &buddy.RulesetRules{}
+	}
+	gotRules := ruleset.Rules
+	if gotRules == nil {
+		gotRules = &buddy.RulesetRules{}
+	}
+	if err := CheckBoolFieldEqual("Ruleset.Rules.RequirePullRequest", gotRules.RequirePullRequest, rules.RequirePullRequest); err != nil {
+		return err
+	}
+	if err := CheckBoolFieldEqual("Ruleset.Rules.BlockForcePush", gotRules.BlockForcePush, rules.BlockForcePush); err != nil {
+		return err
+	}
+	if err := CheckBoolFieldEqual("Ruleset.Rules.RestrictDeletion", gotRules.RestrictDeletion, rules.RestrictDeletion); err != nil {
+		return err
+	}
+	if err := CheckBoolFieldEqual("Ruleset.Rules.RestrictCreation", gotRules.RestrictCreation, rules.RestrictCreation); err != nil {
+		return err
+	}
+	if err := CheckBoolFieldEqual("Ruleset.Rules.RestrictUpdate", gotRules.RestrictUpdate, rules.RestrictUpdate); err != nil {
+		return err
+	}
+	checks := rules.RequiredChecks
+	if checks == nil {
+		checks = &buddy.RulesetRequiredChecks{}
+	}
+	gotChecks := gotRules.RequiredChecks
+	if gotChecks == nil {
+		gotChecks = &buddy.RulesetRequiredChecks{}
+	}
+	if err := CheckStringArrayEqual("Ruleset.Rules.RequiredChecks.Pipelines", gotChecks.Pipelines, checks.Pipelines); err != nil {
+		return err
+	}
+	if err := CheckStringArrayEqual("Ruleset.Rules.RequiredChecks.UnitTestsSuites", gotChecks.UnitTestsSuites, checks.UnitTestsSuites); err != nil {
+		return err
+	}
+	if err := CheckStringArrayEqual("Ruleset.Rules.RequiredChecks.VisualTestsSuites", gotChecks.VisualTestsSuites, checks.VisualTestsSuites); err != nil {
+		return err
+	}
+	if err := CheckBoolFieldEqual("Ruleset.Rules.RequiredChecks.RequireUpToDate", gotChecks.RequireUpToDate, checks.RequireUpToDate); err != nil {
+		return err
+	}
+	if err := checkRulesetSources(ruleset.MissingSources, expected.MissingSources); err != nil {
+		return err
+	}
+	return nil
+}
